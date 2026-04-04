@@ -1,0 +1,5 @@
+measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note
+1000m,1,1,208540,3:28.540,3,,,
+1000m,2,1,213760,3:33.760,3,,,
+1000m,3,1,218300,3:38.300,3,,,
+1000m,4,1,213760,3:33.760,3,1,true,フォトフィニッシュ判定

@@ -1,0 +1,12 @@
+/*
+  Cache-Control: no-cache
+  X-Content-Type-Options: nosniff
+
+/data/*
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=86400
+
+/js/*
+  Cache-Control: public, max-age=86400

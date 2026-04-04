@@ -25,14 +25,77 @@ let masterData = null;       // master.json の内容
 let resultsCache = {};       // race_no → race_XXX.json の内容
 let lastUpdated = null;      // 最終更新時刻
 let refreshTimer = null;     // 自動更新タイマー
-// フィルタ状態
-const filterState = { category: 'all', round: 'all', date: 'all', crew: '' };
+let isOffline = false;       // オフラインフラグ
+// フィルタ状態（status フィールドを追加）
+const filterState = { category: 'all', round: 'all', date: 'all', crew: '', status: 'all' };
+// テーブルビューのソート状態
+const sortState = { col: null, dir: 'asc' };
+// テーブルビュー用の生データ行（ソート用に保持）
+let dbRows = [];
 
 // ========= 初期化 =========
 document.addEventListener('DOMContentLoaded', () => {
+  // URLハッシュによるビュー切替対応
+  handleHashChange();
+  window.addEventListener('hashchange', handleHashChange);
+
   loadAll();
   setupRefreshTimer();
+  setupOfflineDetection();
 });
+
+/**
+ * URLハッシュに応じてビューを切り替え、対象レースにスクロールする
+ */
+function handleHashChange() {
+  const hash = location.hash;
+  if (!hash) return;
+
+  // #view-table などのビュー切替ハッシュに対応
+  if (hash === '#view-table') {
+    const tab = document.querySelector('.view-tab:nth-child(2)');
+    if (tab) switchView('table', tab);
+    return;
+  }
+  if (hash === '#view-toggle') {
+    const tab = document.querySelector('.view-tab:nth-child(1)');
+    if (tab) switchView('toggle', tab);
+    return;
+  }
+
+  // #race-N 形式: 該当レースのトグルを開いてスクロール＆ハイライト
+  const raceMatch = hash.match(/^#race-(\d+)$/);
+  if (raceMatch) {
+    const raceNo = parseInt(raceMatch[1], 10);
+    // DOMが構築されてから実行
+    setTimeout(() => scrollToRace(raceNo), 300);
+  }
+}
+
+/**
+ * 指定レース番号のトグルを開いてハイライトしスクロールする
+ */
+function scrollToRace(raceNo) {
+  if (!masterData) return;
+  // race_no が属する event_code のトグルを探す
+  const race = masterData.schedule.find(r => r.race_no === raceNo);
+  if (!race) return;
+
+  const toggle = document.querySelector(
+    `#view-toggle-content .toggle[data-code="${race.event_code}"]`
+  );
+  if (!toggle) return;
+
+  // トグルを開く
+  toggle.classList.add('open');
+  // ハイライト
+  toggle.classList.add('highlighted');
+  setTimeout(() => toggle.classList.remove('highlighted'), 3000);
+  // スクロール
+  toggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ========= データ読み込み =========
 
 /**
  * マスタと全結果を読み込んでUIを描画する
@@ -40,34 +103,70 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadAll() {
   try {
     showLoading(true);
-    masterData = await fetchJSON(CONFIG.MASTER_JSON);
-    await loadResults();
+    // スケルトンUIを先に表示
+    showSkeletonToggle();
+
+    masterData = await fetchJSON(CONFIG.MASTER_JSON).catch(e => {
+      // master.json 404 専用エラーメッセージ
+      if (e.message.includes('404')) {
+        throw new Error('MASTER_NOT_FOUND');
+      }
+      throw e;
+    });
+
+    // ページタイトルを大会名に動的更新
+    document.title = masterData.tournament.name + ' 速報';
+
+    // master.json 読み込み直後にスケジュールの骨格を表示
     renderAll();
+
+    // 結果だけを後から埋める
+    await loadResults();
+    renderToggleView();
+    renderTableView();
+
     updateStatusBar();
     lastUpdated = new Date();
+
+    // URLハッシュ対応（データ読み込み後）
+    handleHashChange();
   } catch (e) {
     console.error('データ読み込みエラー:', e);
-    showError('データの読み込みに失敗しました。しばらく待ってから再試行してください。');
+    if (e.message === 'MASTER_NOT_FOUND') {
+      showError('大会データが見つかりません。管理者にお問い合わせください。');
+    } else {
+      showError('データの読み込みに失敗しました。しばらく待ってから再試行してください。');
+    }
   } finally {
     showLoading(false);
+    clearSkeletonToggle();
   }
 }
 
 /**
  * 全レースの結果JSONを並列 fetch する（存在しないものはスキップ）
+ * 更新があった race_no のリストを返す
  */
 async function loadResults() {
   const raceNos = masterData.schedule.map(r => r.race_no);
+  const newlyUpdated = [];
+
   const promises = raceNos.map(async (no) => {
     try {
       const data = await fetchJSON(CONFIG.RESULT_JSON(no));
+      // 以前キャッシュになかった場合は「新規更新」として記録
+      if (!resultsCache[no]) {
+        newlyUpdated.push(no);
+      }
       resultsCache[no] = data;
     } catch (_) {
-      // 結果未投入のレースは無視する
+      // 結果未投入のレースは静かにスキップ（エラーを出さない）
     }
   });
+
   await Promise.all(promises);
   console.log(`結果JSON読み込み完了: ${Object.keys(resultsCache).length}/${raceNos.length}件`);
+  return newlyUpdated;
 }
 
 /**
@@ -176,6 +275,8 @@ function renderToggleView() {
     toggleEl.className = 'toggle';
     toggleEl.dataset.category = category;
     toggleEl.dataset.code = eventCode;
+    // 結果ありかどうかをdata属性に付与（状態フィルタ用）
+    toggleEl.dataset.hasDone = completedCount > 0 ? 'true' : 'false';
     toggleEl.dataset.crews = races.flatMap(r =>
       (r.entries || []).map(e => `${e.crew_name} ${e.affiliation}`)
     ).join(' ').toLowerCase();
@@ -216,7 +317,7 @@ function renderRaceBlock(race) {
     : '<p class="no-result">結果は未投入です</p>';
 
   return `
-    <div class="race-header">
+    <div class="race-header" id="race-${race.race_no}">
       <div>
         <span class="race-label">${race.event_name}${ageLabel} ${roundName}</span>
         ${statusBadge}
@@ -301,7 +402,7 @@ function renderTableView() {
   if (!tbody) return;
 
   const pts = masterData.measurement_points || ['500m', '1000m'];
-  const rows = [];
+  dbRows = [];
 
   masterData.schedule.forEach(race => {
     const result = resultsCache[race.race_no];
@@ -317,50 +418,107 @@ function renderTableView() {
         const entry = entryMap[r.lane] || {};
         const midTime = r.times && r.times[pts[0]] ? r.times[pts[0]].formatted : '-';
         const rankIcon = r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank;
-        rows.push(`
-          <tr>
-            <td>${race.race_no}</td>
-            <td><span class="db-code">${race.event_code}</span></td>
-            <td>${race.event_name}</td>
-            <td>${race.age_group || '-'}</td>
-            <td><span class="db-round ${roundClass}">${roundName}</span></td>
-            <td>${formatDate(race.date)}</td>
-            <td>${race.time}</td>
-            <td>${rankIcon}</td>
-            <td>${r.lane}</td>
-            <td class="crew-name">${entry.crew_name || '-'}</td>
-            <td>${entry.affiliation || '-'}</td>
-            <td class="time-split">${midTime}</td>
-            <td class="time-main">${r.finish ? r.finish.formatted : '-'}</td>
-            <td>${r.note || ''}</td>
-          </tr>`);
+        // ソート用のデータも付属させる
+        dbRows.push({
+          race_no: race.race_no,
+          finish_ms: r.finish ? r.finish.time_ms : Infinity,
+          html: `
+            <tr>
+              <td>${race.race_no}</td>
+              <td><span class="db-code">${race.event_code}</span></td>
+              <td>${race.event_name}</td>
+              <td>${race.age_group || '-'}</td>
+              <td><span class="db-round ${roundClass}">${roundName}</span></td>
+              <td>${formatDate(race.date)}</td>
+              <td>${race.time}</td>
+              <td>${rankIcon}</td>
+              <td>${r.lane}</td>
+              <td class="crew-name">${entry.crew_name || '-'}</td>
+              <td>${entry.affiliation || '-'}</td>
+              <td class="time-split">${midTime}</td>
+              <td class="time-main">${r.finish ? r.finish.formatted : '-'}</td>
+              <td>${r.note || ''}</td>
+            </tr>`
+        });
       });
     } else {
       // 結果未投入のレースはエントリーのみ表示
       (race.entries || []).forEach(e => {
-        rows.push(`
-          <tr style="color:#ccc">
-            <td>${race.race_no}</td>
-            <td><span class="db-code">${race.event_code}</span></td>
-            <td>${race.event_name}</td>
-            <td>${race.age_group || '-'}</td>
-            <td><span class="db-round ${roundClass}">${roundName}</span></td>
-            <td>${formatDate(race.date)}</td>
-            <td>${race.time}</td>
-            <td>-</td>
-            <td>${e.lane}</td>
-            <td class="crew-name">${e.crew_name}</td>
-            <td>${e.affiliation}</td>
-            <td>-</td>
-            <td>-</td>
-            <td></td>
-          </tr>`);
+        dbRows.push({
+          race_no: race.race_no,
+          finish_ms: Infinity,
+          html: `
+            <tr style="color:#ccc">
+              <td>${race.race_no}</td>
+              <td><span class="db-code">${race.event_code}</span></td>
+              <td>${race.event_name}</td>
+              <td>${race.age_group || '-'}</td>
+              <td><span class="db-round ${roundClass}">${roundName}</span></td>
+              <td>${formatDate(race.date)}</td>
+              <td>${race.time}</td>
+              <td>-</td>
+              <td>${e.lane}</td>
+              <td class="crew-name">${e.crew_name}</td>
+              <td>${e.affiliation}</td>
+              <td>-</td>
+              <td>-</td>
+              <td></td>
+            </tr>`
+        });
       });
     }
   });
 
-  tbody.innerHTML = rows.join('');
+  renderDbTableFromRows();
   updateDbTableCount();
+}
+
+/**
+ * dbRows を現在のソート状態に従って tbody に書き出す
+ */
+function renderDbTableFromRows() {
+  const tbody = document.getElementById('db-table-body');
+  if (!tbody) return;
+
+  let rows = [...dbRows];
+
+  if (sortState.col === 'race_no') {
+    rows.sort((a, b) => sortState.dir === 'asc'
+      ? a.race_no - b.race_no
+      : b.race_no - a.race_no);
+  } else if (sortState.col === 'finish') {
+    rows.sort((a, b) => sortState.dir === 'asc'
+      ? a.finish_ms - b.finish_ms
+      : b.finish_ms - a.finish_ms);
+  }
+
+  tbody.innerHTML = rows.map(r => r.html).join('');
+}
+
+// ========= テーブルビューのソート =========
+
+/**
+ * テーブルヘッダーをクリックしたときにソートする
+ */
+function sortDbTable(thEl) {
+  const col = thEl.dataset.col;
+  if (!col) return;
+
+  // 同じ列を再クリックした場合は昇降順を切り替え
+  if (sortState.col === col) {
+    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortState.col = col;
+    sortState.dir = 'asc';
+  }
+
+  // ソートアイコンを更新
+  document.querySelectorAll('.db-table th[data-col]').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+  });
+  thEl.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+  renderDbTableFromRows();
 }
 
 // ========= フィルタ =========
@@ -373,15 +531,23 @@ function applyFilters() {
   filterState.round = document.getElementById('filter-round')?.value || 'all';
   filterState.date = document.getElementById('filter-day')?.value || 'all';
   filterState.crew = (document.getElementById('filter-crew')?.value || '').toLowerCase();
+  filterState.status = document.getElementById('filter-status')?.value || 'all';
 
   document.querySelectorAll('#view-toggle-content .toggle').forEach(toggle => {
     const cat = toggle.dataset.category;
     const code = toggle.dataset.code;
     const crews = toggle.dataset.crews || '';
+    const hasDone = toggle.dataset.hasDone === 'true';
 
     let show = true;
     if (filterState.category !== 'all' && cat !== filterState.category) show = false;
     if (filterState.crew && !crews.includes(filterState.crew)) show = false;
+
+    // 状態フィルタ
+    if (show && filterState.status !== 'all') {
+      if (filterState.status === 'done' && !hasDone) show = false;
+      if (filterState.status === 'upcoming' && hasDone) show = false;
+    }
 
     // round・date フィルタはトグル内のレースで判定
     if (show && (filterState.round !== 'all' || filterState.date !== 'all')) {
@@ -403,13 +569,13 @@ function applyFilters() {
  * フィルタをリセットする
  */
 function resetFilters() {
-  ['filter-cat', 'filter-round', 'filter-day'].forEach(id => {
+  ['filter-cat', 'filter-round', 'filter-day', 'filter-status'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = 'all';
   });
   const crewEl = document.getElementById('filter-crew');
   if (crewEl) crewEl.value = '';
-  Object.assign(filterState, { category: 'all', round: 'all', date: 'all', crew: '' });
+  Object.assign(filterState, { category: 'all', round: 'all', date: 'all', crew: '', status: 'all' });
 
   document.querySelectorAll('#view-toggle-content .toggle').forEach(t => {
     t.style.display = 'block';
@@ -443,12 +609,16 @@ function updateDbTableCount() {
 /**
  * ビュータブを切り替える
  */
-function switchView(id) {
+function switchView(id, tabEl) {
   document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
   const content = document.getElementById('view-' + id);
   if (content) content.classList.add('active');
-  event.target.closest('.view-tab').classList.add('active');
+  // tabElが渡されない場合は event.target から取得（後方互換）
+  const tab = tabEl || (typeof event !== 'undefined' && event.target?.closest('.view-tab'));
+  if (tab) tab.classList.add('active');
+  // URLハッシュを更新（pushStateで履歴に残さない）
+  history.replaceState(null, '', '#view-' + id);
 }
 
 // ========= ステータスバー =========
@@ -471,6 +641,37 @@ function updateStatusBar() {
   }
 }
 
+// ========= 手動更新 =========
+
+/**
+ * 手動更新ボタンから即時リフレッシュする
+ */
+async function manualRefresh() {
+  const btn = document.getElementById('refresh-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '更新中...';
+  }
+  try {
+    const newlyUpdated = await loadResults();
+    renderToggleView();
+    renderTableView();
+    lastUpdated = new Date();
+    updateStatusBar();
+    // 更新されたレースのトースト通知
+    newlyUpdated.forEach(no => {
+      showToast(`Race No.${no} の結果が更新されました`);
+    });
+  } catch (e) {
+    console.error('手動更新エラー:', e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 今すぐ更新';
+    }
+  }
+}
+
 // ========= 自動更新 =========
 
 /**
@@ -480,15 +681,103 @@ function setupRefreshTimer() {
   refreshTimer = setInterval(async () => {
     console.log('自動更新中...');
     try {
-      await loadResults();
+      const newlyUpdated = await loadResults();
       renderToggleView();
       renderTableView();
       lastUpdated = new Date();
       updateStatusBar();
+      // 新しい結果があればトースト通知
+      newlyUpdated.forEach(no => {
+        showToast(`Race No.${no} の結果が更新されました`);
+      });
     } catch (e) {
       console.error('自動更新エラー:', e);
     }
   }, CONFIG.REFRESH_INTERVAL);
+}
+
+// ========= オフライン検知 =========
+
+/**
+ * オンライン/オフラインイベントを監視してステータスバーに反映する
+ */
+function setupOfflineDetection() {
+  window.addEventListener('offline', () => {
+    isOffline = true;
+    updateOfflineStatus();
+  });
+  window.addEventListener('online', () => {
+    isOffline = false;
+    updateOfflineStatus();
+  });
+}
+
+/**
+ * オフライン状態をステータスバーに反映する
+ */
+function updateOfflineStatus() {
+  const timeEl = document.getElementById('last-updated');
+  if (!timeEl) return;
+  if (isOffline) {
+    const timeStr = lastUpdated ? lastUpdated.toLocaleTimeString('ja-JP') : '-';
+    timeEl.textContent = `⚠️ オフライン中 - 最後の更新: ${timeStr}`;
+  } else {
+    // オンライン復帰時は通常表示に戻す
+    if (lastUpdated) timeEl.textContent = lastUpdated.toLocaleTimeString('ja-JP');
+  }
+}
+
+// ========= トースト通知 =========
+
+/**
+ * トースト通知を表示する（durationミリ秒後に自動消去）
+ */
+function showToast(message, duration = 3000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // アニメーション: 表示
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => toast.classList.add('toast-show'));
+  });
+
+  // durationミリ秒後にフェードアウトして削除
+  setTimeout(() => {
+    toast.classList.remove('toast-show');
+    toast.classList.add('toast-hide');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, duration);
+}
+
+// ========= スケルトンUI =========
+
+/**
+ * データ読み込み前にスケルトンブロックを表示する
+ */
+function showSkeletonToggle() {
+  const container = document.getElementById('view-toggle-content');
+  if (!container) return;
+  // 5つのスケルトンブロックを表示
+  container.innerHTML = Array.from({ length: 5 }, () =>
+    '<div class="toggle skeleton skeleton-toggle"></div>'
+  ).join('');
+}
+
+/**
+ * スケルトンブロックをクリアする
+ */
+function clearSkeletonToggle() {
+  // renderToggleView() が上書きするので特に何もしなくてよいが、
+  // エラー時用に明示的にクリアする
+  const container = document.getElementById('view-toggle-content');
+  if (container && container.querySelector('.skeleton-toggle')) {
+    container.innerHTML = '';
+  }
 }
 
 // ========= ユーティリティ =========

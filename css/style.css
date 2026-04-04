@@ -276,3 +276,97 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   .hide-mobile { display: none; }
   .update-bar { font-size: 11px; padding: 6px 12px; }
 }
+
+/* ========= スケルトンローディング ========= */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0%  { background-position: 200% 0; }
+  100%{ background-position: -200% 0; }
+}
+/* スケルトントグルブロック */
+.skeleton-toggle {
+  height: 44px;
+  margin-bottom: 8px;
+}
+/* スケルトン行（テーブル内） */
+.skeleton-row td {
+  padding: 10px 8px;
+}
+.skeleton-cell {
+  display: inline-block;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* ========= トースト通知 ========= */
+#toast-container {
+  position: fixed;
+  bottom: 60px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: #37352f;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: auto;
+  max-width: 280px;
+}
+.toast.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast.toast-hide {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ========= レースアンカーハイライト ========= */
+.toggle.highlighted {
+  box-shadow: 0 0 0 2px #2383e2;
+}
+
+/* ========= ステータスバー：手動更新ボタン ========= */
+.refresh-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-left: 10px;
+}
+.refresh-btn:hover { background: rgba(255,255,255,0.15); }
+.refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ========= テーブルソートアイコン ========= */
+.db-table th.sort-asc  .sort-icon::after { content: ' ↑'; color: #2383e2; }
+.db-table th.sort-desc .sort-icon::after { content: ' ↓'; color: #2383e2; }
+.db-table th .sort-icon { color: #ccc; }
+
+/* ========= 印刷用スタイル ========= */
+@media print {
+  .filter-bar, .view-tabs, .update-bar, .toggle-arrow, #toast-container { display: none !important; }
+  .toggle { border: none; }
+  .toggle-body { display: block !important; }
+  h1.page-title { font-size: 20px; }
+  .notion-cover { display: none; }
+  .notion-page { padding: 0; max-width: 100%; }
+}

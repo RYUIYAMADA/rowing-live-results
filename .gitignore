@@ -1,0 +1,16 @@
+# 秘密情報
+.env
+*.env
+gas/secrets.json
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# エディタ
+.vscode/
+.idea/

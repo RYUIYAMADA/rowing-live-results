@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ボート競技 速報サイト</title>
+
+<!-- OGPメタタグ -->
+<meta property="og:title" content="ボート競技 速報サイト">
+<meta property="og:description" content="レース結果をリアルタイム更新">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1a3a5c">
+
+<!-- favicon（外部ファイル不要のbase64 SVG） -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚣</text></svg>">
+
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -28,8 +38,8 @@
 
   <!-- ビュー切替タブ -->
   <div class="view-tabs">
-    <div class="view-tab active" onclick="switchView('toggle')">🏁 種目別（トグル）</div>
-    <div class="view-tab" onclick="switchView('table')">📊 全レース一覧</div>
+    <div class="view-tab active" onclick="switchView('toggle', this)">🏁 種目別（トグル）</div>
+    <div class="view-tab" onclick="switchView('table', this)">📊 全レース一覧</div>
   </div>
 
   <!-- ================================================================ -->
@@ -59,6 +69,12 @@
         <option value="all">日程: すべて</option>
         <!-- 日程オプションはJS側で動的生成 -->
       </select>
+      <!-- 状態フィルタ（結果あり/未実施） -->
+      <select class="filter-select" id="filter-status" onchange="applyFilters()">
+        <option value="all">状態: すべて</option>
+        <option value="done">結果あり</option>
+        <option value="upcoming">未実施</option>
+      </select>
       <input type="text" class="filter-search" id="filter-crew"
         placeholder="🔍 所属・クルー名で検索" oninput="applyFilters()">
       <button class="filter-reset" onclick="resetFilters()">✕ リセット</button>
@@ -83,7 +99,8 @@
       <table class="db-table">
         <thead>
           <tr>
-            <th>Race No.</th>
+            <!-- ソート対応列にdata-col属性を付与 -->
+            <th data-col="race_no" onclick="sortDbTable(this)">Race No.<span class="sort-icon"></span></th>
             <th>種目コード</th>
             <th>種目名</th>
             <th>年齢区分</th>
@@ -95,7 +112,7 @@
             <th>クルー名</th>
             <th>所属</th>
             <th>500m</th>
-            <th>フィニッシュ</th>
+            <th data-col="finish" onclick="sortDbTable(this)">フィニッシュ<span class="sort-icon"></span></th>
             <th>備考</th>
           </tr>
         </thead>
@@ -113,9 +130,14 @@
   <div>
     <span class="live-dot"></span>LIVE |
     最終更新 <span id="last-updated">-</span>
+    <!-- 手動更新ボタン -->
+    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄 今すぐ更新</button>
   </div>
   <div id="status-summary">-</div>
 </div>
+
+<!-- トースト通知コンテナ -->
+<div id="toast-container"></div>
 
 <script src="js/app.js"></script>
 </body>
