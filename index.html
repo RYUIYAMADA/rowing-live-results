@@ -3,119 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ボート速報サイト v3 - 統合DB＋フィルタ＋トグル</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif; background: #fff; color: #37352f; line-height: 1.6; }
-
-  .notion-page { max-width: 960px; margin: 0 auto; padding: 80px 24px 120px; }
-  .notion-cover { height: 180px; background: linear-gradient(135deg, #1a3a5c 0%, #2d6aa3 50%, #4a90d9 100%); position: relative; }
-  .notion-cover-text { position: absolute; bottom: 20px; left: 40px; color: #fff; font-size: 12px; opacity: 0.7; }
-
-  h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-top: 20px; }
-  .page-meta { font-size: 14px; color: #999; margin-bottom: 24px; display: flex; gap: 20px; flex-wrap: wrap; }
-  h2.section-title { font-size: 22px; font-weight: 700; margin: 36px 0 14px; padding-bottom: 4px; border-bottom: 1px solid #e8e8e8; }
-
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 600; }
-  .badge-live { background: #ffe0e0; color: #e03e3e; }
-  .badge-done { background: #dbeddb; color: #0f7b0f; }
-  .badge-upcoming { background: #f0f0f0; color: #787774; }
-
-  /* ========= 統合DBビュー切替タブ ========= */
-  .view-tabs { display: flex; gap: 0; border-bottom: 1px solid #e0e0e0; margin-bottom: 20px; }
-  .view-tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: #999; border-bottom: 2px solid transparent; transition: all 0.15s; }
-  .view-tab:hover { color: #37352f; }
-  .view-tab.active { color: #37352f; border-bottom-color: #2383e2; font-weight: 600; }
-  .view-content { display: none; }
-  .view-content.active { display: block; }
-
-  /* ========= フィルタバー ========= */
-  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; padding: 10px 14px; background: #f7f7f5; border-radius: 6px; }
-  .filter-bar label { font-size: 12px; color: #999; font-weight: 600; }
-  .filter-select { padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: #fff; cursor: pointer; }
-  .filter-select:focus { outline: none; border-color: #2383e2; }
-  .filter-search { padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; width: 180px; }
-  .filter-search::placeholder { color: #ccc; }
-  .filter-reset { padding: 5px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; background: #fff; cursor: pointer; color: #999; }
-  .filter-reset:hover { background: #f0f0f0; }
-  .filter-count { font-size: 12px; color: #999; margin-left: auto; }
-
-  /* ========= トグル ========= */
-  .toggle { border: 1px solid #e8e8e8; border-radius: 4px; margin-bottom: 8px; background: #fff; }
-  .toggle-header { display: flex; align-items: center; padding: 10px 14px; cursor: pointer; user-select: none; transition: background 0.1s; gap: 10px; }
-  .toggle-header:hover { background: #fafafa; }
-  .toggle-arrow { font-size: 12px; color: #999; transition: transform 0.2s; flex-shrink: 0; width: 16px; }
-  .toggle.open .toggle-arrow { transform: rotate(90deg); }
-  .toggle-title { font-weight: 600; font-size: 15px; flex: 1; }
-  .toggle-code { font-size: 11px; color: #999; background: #f0f0f0; padding: 2px 8px; border-radius: 3px; font-family: monospace; }
-  .toggle-count { font-size: 12px; color: #999; }
-  .toggle-body { display: none; padding: 0 14px 14px; }
-  .toggle.open .toggle-body { display: block; }
-
-  /* ========= レース結果テーブル ========= */
-  .race-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; margin-top: 12px; padding: 8px 12px; background: #f7f7f5; border-radius: 4px; }
-  .race-label { font-weight: 600; font-size: 14px; }
-  .race-info { font-size: 12px; color: #888; }
-
-  .result-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
-  .result-table th { padding: 7px 8px; text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.3px; color: #999; border-bottom: 2px solid #e8e8e8; background: #fafafa; }
-  .result-table td { padding: 7px 8px; border-bottom: 1px solid #f0f0f0; }
-  .result-table tr:hover { background: #fafafa; }
-  .rank-1 { font-weight: 600; }
-  .rank-1 td:first-child { color: #d4a017; }
-  .rank-2 td:first-child { color: #8a8a8a; }
-  .rank-3 td:first-child { color: #b87333; }
-  .crew-name { font-weight: 600; }
-  .time-main { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
-  .time-split { font-variant-numeric: tabular-nums; color: #666; font-size: 12px; }
-  .time-half { font-size: 11px; color: #999; }
-
-  /* ========= フラットテーブルビュー（DB全体表示） ========= */
-  .db-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .db-table th { padding: 8px 8px; text-align: left; font-weight: 600; font-size: 11px; color: #999; border-bottom: 2px solid #e8e8e8; background: #fafafa; position: sticky; top: 0; cursor: pointer; white-space: nowrap; }
-  .db-table th:hover { background: #f0f0f0; }
-  .db-table th .sort-icon { font-size: 10px; margin-left: 2px; color: #ccc; }
-  .db-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-  .db-table tr:hover { background: #f7f7f5; }
-  .db-code { font-family: monospace; background: #e8f4fd; color: #2383e2; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
-  .db-round { font-size: 11px; padding: 2px 6px; border-radius: 3px; }
-  .db-round-fa { background: #ffe0e0; color: #e03e3e; }
-  .db-round-h { background: #e8f4fd; color: #2383e2; }
-  .db-round-rk { background: #f0f0f0; color: #666; }
-
-  /* ========= DB構造図 ========= */
-  .db-schema { background: #1a1a2e; color: #e0e0e0; border-radius: 8px; padding: 24px; margin: 16px 0; font-size: 13px; overflow-x: auto; }
-  .db-schema h3 { color: #4a90d9; margin-bottom: 12px; font-size: 15px; }
-  .schema-table { width: 100%; border-collapse: collapse; }
-  .schema-table th { padding: 6px 10px; text-align: left; color: #4a90d9; font-size: 11px; border-bottom: 1px solid #333; }
-  .schema-table td { padding: 6px 10px; border-bottom: 1px solid #2a2a3e; font-size: 12px; }
-  .schema-table td:first-child { color: #f39c12; font-weight: 600; }
-  .schema-table td:nth-child(2) { color: #2ecc71; }
-  .schema-filter { color: #e74c3c; font-size: 10px; margin-left: 4px; }
-
-  /* レスポンシブ */
-  @media (max-width: 768px) {
-    .notion-page { padding: 16px 12px 80px; }
-    h1.page-title { font-size: 26px; }
-    .filter-bar { flex-direction: column; align-items: flex-start; }
-    .filter-count { margin-left: 0; }
-    .db-table { font-size: 11px; }
-    .hide-mobile { display: none; }
-  }
-
-  .mockup-label { position: fixed; top: 0; right: 0; background: #e03e3e; color: #fff; padding: 4px 16px; font-size: 11px; font-weight: 700; z-index: 200; border-bottom-left-radius: 8px; }
-  .update-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #37352f; color: #fff; padding: 8px 24px; font-size: 13px; display: flex; justify-content: space-between; z-index: 100; }
-  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4caf50; margin-right: 6px; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
-
-  .divider { border: none; border-top: 1px solid #e8e8e8; margin: 32px 0; }
-  .info-box { background: #f7f7f5; border-radius: 6px; padding: 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.8; }
-  .info-box code { background: #e8e8e8; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 12px; }
-</style>
+<title>ボート競技 速報サイト</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<div class="mockup-label">MOCKUP v3 - 統合DB</div>
 
 <div class="notion-cover">
   <div class="notion-cover-text">🚣 ボート競技速報サイト</div>
@@ -123,18 +14,22 @@
 
 <div class="notion-page">
 
-  <h1 class="page-title">🏁 第16回全日本マスターズレガッタ</h1>
-  <div class="page-meta">
-    <span>📅 2025/06/07-08</span>
-    <span>📍 長野・下諏訪ボートコース 1000m</span>
-    <span><span class="badge badge-live">LIVE配信中</span></span>
-  </div>
+  <h1 class="page-title" id="tournament-name">読み込み中...</h1>
+  <div class="page-meta" id="tournament-meta"></div>
 
-  <!-- ========= ビュー切替タブ ========= -->
+  <!-- YouTube Live 埋め込み（youtube_url が設定されている場合のみ表示） -->
+  <div id="youtube-container"></div>
+
+  <!-- ローディング・エラー表示 -->
+  <div id="loading" class="loading">
+    <span class="loading-spinner"></span>データを読み込んでいます...
+  </div>
+  <div id="error-message" style="display:none; padding:16px; background:#ffe0e0; color:#e03e3e; border-radius:6px; margin-bottom:16px;"></div>
+
+  <!-- ビュー切替タブ -->
   <div class="view-tabs">
     <div class="view-tab active" onclick="switchView('toggle')">🏁 種目別（トグル）</div>
-    <div class="view-tab" onclick="switchView('table')">📊 全レース一覧（テーブル）</div>
-    <div class="view-tab" onclick="switchView('schema')">🗄️ DB構造</div>
+    <div class="view-tab" onclick="switchView('table')">📊 全レース一覧</div>
   </div>
 
   <!-- ================================================================ -->
@@ -155,320 +50,73 @@
         <option value="all">ラウンド: すべて</option>
         <option value="FA">決勝A</option>
         <option value="FB">決勝B</option>
-        <option value="RK">順位決定</option>
+        <option value="SF">準決勝</option>
         <option value="H">予選</option>
+        <option value="RK">順位決定</option>
+        <option value="R">敗者復活</option>
       </select>
       <select class="filter-select" id="filter-day" onchange="applyFilters()">
         <option value="all">日程: すべて</option>
-        <option value="day1">1日目 (6/7)</option>
-        <option value="day2">2日目 (6/8)</option>
+        <!-- 日程オプションはJS側で動的生成 -->
       </select>
-      <input type="text" class="filter-search" id="filter-crew" placeholder="🔍 所属・クルー名で検索" oninput="applyFilters()">
+      <input type="text" class="filter-search" id="filter-crew"
+        placeholder="🔍 所属・クルー名で検索" oninput="applyFilters()">
       <button class="filter-reset" onclick="resetFilters()">✕ リセット</button>
-      <span class="filter-count" id="filter-count">11種目 / 111レース</span>
+      <span class="filter-count" id="filter-count">-</span>
     </div>
 
-    <!-- 男子シングルスカル -->
-    <div class="toggle open" data-category="M" data-code="M_1X">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">男子シングルスカル</span>
-        <span class="toggle-code">M_1X</span>
-        <span class="toggle-count">10レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body">
-        <!-- レース50 -->
-        <div class="race-header">
-          <div><span class="race-label">男子シングルスカル(A) 決勝</span> <span class="badge badge-done">確定</span></div>
-          <div class="race-info">Race No.50 | 1日目 14:48</div>
-        </div>
-        <table class="result-table">
-          <thead><tr><th style="width:36px">順位</th><th style="width:28px">B</th><th>クルー名</th><th>所属</th><th class="hide-mobile" style="width:70px">500m</th><th style="width:90px">フィニッシュ</th><th style="width:40px">備考</th></tr></thead>
-          <tbody>
-            <tr class="rank-1"><td>🥇</td><td>3</td><td class="crew-name">山田太郎</td><td>戸田RC</td><td class="hide-mobile"><span class="time-split">1:42.33</span></td><td><span class="time-main">3:28.15</span><div class="time-half">(1:45.82)</div></td><td></td></tr>
-            <tr class="rank-2"><td>🥈</td><td>1</td><td class="crew-name">佐藤一郎</td><td>東京漕艇</td><td class="hide-mobile"><span class="time-split">1:43.88</span></td><td><span class="time-main">3:31.44</span><div class="time-half">(1:47.56)</div></td><td></td></tr>
-            <tr class="rank-3"><td>🥉</td><td>2</td><td class="crew-name">鈴木次郎</td><td>瀬田漕艇</td><td class="hide-mobile"><span class="time-split">1:45.12</span></td><td><span class="time-main">3:35.67</span><div class="time-half">(1:50.55)</div></td><td></td></tr>
-          </tbody>
-        </table>
-
-        <!-- レース12 -->
-        <div class="race-header">
-          <div><span class="race-label">男子シングルスカル(E) 決勝</span> <span class="badge badge-done">確定</span></div>
-          <div class="race-info">Race No.12 | 1日目 08:28</div>
-        </div>
-        <table class="result-table">
-          <thead><tr><th style="width:36px">順位</th><th style="width:28px">B</th><th>クルー名</th><th>所属</th><th class="hide-mobile" style="width:70px">500m</th><th style="width:90px">フィニッシュ</th><th style="width:40px">備考</th></tr></thead>
-          <tbody>
-            <tr class="rank-1"><td>🥇</td><td>2</td><td class="crew-name">高橋健一</td><td>大阪漕艇</td><td class="hide-mobile"><span class="time-split">1:55.01</span></td><td><span class="time-main">3:52.88</span><div class="time-half">(1:57.87)</div></td><td></td></tr>
-            <tr class="rank-2"><td>🥈</td><td>4</td><td class="crew-name">田中二郎</td><td>琵琶湖RC</td><td class="hide-mobile"><span class="time-split">1:56.33</span></td><td><span class="time-main">3:55.12</span><div class="time-half">(1:58.79)</div></td><td></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 男子舵手付きフォア -->
-    <div class="toggle" data-category="M" data-code="M_4+">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">男子舵手付きフォア</span>
-        <span class="toggle-code">M_4+</span>
-        <span class="toggle-count">6レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">6レース分の結果</p></div>
-    </div>
-
-    <!-- 男子ダブルスカル -->
-    <div class="toggle" data-category="M" data-code="M_2X">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">男子ダブルスカル</span>
-        <span class="toggle-code">M_2X</span>
-        <span class="toggle-count">9レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">9レース分の結果</p></div>
-    </div>
-
-    <!-- 男子エイト -->
-    <div class="toggle" data-category="M" data-code="M_8+">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">男子エイト</span>
-        <span class="toggle-code">M_8+</span>
-        <span class="toggle-count">14レース</span>
-        <span class="badge badge-live">実施中</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">14レース分の結果</p></div>
-    </div>
-
-    <!-- 女子種目 -->
-    <div class="toggle" data-category="W" data-code="W_1X">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">女子シングルスカル</span>
-        <span class="toggle-code">W_1X</span>
-        <span class="toggle-count">4レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">4レース分の結果</p></div>
-    </div>
-
-    <div class="toggle" data-category="W" data-code="W_2X">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">女子ダブルスカル</span>
-        <span class="toggle-code">W_2X</span>
-        <span class="toggle-count">3レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">3レース分の結果</p></div>
-    </div>
-
-    <!-- 混成種目 -->
-    <div class="toggle" data-category="X" data-code="X_2X">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">混成ダブルスカル</span>
-        <span class="toggle-code">X_2X</span>
-        <span class="toggle-count">5レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">5レース分の結果</p></div>
-    </div>
-
-    <div class="toggle" data-category="X" data-code="X_8+">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">混成エイト</span>
-        <span class="toggle-code">X_8+</span>
-        <span class="toggle-count">5レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">5レース分の結果</p></div>
-    </div>
-
-    <div class="toggle" data-category="X" data-code="X_NK4">
-      <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">混成ナックルフォア</span>
-        <span class="toggle-code">X_NK4</span>
-        <span class="toggle-count">7レース</span>
-        <span class="badge badge-done">確定</span>
-      </div>
-      <div class="toggle-body"><p style="color:#999;font-size:13px;padding:12px;">7レース分の結果</p></div>
-    </div>
+    <!-- トグル一覧（JS側で動的生成） -->
+    <div id="view-toggle-content"></div>
 
   </div>
 
   <!-- ================================================================ -->
-  <!--                 VIEW 2: 全レーステーブル（DBビュー）                 -->
+  <!--                   VIEW 2: 全レース一覧テーブル                      -->
   <!-- ================================================================ -->
   <div class="view-content" id="view-table">
 
     <div class="filter-bar">
-      <label>フィルタ:</label>
-      <select class="filter-select">
-        <option>カテゴリ: すべて</option>
-        <option>👨 男子</option>
-        <option>👩 女子</option>
-        <option>🤝 混成</option>
-      </select>
-      <select class="filter-select">
-        <option>種目: すべて</option>
-        <option>シングルスカル</option>
-        <option>ダブルスカル</option>
-        <option>舵手付きフォア</option>
-        <option>舵手付きクォドルプル</option>
-        <option>エイト</option>
-        <option>ナックルフォア</option>
-      </select>
-      <input type="text" class="filter-search" placeholder="🔍 所属・クルー名で検索">
-      <span class="filter-count">全 648 件</span>
+      <span class="filter-count" id="db-count">-</span>
     </div>
 
-    <div style="overflow-x: auto;">
-    <table class="db-table">
-      <thead>
-        <tr>
-          <th>Race No. <span class="sort-icon">↕</span></th>
-          <th>種目コード <span class="sort-icon">↕</span></th>
-          <th>種目名</th>
-          <th>年齢区分</th>
-          <th>ラウンド</th>
-          <th>日程 <span class="sort-icon">↕</span></th>
-          <th>時刻</th>
-          <th>順位</th>
-          <th>B</th>
-          <th>クルー名</th>
-          <th>所属</th>
-          <th>500m</th>
-          <th>1000m</th>
-          <th>フィニッシュ</th>
-          <th>備考</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td><span class="db-code">M_1X</span></td><td>男子1X</td><td>G</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:00</td><td>🥇</td><td>3</td><td class="crew-name">渡辺三郎</td><td>長野RC</td><td class="time-split">1:48.22</td><td class="time-split">-</td><td class="time-main">3:38.45</td><td></td></tr>
-        <tr><td>1</td><td><span class="db-code">M_1X</span></td><td>男子1X</td><td>G</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:00</td><td>🥈</td><td>1</td><td class="crew-name">木村四郎</td><td>諏訪漕艇</td><td class="time-split">1:49.11</td><td class="time-split">-</td><td class="time-main">3:41.02</td><td></td></tr>
-        <tr><td>1</td><td><span class="db-code">M_1X</span></td><td>男子1X</td><td>G</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:00</td><td>🥉</td><td>2</td><td class="crew-name">加藤五郎</td><td>横浜RC</td><td class="time-split">1:50.88</td><td class="time-split">-</td><td class="time-main">3:44.56</td><td></td></tr>
-        <tr style="background:#f7f7f5;"><td>2</td><td><span class="db-code">M_1X</span></td><td>男子1X</td><td>H</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:08</td><td>🥇</td><td>2</td><td class="crew-name">松本六郎</td><td>名古屋RC</td><td class="time-split">1:52.33</td><td class="time-split">-</td><td class="time-main">3:48.12</td><td></td></tr>
-        <tr style="background:#f7f7f5;"><td>2</td><td><span class="db-code">M_1X</span></td><td>男子1X</td><td>H</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:08</td><td>🥈</td><td>4</td><td class="crew-name">伊藤七郎</td><td>広島漕艇</td><td class="time-split">1:53.01</td><td class="time-split">-</td><td class="time-main">3:50.45</td><td></td></tr>
-        <tr><td>3</td><td><span class="db-code">M_2X</span></td><td>男子2X</td><td>E</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:16</td><td>🥇</td><td>3</td><td class="crew-name">早大OBクラブ</td><td>早大OB</td><td class="time-split">1:38.55</td><td class="time-split">-</td><td class="time-main">3:22.01</td><td></td></tr>
-        <tr><td>4</td><td><span class="db-code">M_8+</span></td><td>男子8+</td><td>F</td><td><span class="db-round db-round-fa">決勝</span></td><td>6/7</td><td>7:24</td><td>🥇</td><td>1</td><td class="crew-name">慶應OBクルー</td><td>慶應OB</td><td class="time-split">1:28.12</td><td class="time-split">-</td><td class="time-main">3:01.88</td><td></td></tr>
-        <tr><td>...</td><td colspan="14" style="color:#999;text-align:center;">全 648 行（111レース × 平均6クルー）</td></tr>
-      </tbody>
-    </table>
-    </div>
-  </div>
-
-  <!-- ================================================================ -->
-  <!--                    VIEW 3: DB構造（設計図）                        -->
-  <!-- ================================================================ -->
-  <div class="view-content" id="view-schema">
-
-    <div class="info-box">
-      <strong>設計方針: 1大会 = 1データベース</strong><br>
-      全レース・全結果を1つのNotionデータベースに格納。<br>
-      種目コードでフィルタ → トグル表示で種目別に振り分け。
-    </div>
-
-    <div class="db-schema">
-      <h3>📦 大会結果DB（1大会につき1つ作成）</h3>
-      <p style="color:#888;font-size:11px;margin-bottom:12px;">例: 「第16回全日本マスターズレガッタ_2025」</p>
-      <table class="schema-table">
-        <thead><tr><th>プロパティ名</th><th>型</th><th>例</th><th>用途</th></tr></thead>
-        <tbody>
-          <tr><td>ID</td><td>Title</td><td>R050_L3</td><td>レース番号+レーン（ユニークキー）</td></tr>
-          <tr><td>Race No.</td><td>Number</td><td>50</td><td>RowingTimerWebのrace_no <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>種目コード</td><td>Select</td><td>M_1X</td><td>種目の識別コード <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>種目名</td><td>Text</td><td>男子シングルスカル</td><td>表示用の種目名</td></tr>
-          <tr><td>年齢区分</td><td>Select</td><td>A</td><td>マスターズ年齢カテゴリ <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>ラウンド</td><td>Select</td><td>決勝</td><td>FA/FB/RK/H/R/SF <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>開催日</td><td>Date</td><td>2025-06-07</td><td>レース実施日 <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>発艇時刻</td><td>Text</td><td>14:48</td><td>レース開始時刻</td></tr>
-          <tr><td>順位</td><td>Number</td><td>1</td><td>フィニッシュタイム順 <span class="schema-filter">🔍ソート</span></td></tr>
-          <tr><td>B（レーン）</td><td>Number</td><td>3</td><td>RowingTimerWebのlane</td></tr>
-          <tr><td>クルー名</td><td>Text</td><td>山田太郎</td><td>組み合わせCSVから</td></tr>
-          <tr><td>所属</td><td>Text</td><td>戸田ローイングクラブ</td><td>チーム・大学名 <span class="schema-filter">🔍フィルタ</span></td></tr>
-          <tr><td>選手名</td><td>Text</td><td>山田太郎</td><td>選手構成（複数人の場合は連名）</td></tr>
-          <tr><td>500m</td><td>Text</td><td>1:42.33</td><td>measurement_point=500m</td></tr>
-          <tr><td>1000m</td><td>Text</td><td>3:28.15</td><td>measurement_point=1000m</td></tr>
-          <tr><td>1500m</td><td>Text</td><td>-</td><td>measurement_point=1500m</td></tr>
-          <tr><td>フィニッシュ</td><td>Text</td><td>3:28.15</td><td>最終測定ポイント</td></tr>
-          <tr><td>後半スプリット</td><td>Formula</td><td>(1:45.82)</td><td>フィニッシュ - 中間タイム 自動計算</td></tr>
-          <tr><td>同着グループ</td><td>Text</td><td>1/A</td><td>tie_group</td></tr>
-          <tr><td>写真判定</td><td>Checkbox</td><td>false</td><td>photo_flag</td></tr>
-          <tr><td>備考</td><td>Text</td><td>大会新記録</td><td>note</td></tr>
-          <tr><td>ステータス</td><td>Select</td><td>確定</td><td>未実施/実施中/確定/公式</td></tr>
+    <div class="db-table-wrapper">
+      <table class="db-table">
+        <thead>
+          <tr>
+            <th>Race No.</th>
+            <th>種目コード</th>
+            <th>種目名</th>
+            <th>年齢区分</th>
+            <th>ラウンド</th>
+            <th>日程</th>
+            <th>時刻</th>
+            <th>順位</th>
+            <th>B</th>
+            <th>クルー名</th>
+            <th>所属</th>
+            <th>500m</th>
+            <th>フィニッシュ</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody id="db-table-body">
+          <!-- JS側で動的生成 -->
         </tbody>
       </table>
     </div>
-
-    <div class="info-box">
-      <strong>🔍 フィルタ対応プロパティ（6つ）:</strong><br>
-      <code>種目コード</code> <code>年齢区分</code> <code>ラウンド</code> <code>開催日</code> <code>所属</code> <code>Race No.</code><br><br>
-      <strong>Notion公開ページでの表示:</strong><br>
-      → 種目コードでグループ化 → トグル内に結果テーブルを表示<br>
-      → 閲覧者はフィルタで所属名検索、日程絞込みが可能<br><br>
-      <strong>大会ごとのDB管理:</strong><br>
-      → 新しい大会 → 新しいDBを複製（テンプレートから）<br>
-      → 種目コードのSelect選択肢を大会に合わせて更新（4月確定後）<br>
-      → トップページに大会一覧としてリンクを並べる
-    </div>
-
-    <h2 class="section-title">🗂️ サイト全体構成</h2>
-    <div style="background:#f7f7f5;padding:20px;border-radius:6px;font-size:14px;line-height:2;">
-      <strong>🏠 トップページ（大会一覧）</strong><br>
-      　├── 📋 第16回全日本マスターズレガッタ 2025 → <strong>DB-A</strong><br>
-      　├── 📋 第74回全日本大学選手権 2026 → <strong>DB-B</strong><br>
-      　├── 📋 第52回全日本新人選手権 2026 → <strong>DB-C</strong><br>
-      　└── 📋 ...（大会ごとにDBを作成）<br>
-      <br>
-      各大会ページ = 1つの統合DBの「リンクドビュー」で表示<br>
-      　├── ビュー1: 種目別トグル表示（デフォルト）<br>
-      　├── ビュー2: 全レース一覧テーブル（フィルタ・ソート対応）<br>
-      　└── ビュー3: 所属別検索ビュー
-    </div>
-
   </div>
 
 </div>
 
+<!-- ステータスバー -->
 <div class="update-bar">
-  <div><span class="live-dot"></span>LIVE | 最終更新 11:41:28</div>
-  <div>1大会 = 1DB | 全111レース / 648エントリー</div>
+  <div>
+    <span class="live-dot"></span>LIVE |
+    最終更新 <span id="last-updated">-</span>
+  </div>
+  <div id="status-summary">-</div>
 </div>
 
-<script>
-function switchView(id) {
-  document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('view-' + id).classList.add('active');
-  event.target.classList.add('active');
-}
-
-function applyFilters() {
-  const cat = document.getElementById('filter-cat').value;
-  let visible = 0;
-  document.querySelectorAll('.toggle').forEach(toggle => {
-    const show = (cat === 'all' || toggle.dataset.category === cat);
-    toggle.style.display = show ? 'block' : 'none';
-    if (show) visible++;
-  });
-  document.getElementById('filter-count').textContent = visible + '種目 表示中';
-}
-
-function resetFilters() {
-  document.getElementById('filter-cat').value = 'all';
-  document.getElementById('filter-round').value = 'all';
-  document.getElementById('filter-day').value = 'all';
-  document.getElementById('filter-crew').value = '';
-  applyFilters();
-  document.getElementById('filter-count').textContent = '11種目 / 111レース';
-}
-</script>
-
+<script src="js/app.js"></script>
 </body>
 </html>

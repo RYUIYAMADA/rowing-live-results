@@ -1,0 +1,278 @@
+/* ========= ベース ========= */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+  background: #fff;
+  color: #37352f;
+  line-height: 1.6;
+}
+
+/* ========= カバー・ページ ========= */
+.notion-cover {
+  height: 180px;
+  background: linear-gradient(135deg, #1a3a5c 0%, #2d6aa3 50%, #4a90d9 100%);
+  position: relative;
+}
+.notion-cover-text {
+  position: absolute;
+  bottom: 20px;
+  left: 40px;
+  color: #fff;
+  font-size: 12px;
+  opacity: 0.7;
+}
+.notion-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 80px 24px 120px;
+}
+
+h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-top: 20px; }
+.page-meta {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* ========= バッジ ========= */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 600; }
+.badge-live { background: #ffe0e0; color: #e03e3e; }
+.badge-done { background: #dbeddb; color: #0f7b0f; }
+.badge-upcoming { background: #f0f0f0; color: #787774; }
+
+/* ========= ビュー切替タブ ========= */
+.view-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+.view-tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #999;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+}
+.view-tab:hover { color: #37352f; }
+.view-tab.active { color: #37352f; border-bottom-color: #2383e2; font-weight: 600; }
+.view-content { display: none; }
+.view-content.active { display: block; }
+
+/* ========= フィルタバー ========= */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 14px;
+  background: #f7f7f5;
+  border-radius: 6px;
+}
+.filter-bar label { font-size: 12px; color: #999; font-weight: 600; }
+.filter-select {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+}
+.filter-select:focus { outline: none; border-color: #2383e2; }
+.filter-search {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  width: 180px;
+}
+.filter-search::placeholder { color: #ccc; }
+.filter-reset {
+  padding: 5px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+  cursor: pointer;
+  color: #999;
+}
+.filter-reset:hover { background: #f0f0f0; }
+.filter-count { font-size: 12px; color: #999; margin-left: auto; }
+
+/* ========= トグル ========= */
+.toggle {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: #fff;
+}
+.toggle-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+  gap: 10px;
+}
+.toggle-header:hover { background: #fafafa; }
+.toggle-arrow { font-size: 12px; color: #999; transition: transform 0.2s; flex-shrink: 0; width: 16px; }
+.toggle.open .toggle-arrow { transform: rotate(90deg); }
+.toggle-title { font-weight: 600; font-size: 15px; flex: 1; }
+.toggle-code {
+  font-size: 11px;
+  color: #999;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+.toggle-count { font-size: 12px; color: #999; }
+.toggle-body { display: none; padding: 0 14px 14px; }
+.toggle.open .toggle-body { display: block; }
+
+/* ========= レース結果テーブル ========= */
+.race-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #f7f7f5;
+  border-radius: 4px;
+}
+.race-label { font-weight: 600; font-size: 14px; }
+.race-info { font-size: 12px; color: #888; }
+
+.result-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+.result-table th {
+  padding: 7px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  color: #999;
+  border-bottom: 2px solid #e8e8e8;
+  background: #fafafa;
+}
+.result-table td { padding: 7px 8px; border-bottom: 1px solid #f0f0f0; }
+.result-table tr:hover { background: #fafafa; }
+.rank-1 { font-weight: 600; }
+.rank-1 td:first-child { color: #d4a017; }
+.rank-2 td:first-child { color: #8a8a8a; }
+.rank-3 td:first-child { color: #b87333; }
+.crew-name { font-weight: 600; }
+.time-main { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
+.time-split { font-variant-numeric: tabular-nums; color: #666; font-size: 12px; }
+.time-half { font-size: 11px; color: #999; }
+
+/* 結果なし */
+.no-result { color: #bbb; font-size: 13px; padding: 12px 0; font-style: italic; }
+
+/* ========= 全レーステーブル（DBビュー） ========= */
+.db-table-wrapper { overflow-x: auto; }
+.db-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.db-table th {
+  padding: 8px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  color: #999;
+  border-bottom: 2px solid #e8e8e8;
+  background: #fafafa;
+  position: sticky;
+  top: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.db-table th:hover { background: #f0f0f0; }
+.db-table th .sort-icon { font-size: 10px; margin-left: 2px; color: #ccc; }
+.db-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+.db-table tr:hover { background: #f7f7f5; }
+.db-code {
+  font-family: monospace;
+  background: #e8f4fd;
+  color: #2383e2;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.db-round { font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+.db-round-fa { background: #ffe0e0; color: #e03e3e; }
+.db-round-h { background: #e8f4fd; color: #2383e2; }
+.db-round-rk { background: #f0f0f0; color: #666; }
+
+/* ========= ステータスバー ========= */
+.update-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #37352f;
+  color: #fff;
+  padding: 8px 24px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+}
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4caf50;
+  margin-right: 6px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+/* ========= YouTube埋め込み ========= */
+.youtube-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border-radius: 6px;
+  background: #000;
+}
+.youtube-wrapper iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: 0;
+}
+
+/* ========= ローディング ========= */
+.loading { text-align: center; padding: 40px; color: #999; font-size: 14px; }
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #2383e2;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========= レスポンシブ ========= */
+@media (max-width: 768px) {
+  .notion-page { padding: 16px 12px 80px; }
+  h1.page-title { font-size: 26px; }
+  .filter-bar { flex-direction: column; align-items: flex-start; }
+  .filter-count { margin-left: 0; }
+  .db-table { font-size: 11px; }
+  .hide-mobile { display: none; }
+  .update-bar { font-size: 11px; padding: 6px 12px; }
+}

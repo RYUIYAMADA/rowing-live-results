@@ -1,0 +1,105 @@
+{
+  "tournament": {
+    "name": "第16回全日本マスターズレガッタ",
+    "dates": ["2025-06-07", "2025-06-08"],
+    "venue": "長野・下諏訪ボートコース 1000m",
+    "course_length": 1000,
+    "youtube_url": ""
+  },
+  "measurement_points": ["500m", "1000m"],
+  "schedule": [
+    {
+      "race_no": 1,
+      "event_code": "M_1X",
+      "event_name": "男子シングルスカル",
+      "category": "M",
+      "age_group": "G",
+      "round": "FA",
+      "date": "2025-06-07",
+      "time": "07:00",
+      "entries": [
+        { "lane": 1, "crew_name": "木村四郎", "affiliation": "諏訪漕艇" },
+        { "lane": 2, "crew_name": "加藤五郎", "affiliation": "横浜RC" },
+        { "lane": 3, "crew_name": "渡辺三郎", "affiliation": "長野RC" },
+        { "lane": 4, "crew_name": "中村八郎", "affiliation": "埼玉RC" }
+      ]
+    },
+    {
+      "race_no": 2,
+      "event_code": "M_1X",
+      "event_name": "男子シングルスカル",
+      "category": "M",
+      "age_group": "H",
+      "round": "FA",
+      "date": "2025-06-07",
+      "time": "07:08",
+      "entries": [
+        { "lane": 1, "crew_name": "伊藤七郎", "affiliation": "広島漕艇" },
+        { "lane": 2, "crew_name": "松本六郎", "affiliation": "名古屋RC" },
+        { "lane": 3, "crew_name": "井上九郎", "affiliation": "福岡RC" },
+        { "lane": 4, "crew_name": "林十郎", "affiliation": "京都漕艇" }
+      ]
+    },
+    {
+      "race_no": 3,
+      "event_code": "M_2X",
+      "event_name": "男子ダブルスカル",
+      "category": "M",
+      "age_group": "E",
+      "round": "FA",
+      "date": "2025-06-07",
+      "time": "07:16",
+      "entries": [
+        { "lane": 1, "crew_name": "慶應OBクルーA", "affiliation": "慶應OB" },
+        { "lane": 2, "crew_name": "東京大学RC", "affiliation": "東京大学" },
+        { "lane": 3, "crew_name": "早大OBクラブ", "affiliation": "早大OB" },
+        { "lane": 4, "crew_name": "一橋漕艇部", "affiliation": "一橋大学" }
+      ]
+    },
+    {
+      "race_no": 4,
+      "event_code": "M_8+",
+      "event_name": "男子エイト",
+      "category": "M",
+      "age_group": "F",
+      "round": "FA",
+      "date": "2025-06-07",
+      "time": "07:24",
+      "entries": [
+        { "lane": 1, "crew_name": "慶應OBクルー", "affiliation": "慶應OB" },
+        { "lane": 2, "crew_name": "早稲田OBクルー", "affiliation": "早稲田OB" },
+        { "lane": 3, "crew_name": "日本大学RC", "affiliation": "日本大学" }
+      ]
+    },
+    {
+      "race_no": 5,
+      "event_code": "W_1X",
+      "event_name": "女子シングルスカル",
+      "category": "W",
+      "age_group": "D",
+      "round": "FA",
+      "date": "2025-06-07",
+      "time": "07:32",
+      "entries": [
+        { "lane": 1, "crew_name": "田中花子", "affiliation": "東京漕艇" },
+        { "lane": 2, "crew_name": "佐藤美咲", "affiliation": "大阪RC" },
+        { "lane": 3, "crew_name": "鈴木朝子", "affiliation": "神奈川RC" }
+      ]
+    },
+    {
+      "race_no": 6,
+      "event_code": "X_2X",
+      "event_name": "混成ダブルスカル",
+      "category": "X",
+      "age_group": "E",
+      "round": "FA",
+      "date": "2025-06-08",
+      "time": "08:00",
+      "entries": [
+        { "lane": 1, "crew_name": "混成チームA", "affiliation": "戸田RC" },
+        { "lane": 2, "crew_name": "混成チームB", "affiliation": "瀬田漕艇" },
+        { "lane": 3, "crew_name": "混成チームC", "affiliation": "琵琶湖RC" }
+      ]
+    }
+  ]
+}
