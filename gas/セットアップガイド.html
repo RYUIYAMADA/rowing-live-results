@@ -493,10 +493,50 @@
       </div>
     </div>
 
+    <h3>3-4b. setupAll() で一括セットアップする【推奨】</h3>
+    <p>
+      認証が完了したら、<code>setupAll()</code> を実行することで以下の作業を自動化できます。
+    </p>
+    <ul>
+      <li>スクリプトプロパティが正しく設定されているか確認</li>
+      <li>Google Drive のフォルダ構成（race_csv/, master/, processed/ および計測ポイントのサブフォルダ）を自動作成</li>
+      <li>GitHub API への接続テスト（テスト用ファイルを作成・削除して書き込み権限を確認）</li>
+    </ul>
+    <ol class="steps">
+      <li>関数セレクタで <strong>setupAll</strong> を選択して ▶ <strong>実行</strong> をクリックします。</li>
+      <li>実行ログに <code>=== セットアップ完了 ===</code> と表示されれば成功です。</li>
+      <li>ログに <code>[未設定]</code> が表示された場合は、3-3 のスクリプトプロパティを再確認してください。</li>
+      <li>GitHub 接続エラーが表示された場合は、ログのメッセージに従いトークンの権限またはリポジトリ名を確認してください。</li>
+    </ol>
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>setupAll() を使わず手動でフォルダを作成することもできます。</strong>
+        Drive に以下のフォルダ構成を手動で作成してください:
+        <code>race_csv/500m/</code>、<code>race_csv/1000m/</code>、<code>master/</code>、<code>processed/500m/</code>、<code>processed/1000m/</code>
+      </div>
+    </div>
+
     <h3>3-5. トリガーを設定する</h3>
     <p>
       2分おきに自動でスクリプトを動かすためのスケジュールを設定します。
+      <strong>setupTrigger()</strong> を実行すると自動で設定されます。
     </p>
+
+    <h4>方法A: setupTrigger() で自動設定（推奨）</h4>
+    <ol class="steps">
+      <li>関数セレクタで <strong>setupTrigger</strong> を選択して ▶ <strong>実行</strong> をクリックします。</li>
+      <li>実行ログに <code>[OK] トリガーを設定しました: onTrigger (2分間隔)</code> と表示されれば完了です。</li>
+    </ol>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ</span>
+      <div class="callout-body">
+        トリガーをリセットしたい場合は <code>deleteTriggers()</code> を実行すると全トリガーを削除できます。
+        その後 <code>setupTrigger()</code> で再設定してください。
+      </div>
+    </div>
+
+    <h4>方法B: 手動設定</h4>
     <ol class="steps">
       <li>左サイドバーの時計アイコン（<strong>トリガー</strong>）をクリックします。</li>
       <li>右下の <strong>トリガーを追加</strong> ボタンをクリックします。</li>
@@ -519,6 +559,13 @@
     <ol class="steps" style="counter-reset: step-counter 3;">
       <li>設定が完了したら <strong>保存</strong> をクリックします。</li>
       <li>トリガー一覧に今設定した項目が表示されれば完了です。</li>
+    </ol>
+
+    <h3>3-6. マスターデータを投入する</h3>
+    <ol class="steps">
+      <li>Drive の <code>master/</code> フォルダに <code>schedule.csv</code> と <code>entries.csv</code> をアップロードします。</li>
+      <li>関数セレクタで <strong>importMasterData</strong> を選択して ▶ <strong>実行</strong> をクリックします。</li>
+      <li>実行ログに <code>master.json Push完了</code> と表示されれば、GitHub の <code>data/master.json</code> が更新されています。</li>
     </ol>
   </div>
 
@@ -544,13 +591,13 @@
       すでにアカウントがある場合はログインします。
     </p>
 
-    <h3>4-2. Pages プロジェクトの作成</h3>
+    <h3>4-2. Pages プロジェクトの作成（実際の画面の流れ）</h3>
     <ol class="steps">
-      <li>Cloudflare ダッシュボードの左サイドバーから <strong>Workers &amp; Pages</strong> をクリックします。</li>
-      <li><strong>Pages</strong> タブを選択し、<strong>プロジェクトを作成</strong> をクリックします。</li>
-      <li><strong>Git に接続する</strong> を選択します。</li>
-      <li>GitHub アカウントとの連携を承認します（初回のみ）。</li>
-      <li>リポジトリ一覧から <strong>RYUIYAMADA/rowing-live-results</strong> を選択して <strong>セットアップの開始</strong> をクリックします。</li>
+      <li><a href="https://dash.cloudflare.com" target="_blank">https://dash.cloudflare.com</a> にアクセスします。</li>
+      <li>左サイドバー「<strong>Workers &amp; Pages</strong>」→「<strong>Pages</strong>」→「<strong>新しいプロジェクトを作成</strong>」をクリックします。</li>
+      <li>「<strong>GitHubに接続</strong>」をクリックし、GitHub アカウントを認証します（初回のみ）。</li>
+      <li>リポジトリ一覧から <strong>RYUIYAMADA/rowing-live-results</strong> を選択します。</li>
+      <li>「<strong>セットアップの開始</strong>」でビルド設定を以下のとおり入力します。</li>
     </ol>
 
     <h3>4-3. ビルド設定</h3>
@@ -563,14 +610,16 @@
       <tbody>
         <tr><td>プロジェクト名</td><td>任意（例: <code>rowing-live-results</code>）</td></tr>
         <tr><td>本番ブランチ</td><td><code>main</code></td></tr>
+        <tr><td>フレームワーク プリセット</td><td><em>なし</em></td></tr>
         <tr><td>ビルドコマンド</td><td><em>（空欄のまま）</em></td></tr>
         <tr><td>ビルド出力ディレクトリ</td><td><code>/</code></td></tr>
+        <tr><td>ルートディレクトリ</td><td><code>/</code></td></tr>
       </tbody>
     </table>
 
     <ol class="steps" style="counter-reset: step-counter 5;">
-      <li><strong>保存してデプロイする</strong> をクリックします。</li>
-      <li>数十秒後にデプロイが完了し、<code>https://[プロジェクト名].pages.dev</code> という URL が発行されます。</li>
+      <li>「<strong>保存してデプロイ</strong>」をクリックします。</li>
+      <li>デプロイ完了後、表示される URL（例: <code>rowing-live-results.pages.dev</code>）をメモします。</li>
       <li>その URL をブラウザで開いてサイトが表示されることを確認します。</li>
     </ol>
 
@@ -579,7 +628,28 @@
       <div class="callout-body">
         <strong>カスタムドメインの設定（任意）</strong>
         <code>xxx.pages.dev</code> の URL を独自ドメイン（例: <code>results.example-regatta.jp</code>）に変更できます。
-        Pages プロジェクトの <strong>カスタムドメイン</strong> タブから設定してください。
+        Cloudflare → Pages → <strong>カスタムドメイン</strong> タブから設定してください。
+      </div>
+    </div>
+
+    <h3>4-4. GitHub Actions 用シークレットの設定</h3>
+    <p>サイト疎通確認ワークフローで使用する URL をシークレットとして登録します。</p>
+    <ol class="steps">
+      <li>GitHub リポジトリ → <strong>Settings</strong> → <strong>Secrets and variables</strong> → <strong>Actions</strong> を開きます。</li>
+      <li>「<strong>New repository secret</strong>」をクリックします。</li>
+      <li>Name に <code>SITE_URL</code>、Value に Cloudflare Pages の URL（例: <code>https://rowing-live-results.pages.dev</code>）を入力して保存します。</li>
+    </ol>
+
+    <h3>4-5. 確認コマンド（ローカル）</h3>
+    <p>ローカル環境から疎通確認を実行する場合は以下のコマンドを使用します。</p>
+    <pre><code>python3 tools/check_status.py --site https://rowing-live-results.pages.dev</code></pre>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-body">
+        <strong>大会当日の自動確認について</strong>
+        <code>.github/workflows/pages-check.yml</code> を有効にすると 10 分ごとにサイトの疎通確認が自動実行されます。
+        大会終了後は GitHub Actions の <strong>pages-check</strong> ワークフローを手動で <strong>disable</strong> してください（無駄なトリガー消費を防ぐため）。
       </div>
     </div>
   </div>

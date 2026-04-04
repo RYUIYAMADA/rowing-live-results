@@ -1,0 +1,23 @@
+name: JSONバリデーション
+
+on:
+  push:
+    paths:
+      - 'data/results/**.json'
+      - 'data/master.json'
+  pull_request:
+    paths:
+      - 'data/results/**.json'
+      - 'data/master.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: E2Eテスト実行
+        run: python3 test/e2e_test.py --skip-pipeline
+        # --skip-pipeline オプション: CSV→JSON変換をスキップしてJSONのみ検証

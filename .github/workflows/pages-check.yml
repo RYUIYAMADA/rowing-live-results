@@ -1,0 +1,25 @@
+name: サイト疎通確認
+
+on:
+  workflow_dispatch:       # 手動実行
+  schedule:
+    - cron: '*/10 * * * *' # 大会当日用: 10分ごとに自動確認（手動でdisableする）
+
+env:
+  SITE_URL: ${{ secrets.SITE_URL }}  # Cloudflare PagesのURL
+
+jobs:
+  health-check:
+    if: env.SITE_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: サイト疎通確認
+        run: |
+          python3 tools/check_status.py \
+            --site "$SITE_URL" \
+            --github \
+            --token "${{ secrets.GITHUB_TOKEN }}"

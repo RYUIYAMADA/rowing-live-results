@@ -514,17 +514,23 @@ function importMasterData() {
     // schedule.csv を読み込み
     const scheduleFile = findFileInFolder(masterFolder, 'schedule.csv');
     if (!scheduleFile) {
-      throw new Error('schedule.csv が master/ フォルダに見つかりません');
+      throw new Error(
+        'schedule.csv が master/ フォルダに見つかりません。\n' +
+        'Drive の master/ フォルダに schedule.csv をアップロードしてから再実行してください。'
+      );
     }
-    const scheduleRows = parseMasterCSV(scheduleFile.getBlob().getDataAsString('UTF-8'));
+    const scheduleRows = parseMasterCSV(removeBom_(scheduleFile.getBlob().getDataAsString('UTF-8')));
     Logger.log('[importMasterData] schedule.csv 行数: ' + scheduleRows.length);
 
     // entries.csv を読み込み
     const entriesFile = findFileInFolder(masterFolder, 'entries.csv');
     if (!entriesFile) {
-      throw new Error('entries.csv が master/ フォルダに見つかりません');
+      throw new Error(
+        'entries.csv が master/ フォルダに見つかりません。\n' +
+        'Drive の master/ フォルダに entries.csv をアップロードしてから再実行してください。'
+      );
     }
-    const entriesRows = parseMasterCSV(entriesFile.getBlob().getDataAsString('UTF-8'));
+    const entriesRows = parseMasterCSV(removeBom_(entriesFile.getBlob().getDataAsString('UTF-8')));
     Logger.log('[importMasterData] entries.csv 行数: ' + entriesRows.length);
 
     // master.json を組み立て
@@ -561,8 +567,19 @@ function importMasterData() {
       };
     });
 
+    // MEASUREMENT_POINTS プロパティから計測ポイント一覧を取得
+    let measurementPointsList = [];
+    try {
+      measurementPointsList = getMeasurementPoints();
+    } catch (e) {
+      Logger.log('[importMasterData] MEASUREMENT_POINTS 未設定のため measurement_points は空配列');
+    }
+
+    const now = new Date().toISOString();
     const masterJson = {
-      generated_at: new Date().toISOString(),
+      generated_at: now,
+      updated_at: now,
+      measurement_points: measurementPointsList,
       races: races,
     };
 
@@ -755,6 +772,19 @@ function getMeasurementPoints() {
 }
 
 /**
+ * 文字列先頭のBOM（Byte Order Mark: \uFEFF）を除去する
+ * Excelで保存したCSVのUTF-8 BOMによる文字化けを防ぐ
+ * @param {string} str
+ * @returns {string}
+ */
+function removeBom_(str) {
+  if (str && str.charCodeAt(0) === 0xFEFF) {
+    return str.slice(1);
+  }
+  return str;
+}
+
+/**
  * エラーをスクリプトプロパティに記録する
  * @param {string} context - エラー発生箇所
  * @param {Error} e
@@ -777,4 +807,241 @@ function resetRateLimitFlag() {
   const props = PropertiesService.getScriptProperties();
   props.deleteProperty(CONFIG.props.apiRateLimited);
   Logger.log('[resetRateLimitFlag] レート制限フラグをリセットしました');
+}
+
+// ============================================================
+// 10. 初回セットアップ関数群
+// ============================================================
+
+/**
+ * 【初回実行】セットアップを一括実行する
+ * 1. スクリプトプロパティの確認
+ * 2. Google Drive フォルダ構成の自動作成
+ * 3. GitHub API 接続確認
+ * 4. トリガー設定案内
+ *
+ * 実行方法: GASエディタで setupAll を選択して「実行」をクリック
+ */
+function setupAll() {
+  Logger.log('=== セットアップ開始 ===');
+
+  // 1. スクリプトプロパティ確認
+  const ok = checkScriptProperties_();
+  if (!ok) {
+    Logger.log('[エラー] スクリプトプロパティを設定してから再実行してください');
+    Logger.log('  プロジェクト設定 → スクリプトプロパティ から以下を設定:');
+    Logger.log('  DRIVE_ROOT_FOLDER_ID: Google DriveのルートフォルダID');
+    Logger.log('  GITHUB_TOKEN: GitHubのPersonal Access Token');
+    Logger.log('  MEASUREMENT_POINTS: 500m,1000m');
+    return;
+  }
+
+  // 2. Driveフォルダ構成を自動作成
+  createDriveFolderStructure_();
+
+  // 3. GitHub API 接続確認
+  testGitHubConnection_();
+
+  // 4. 完了メッセージ
+  Logger.log('');
+  Logger.log('=== セットアップ完了 ===');
+  Logger.log('次のステップ:');
+  Logger.log('1. トリガーを設定: setupTrigger() を実行するか、');
+  Logger.log('   編集 → トリガー → +追加 → onTrigger → 2分間隔 で手動設定');
+  Logger.log('2. master/ フォルダに schedule.csv, entries.csv をアップロード');
+  Logger.log('3. importMasterData() を手動実行して data/master.json を生成');
+}
+
+/**
+ * スクリプトプロパティが必須キーすべて設定済みか確認する（内部関数）
+ * @returns {boolean} 全て設定済みなら true
+ */
+function checkScriptProperties_() {
+  const props = PropertiesService.getScriptProperties();
+  const required = [CONFIG.props.driveFolderId, CONFIG.props.githubToken, CONFIG.props.measurementPoints];
+  let allOk = true;
+
+  required.forEach(key => {
+    const val = props.getProperty(key);
+    if (!val || val.trim() === '') {
+      Logger.log('[未設定] ' + key);
+      allOk = false;
+    } else {
+      // トークンは先頭4文字だけ表示
+      const display = key === CONFIG.props.githubToken ? val.substring(0, 4) + '***' : val;
+      Logger.log('[OK] ' + key + ' = ' + display);
+    }
+  });
+
+  return allOk;
+}
+
+/**
+ * Google Drive に必要なフォルダ構成を自動作成する
+ *
+ * 作成するフォルダ構成:
+ * [ROOT]/
+ * ├── race_csv/
+ * │   ├── 500m/
+ * │   └── 1000m/    ← MEASUREMENT_POINTS から動的生成
+ * ├── master/
+ * └── processed/
+ *     ├── 500m/
+ *     └── 1000m/
+ */
+function createDriveFolderStructure_() {
+  Logger.log('[createDriveFolderStructure_] フォルダ構成を作成します');
+
+  const props = PropertiesService.getScriptProperties();
+  const rootFolderId = props.getProperty(CONFIG.props.driveFolderId);
+
+  if (!rootFolderId) {
+    throw new Error('DRIVE_ROOT_FOLDER_ID が設定されていません');
+  }
+
+  // 計測ポイント一覧を取得
+  const measurementPoints = getMeasurementPoints();
+
+  // race_csv/ フォルダと各計測ポイントのサブフォルダを作成
+  const raceCsvFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.raceCsv);
+  Logger.log('[createDriveFolderStructure_] race_csv/ ID: ' + raceCsvFolder.getId());
+
+  for (const point of measurementPoints) {
+    const pointFolder = getOrCreateFolder(raceCsvFolder.getId(), point);
+    Logger.log('[createDriveFolderStructure_] race_csv/' + point + '/ ID: ' + pointFolder.getId());
+  }
+
+  // master/ フォルダを作成
+  const masterFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.master);
+  Logger.log('[createDriveFolderStructure_] master/ ID: ' + masterFolder.getId());
+
+  // processed/ フォルダと各計測ポイントのサブフォルダを作成
+  const processedFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.processed);
+  Logger.log('[createDriveFolderStructure_] processed/ ID: ' + processedFolder.getId());
+
+  for (const point of measurementPoints) {
+    const pointFolder = getOrCreateFolder(processedFolder.getId(), point);
+    Logger.log('[createDriveFolderStructure_] processed/' + point + '/ ID: ' + pointFolder.getId());
+  }
+
+  Logger.log('[createDriveFolderStructure_] フォルダ構成の作成が完了しました');
+}
+
+/**
+ * GitHub API への接続と書き込み権限を確認する
+ * テスト用ファイル data/.setup_test を作成して削除する
+ */
+function testGitHubConnection_() {
+  Logger.log('[testGitHubConnection_] GitHub API 接続テスト開始');
+
+  const testPath = 'data/.setup_test';
+  const testContent = 'setup test ' + new Date().toISOString();
+
+  try {
+    // テストファイルを作成
+    pushToGitHub(testPath, testContent);
+    Logger.log('[testGitHubConnection_] テストファイル作成成功');
+  } catch (e) {
+    const msg = e.message || '';
+    if (msg.indexOf('HTTP 403') !== -1) {
+      Logger.log('[testGitHubConnection_] [エラー] 403 Forbidden: GitHubトークンの権限が不足しています');
+      Logger.log('  → GitHub Settings → Developer settings → Personal access tokens で');
+      Logger.log('    repo スコープが有効になっているか確認してください');
+    } else if (msg.indexOf('HTTP 404') !== -1) {
+      Logger.log('[testGitHubConnection_] [エラー] 404 Not Found: リポジトリが見つかりません');
+      Logger.log('  → Code.gs の CONFIG.github.owner / repo が正しいか確認してください');
+    } else {
+      Logger.log('[testGitHubConnection_] [エラー] 接続失敗: ' + msg);
+    }
+    return;
+  }
+
+  // テストファイルを削除
+  try {
+    deleteFromGitHub_(testPath);
+    Logger.log('[testGitHubConnection_] テストファイル削除成功');
+  } catch (e) {
+    Logger.log('[testGitHubConnection_] テストファイルの削除に失敗しました（手動で削除してください）: ' + e.message);
+  }
+
+  Logger.log('[testGitHubConnection_] GitHub API 接続テスト完了 ✓');
+}
+
+/**
+ * GitHub Contents API でファイルを削除する（内部関数）
+ * @param {string} path - リポジトリ内のパス
+ */
+function deleteFromGitHub_(path) {
+  const props = PropertiesService.getScriptProperties();
+  const token = props.getProperty(CONFIG.props.githubToken);
+
+  const apiUrl = CONFIG.github.apiBase + '/repos/' + CONFIG.github.owner + '/' +
+    CONFIG.github.repo + '/contents/' + path;
+
+  // SHAを取得
+  const getResponse = UrlFetchApp.fetch(apiUrl, {
+    method: 'GET',
+    headers: {
+      Authorization: 'token ' + token,
+      Accept: 'application/vnd.github.v3+json',
+    },
+    muteHttpExceptions: true,
+  });
+
+  if (getResponse.getResponseCode() !== 200) {
+    throw new Error('ファイルのSHA取得失敗: HTTP ' + getResponse.getResponseCode());
+  }
+
+  const existing = JSON.parse(getResponse.getContentText());
+  const sha = existing.sha;
+
+  const payload = {
+    message: 'Delete ' + path + ' [GAS setup test cleanup]',
+    sha: sha,
+    branch: CONFIG.github.branch,
+  };
+
+  const deleteResponse = UrlFetchApp.fetch(apiUrl, {
+    method: 'DELETE',
+    headers: {
+      Authorization: 'token ' + token,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
+  });
+
+  if (deleteResponse.getResponseCode() !== 200) {
+    throw new Error('ファイル削除失敗: HTTP ' + deleteResponse.getResponseCode());
+  }
+}
+
+/**
+ * onTrigger を2分間隔で自動実行するトリガーを設定する
+ * 既存のトリガーがある場合は重複して作成しない
+ */
+function setupTrigger() {
+  const triggers = ScriptApp.getProjectTriggers();
+  const exists = triggers.some(t => t.getHandlerFunction() === 'onTrigger');
+
+  if (exists) {
+    Logger.log('[INFO] onTrigger のトリガーは既に設定されています');
+    return;
+  }
+
+  ScriptApp.newTrigger('onTrigger')
+    .timeBased()
+    .everyMinutes(2)
+    .create();
+
+  Logger.log('[OK] トリガーを設定しました: onTrigger (2分間隔)');
+}
+
+/**
+ * 全トリガーを削除する（リセット用）
+ */
+function deleteTriggers() {
+  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
+  Logger.log('[OK] 全トリガーを削除しました');
 }

@@ -113,6 +113,68 @@ def elapsed_minutes(dt: datetime) -> float:
 
 
 # ---------------------------------------------------------------------------
+# エントリー整合性チェック（master.json の schedule を検査）
+# ---------------------------------------------------------------------------
+
+# エントリー件数が少ないと警告する閾値（未満で WARN）
+ENTRY_WARN_THRESHOLD = 3
+
+
+def check_entry_consistency(schedule: list) -> None:
+    """
+    スケジュールとエントリーの整合性をチェックし結果を出力する。
+
+    チェック内容:
+      - エントリーが 0 件のレースがないか
+      - レーン番号が重複していないか
+      - エントリー件数が少ない（ENTRY_WARN_THRESHOLD 未満）レースを警告
+    """
+    if not schedule:
+        log_warn("エントリー整合性: スケジュールデータが空です")
+        return
+
+    no_entry_races  = []  # エントリー0件のレース番号
+    dup_lane_races  = []  # レーン番号重複のレース番号
+    few_entry_races = []  # エントリーが少ないレース (race_no, 件数)
+
+    for race in schedule:
+        race_no = race.get("race_no", "?")
+        entries = race.get("entries", [])
+        count   = len(entries)
+
+        # エントリーなし
+        if count == 0:
+            no_entry_races.append(race_no)
+            continue
+
+        # エントリー件数が少ない
+        if count < ENTRY_WARN_THRESHOLD:
+            few_entry_races.append((race_no, count))
+
+        # レーン番号の重複チェック
+        lanes = [e.get("lane") for e in entries]
+        if len(lanes) != len(set(lanes)):
+            dup_lane_races.append(race_no)
+
+    # 結果出力
+    if not no_entry_races and not dup_lane_races:
+        log_ok(f"エントリー整合性: 全{len(schedule)}レースにエントリーあり")
+    else:
+        if no_entry_races:
+            log_fail(f"エントリー整合性: エントリー0件のレース → Race {no_entry_races}")
+        else:
+            log_ok(f"エントリー整合性: 全{len(schedule)}レースにエントリーあり")
+
+    # 重複レーン警告
+    for race_no in dup_lane_races:
+        log_warn(f"Race {race_no}: レーン番号に重複があります")
+
+    # 少エントリー警告
+    for race_no, count in few_entry_races:
+        log_warn(f"Race {race_no}: エントリー {count}件（少ない可能性）")
+
+
+# ---------------------------------------------------------------------------
 # チェック1: ローカルファイル確認
 # ---------------------------------------------------------------------------
 
@@ -132,12 +194,14 @@ def check_local_files(verbose: bool) -> Tuple[bool, Optional[datetime]]:
         try:
             with open(MASTER_JSON_PATH, encoding="utf-8") as f:
                 master = json.load(f)
-            race_count  = len(master.get("schedule", []))
-            entry_count = sum(
-                len(race.get("entries", []))
-                for race in master.get("schedule", [])
-            )
+            schedule    = master.get("schedule", [])
+            race_count  = len(schedule)
+            entry_count = sum(len(race.get("entries", [])) for race in schedule)
             log_ok(f"data/master.json: {race_count}レース, {entry_count}エントリー")
+
+            # ---- エントリー整合性チェック ----------------------------------------
+            check_entry_consistency(schedule)
+
         except json.JSONDecodeError as e:
             log_fail(f"data/master.json: JSONパースエラー — {e}")
             all_ok = False
