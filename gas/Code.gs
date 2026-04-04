@@ -289,7 +289,8 @@ function buildRaceJSON(raceNo, measurementData, measurementPoints) {
       }
       laneMap[row.lane].times[point] = {
         time_ms: row.time_ms,
-        formatted: row.formatted,
+        // CSVのformatted値は無視し、time_msから再計算（センチ秒2桁統一）
+        formatted: formatTime(row.time_ms),
       };
       // 最後のポイントの情報で上書き（tie_group等はフィニッシュ基準）
       if (point === lastPoint) {

@@ -195,10 +195,9 @@ def parse_csv(filepath: Path) -> list[dict]:
             photo_raw = get("photo_flag", "").lower()
             photo_flag = photo_raw in ("1", "true", "yes", "○", "◯")
 
-            # formatted フィールド: CSVにあればそのまま使い、なければ ms から生成
-            fmt_str = get("formatted")
-            if not fmt_str:
-                fmt_str = ms_to_formatted(time_ms)
+            # formatted フィールド: CSVの値は無視し、常に time_ms から再計算する
+            # （RowingTimerWebはミリ秒3桁を出力するが、競技慣習はセンチ秒2桁）
+            fmt_str = ms_to_formatted(time_ms)
 
             records.append({
                 "lane":       lane,
@@ -248,8 +247,8 @@ def build_race_json(
                 }
             lane_times[lane][point] = {
                 "time_ms":   rec["time_ms"],
-                # CSVに formatted がある場合はそれを優先し、なければ ms から生成
-                "formatted": rec.get("formatted") or ms_to_formatted(rec["time_ms"]),
+                # 常に time_ms から再計算（センチ秒2桁統一）
+                "formatted": ms_to_formatted(rec["time_ms"]),
             }
 
     # フィニッシュタイムが存在するレーンのみ結果に含める

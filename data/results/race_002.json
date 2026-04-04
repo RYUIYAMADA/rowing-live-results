@@ -1,6 +1,6 @@
 {
   "race_no": 2,
-  "updated_at": "2026-04-04T17:14:59.000Z",
+  "updated_at": "2026-04-04T17:25:29.000Z",
   "results": [
     {
       "lane": 4,
@@ -8,16 +8,16 @@
       "times": {
         "500m": {
           "time_ms": 114950,
-          "formatted": "1:54.950"
+          "formatted": "1:54.95"
         },
         "1000m": {
           "time_ms": 233200,
-          "formatted": "3:53.200"
+          "formatted": "3:53.20"
         }
       },
       "finish": {
         "time_ms": 233200,
-        "formatted": "3:53.200"
+        "formatted": "3:53.20"
       },
       "split": "(1:58.25)",
       "tie_group": "",
@@ -30,16 +30,16 @@
       "times": {
         "500m": {
           "time_ms": 115320,
-          "formatted": "1:55.320"
+          "formatted": "1:55.32"
         },
         "1000m": {
           "time_ms": 234560,
-          "formatted": "3:54.560"
+          "formatted": "3:54.56"
         }
       },
       "finish": {
         "time_ms": 234560,
-        "formatted": "3:54.560"
+        "formatted": "3:54.56"
       },
       "split": "(1:59.24)",
       "tie_group": "",
@@ -52,16 +52,16 @@
       "times": {
         "500m": {
           "time_ms": 116880,
-          "formatted": "1:56.880"
+          "formatted": "1:56.88"
         },
         "1000m": {
           "time_ms": 238900,
-          "formatted": "3:58.900"
+          "formatted": "3:58.90"
         }
       },
       "finish": {
         "time_ms": 238900,
-        "formatted": "3:58.900"
+        "formatted": "3:58.90"
       },
       "split": "(2:02.02)",
       "tie_group": "",
@@ -74,16 +74,16 @@
       "times": {
         "500m": {
           "time_ms": 118100,
-          "formatted": "1:58.100"
+          "formatted": "1:58.10"
         },
         "1000m": {
           "time_ms": 240100,
-          "formatted": "4:00.100"
+          "formatted": "4:00.10"
         }
       },
       "finish": {
         "time_ms": 240100,
-        "formatted": "4:00.100"
+        "formatted": "4:00.10"
       },
       "split": "(2:02.00)",
       "tie_group": "",

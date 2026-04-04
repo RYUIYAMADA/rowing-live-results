@@ -20,6 +20,10 @@
 
 <div class="notion-cover">
   <div class="notion-cover-text">🚣 ボート競技速報サイト</div>
+  <div class="cover-content">
+    <div class="cover-tournament-name" id="cover-tournament-name"></div>
+    <div class="cover-meta" id="cover-meta"></div>
+  </div>
 </div>
 
 <div class="notion-page">
@@ -40,6 +44,7 @@
   <div class="view-tabs">
     <div class="view-tab active" onclick="switchView('toggle', this)">🏁 種目別（トグル）</div>
     <div class="view-tab" onclick="switchView('table', this)">📊 全レース一覧</div>
+    <div class="view-tab" onclick="switchView('schedule', this)">🕐 スケジュール</div>
   </div>
 
   <!-- ================================================================ -->
@@ -123,16 +128,25 @@
     </div>
   </div>
 
+  <!-- ================================================================ -->
+  <!--                   VIEW 3: スケジュールビュー                        -->
+  <!-- ================================================================ -->
+  <div class="view-content" id="view-schedule">
+    <div id="schedule-table-container"></div>
+  </div>
+
 </div>
 
 <!-- ステータスバー -->
 <div class="update-bar">
-  <div>
+  <div class="update-bar-left">
     <span class="live-dot"></span>LIVE |
-    最終更新 <span id="last-updated">-</span>
-    <!-- 手動更新ボタン -->
-    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄 今すぐ更新</button>
+    更新 <span id="last-updated">-</span>
+    <!-- 手動更新ボタン（短縮版） -->
+    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄</button>
   </div>
+  <!-- 次のレース表示（中央） -->
+  <div class="update-bar-center hide-mobile-flex" id="next-race-info"></div>
   <div id="status-summary">-</div>
 </div>
 
