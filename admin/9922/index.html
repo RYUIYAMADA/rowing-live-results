@@ -259,8 +259,9 @@
     <div class="toc-title">INDEX</div>
     <ul class="toc-list">
       <li><a href="#section-status">① システム状態</a></li>
-      <li><a href="#section-pipeline">② CSV自動アップロード監視</a></li>
-      <li><a href="#section-links">③ リンク一覧</a></li>
+      <li><a href="#section-timeline">② レース 日別タイムライン</a></li>
+      <li><a href="#section-pipeline">③ CSV自動アップロード監視</a></li>
+      <li><a href="#section-links">④ リンク一覧</a></li>
     </ul>
   </nav>
 
@@ -301,11 +302,24 @@
     <div class="last-check" id="last-check"></div>
   </section>
 
-  <!-- ===== ② CSV自動アップロード監視 ===== -->
+  <!-- ===== ② 日別タイムライン ===== -->
+  <section class="section">
+    <div id="section-timeline" class="section-anchor"></div>
+    <div class="section-header">
+      <div class="section-title">② レース 日別タイムライン</div>
+      <div style="font-size:12px;color:var(--text-muted)" id="races-summary"></div>
+    </div>
+    <div class="day-tabs" id="timeline-day-tabs"></div>
+    <div id="timeline-container">
+      <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
+    </div>
+  </section>
+
+  <!-- ===== ③ CSV自動アップロード監視 ===== -->
   <section class="section">
     <div id="section-pipeline" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">② CSV自動アップロード監視</div>
+      <div class="section-title">③ CSV自動アップロード監視</div>
     </div>
     <div class="pipeline" id="pipeline">
       <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>確認中...</div>
@@ -319,7 +333,7 @@
   <section class="section">
     <div id="section-links" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">③ リンク一覧</div>
+      <div class="section-title">④ リンク一覧</div>
     </div>
     <div class="links-table-wrapper">
       <table class="links-table">
@@ -375,14 +389,27 @@ function h(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* ===== 時計 ===== */
+/* ===== 時計（JST確実表示） ===== */
+function getJST() {
+  const now = new Date();
+  // en-USでJSTの各値を取得（HH:MM:SS形式を確実に得るため）
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Tokyo',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+  const parts = {};
+  fmt.formatToParts(now).forEach(p => { parts[p.type] = p.value; });
+  return {
+    time: `${parts.hour}:${parts.minute}:${parts.second}`,
+    date: now.toLocaleDateString('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'long', day:'numeric', weekday:'short' }),
+  };
+}
+
 function startClock() {
   function tick() {
-    const now = new Date();
-    document.getElementById('clock-time').textContent =
-      now.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
-    document.getElementById('clock-date').textContent =
-      now.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'long', day:'numeric', weekday:'short' });
+    const { time, date } = getJST();
+    document.getElementById('clock-time').textContent = time;
+    document.getElementById('clock-date').textContent = date;
     updateCurrentRaceBanner();
   }
   tick();
@@ -483,7 +510,6 @@ async function loadAll() {
   document.getElementById('races-summary').textContent = `確定 ${doneCount} / ${schedule.length} レース`;
 
   // 描画
-  renderOverview(schedule);
   renderTimelineDayTabs(schedule);
   renderPipeline();
   updateCurrentRaceBanner();
