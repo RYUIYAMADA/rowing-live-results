@@ -99,7 +99,7 @@ function handleHashChange() {
 function scrollToRace(raceNo) {
   if (!masterData) return;
   // race_no が属する event_code のトグルを探す
-  const race = masterData.schedule.find(r => r.race_no === raceNo);
+  const race = (masterData?.schedule || []).find(r => r.race_no === raceNo);
   if (!race) return;
 
   const toggle = document.querySelector(
@@ -129,14 +129,19 @@ async function loadAll() {
 
     masterData = await fetchJSON(CONFIG.MASTER_JSON).catch(e => {
       // master.json 404 専用エラーメッセージ
-      if (e.message.includes('404')) {
+      if (e.message.startsWith('HTTP 404')) {
         throw new Error('MASTER_NOT_FOUND');
       }
       throw e;
     });
 
+    // 必須フィールドの存在チェック
+    if (!masterData || !masterData.schedule) {
+      throw new Error('MASTER_NOT_FOUND');
+    }
+
     // ページタイトルを大会名に動的更新
-    document.title = masterData.tournament.race_name + ' 速報';
+    document.title = (masterData.tournament?.race_name || '速報サイト') + ' 速報';
 
     // master.json 読み込み直後にスケジュールの骨格を表示
     renderAll();
@@ -172,7 +177,7 @@ async function loadAll() {
  * 更新があった race_no のリストを返す
  */
 async function loadResults() {
-  const raceNos = masterData.schedule.map(r => r.race_no);
+  const raceNos = (masterData?.schedule || []).map(r => r.race_no);
   const newlyUpdated = [];
 
   const promises = raceNos.map(async (no) => {
@@ -205,7 +210,12 @@ async function fetchJSON(path, timeoutMs = 10000) {
   try {
     const res = await fetch(path + '?t=' + Date.now(), { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${path}`);
-    return res.json();
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch (parseErr) {
+      throw new Error(`JSONパースエラー: ${path}`);
+    }
   } catch (e) {
     if (e.name === 'AbortError') throw new Error(`タイムアウト: ${path}`);
     throw e;
@@ -276,7 +286,7 @@ function renderYoutube() {
  * 日別タブとフィルタの日程オプションをマスタから動的生成する
  */
 function renderFilterOptions() {
-  const dates = [...new Set(masterData.schedule.map(r => r.date))].sort();
+  const dates = [...new Set((masterData?.schedule || []).map(r => r.date))].sort();
 
   // 日別タブを生成
   const dayTabs = document.getElementById('day-tabs');
@@ -423,13 +433,14 @@ function renderResultTable(race, result) {
   (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
 
   // エントリーにあるが結果にないレーン → 棄権（DNS）として追加
-  const resultLanes = new Set(result.results.map(r => r.lane));
+  const resultsList = result?.results || [];
+  const resultLanes = new Set(resultsList.map(r => r.lane));
   const dnsRows = (race.entries || [])
     .filter(e => !resultLanes.has(e.lane))
     .map(e => ({ lane: e.lane, rank: null, times: {}, finish: null, split: '', tie_group: '', photo_flag: false, note: '', status: 'dns' }));
 
   // 結果をrank順にソート（完走→DNF→DNS の順）
-  const sorted = [...result.results, ...dnsRows].sort((a, b) => {
+  const sorted = [...resultsList, ...dnsRows].sort((a, b) => {
     if (a.status === 'finish' && b.status !== 'finish') return -1;
     if (a.status !== 'finish' && b.status === 'finish') return 1;
     if (a.rank !== null && b.rank !== null) return a.rank - b.rank;
@@ -572,7 +583,7 @@ function renderScheduleView() {
     // 1位クルー名・所属（結果ありの場合のみ）
     let winnerHtml = '-';
     if (result) {
-      const winner = result.results.find(r => r.rank === 1);
+      const winner = (result.results || []).find(r => r.rank === 1);
       if (winner) {
         const entryMap = {};
         (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
@@ -601,7 +612,7 @@ function renderScheduleView() {
   html += '</tbody></table>';
 
   // 全レースが確定済みの場合は「本日のレースは終了しました」を末尾に表示
-  const allConfirmed = masterData.schedule.every(r => resultsCache[r.race_no]);
+  const allConfirmed = (masterData?.schedule || []).every(r => resultsCache[r.race_no]);
   if (allConfirmed) {
     html += '<p class="schedule-all-done">全レース結果が確定しました</p>';
   }
@@ -628,7 +639,7 @@ function highlightCurrentRace() {
   const now = new Date();
   const WINDOW_MS = 15 * 60 * 1000; // ±15分
 
-  masterData.schedule.forEach(race => {
+  (masterData?.schedule || []).forEach(race => {
     // 結果済みはスキップ
     if (resultsCache[race.race_no]) return;
     const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
@@ -662,7 +673,7 @@ function renderTableView() {
 
   const allPts = masterData.measurement_points || ['500', '1000'];
 
-  const html = masterData.schedule.map(race => {
+  const html = (masterData?.schedule || []).map(race => {
     const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
     const pts = allPts.filter(p => { const m = parseInt(p, 10); return isNaN(m) || m <= raceCourseLength; });
     const showMid = pts.length > 1;
@@ -683,11 +694,12 @@ function renderTableView() {
     let tableBody = '';
     if (hasResult) {
       // 棄権（DNS）を追加
-      const resultLanes = new Set(result.results.map(r => r.lane));
+      const resultsList2 = result?.results || [];
+      const resultLanes = new Set(resultsList2.map(r => r.lane));
       const dnsEntries = (race.entries || [])
         .filter(e => !resultLanes.has(e.lane))
         .map(e => ({ lane: e.lane, rank: null, times: {}, finish: null, split: '', tie_group: '', photo_flag: false, note: '', status: 'dns' }));
-      const allResults = [...result.results, ...dnsEntries].sort((a, b) => {
+      const allResults = [...resultsList2, ...dnsEntries].sort((a, b) => {
         if (a.status === 'finish' && b.status !== 'finish') return -1;
         if (a.status !== 'finish' && b.status === 'finish') return 1;
         if (a.rank !== null && b.rank !== null) return a.rank - b.rank;
@@ -695,7 +707,7 @@ function renderTableView() {
       });
 
       const tieGroupCounts = {};
-      result.results.forEach(r => {
+      resultsList2.forEach(r => {
         if (r.tie_group) tieGroupCounts[r.tie_group] = (tieGroupCounts[r.tie_group] || 0) + 1;
       });
 
@@ -808,7 +820,7 @@ function applyFilters() {
 
     // round・date フィルタはトグル内のレースで判定
     if (show && (filterState.round !== 'all' || filterState.date !== 'all')) {
-      const races = masterData.schedule.filter(r => r.event_code === code);
+      const races = (masterData?.schedule || []).filter(r => r.event_code === code);
       const hasMatch = races.some(r =>
         (filterState.round === 'all' || r.round === filterState.round) &&
         (filterState.date === 'all' || r.date === filterState.date)
@@ -909,7 +921,7 @@ function updateStatusBar() {
 
   const summaryEl = document.getElementById('status-summary');
   if (summaryEl && masterData) {
-    const totalRaces = masterData.schedule.length;
+    const totalRaces = (masterData?.schedule || []).length;
     const doneRaces = Object.keys(resultsCache).length;
     // 全レース確定の場合は専用メッセージを表示
     if (doneRaces === totalRaces && totalRaces > 0) {
@@ -931,7 +943,7 @@ function updateStatusBar() {
   if (nextInfoEl && masterData) {
     const now = new Date();
     // 全レース確定、または大会終了後は「次のレース」なし
-    const totalRaces = masterData.schedule.length;
+    const totalRaces = (masterData?.schedule || []).length;
     const doneRaces = Object.keys(resultsCache).length;
     if (doneRaces === totalRaces && totalRaces > 0) {
       nextInfoEl.textContent = '本日のレースは終了しました';
@@ -939,7 +951,7 @@ function updateStatusBar() {
       // 未実施レースから現在時刻以降に最も近いものを選ぶ
       let nextRace = null;
       let minFutureDiff = Infinity;
-      masterData.schedule.forEach(race => {
+      (masterData?.schedule || []).forEach(race => {
         if (resultsCache[race.race_no]) return;
         const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
         const diff = raceTime - now;
