@@ -4,6 +4,50 @@
  */
 
 // ============================================================
+// ▼▼▼ はじめにここだけ入力してください ▼▼▼
+// ============================================================
+
+// 1. Google Drive のルートフォルダID
+//    （DriveでフォルダURLの末尾の文字列 例: https://drive.google.com/drive/folders/★ここ★）
+const SETUP_DRIVE_FOLDER_ID = '1sCKohwJK8DWjINLxEfe_eO9Nm-DBshop';
+
+// 2. GitHub Personal Access Token
+//    （https://github.com/settings/tokens で取得）
+const SETUP_GITHUB_TOKEN = '';  // ← ここに貼り付け例: 'ghp_xxxxxxxxxxxx'
+
+// 3. 計測ポイント（カンマ区切り、変更不要）
+const SETUP_MEASUREMENT_POINTS = '500m,1000m';
+
+// ============================================================
+// ▲▲▲ 入力ここまで ▲▲▲
+// ============================================================
+
+/**
+ * 上記の値をスクリプトプロパティに保存する
+ * ★最初に1回だけこの関数を実行してください★
+ */
+function saveSetup() {
+  if (!SETUP_GITHUB_TOKEN || SETUP_GITHUB_TOKEN.trim() === '') {
+    Logger.log('[エラー] SETUP_GITHUB_TOKEN が空です。コード上部に GitHub Token を入力してください。');
+    return;
+  }
+  if (!SETUP_DRIVE_FOLDER_ID || SETUP_DRIVE_FOLDER_ID.trim() === '') {
+    Logger.log('[エラー] SETUP_DRIVE_FOLDER_ID が空です。コード上部にフォルダIDを入力してください。');
+    return;
+  }
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty('DRIVE_ROOT_FOLDER_ID', SETUP_DRIVE_FOLDER_ID.trim());
+  props.setProperty('GITHUB_TOKEN', SETUP_GITHUB_TOKEN.trim());
+  props.setProperty('MEASUREMENT_POINTS', SETUP_MEASUREMENT_POINTS.trim());
+  Logger.log('[OK] スクリプトプロパティを保存しました');
+  Logger.log('  DRIVE_ROOT_FOLDER_ID = ' + SETUP_DRIVE_FOLDER_ID);
+  Logger.log('  GITHUB_TOKEN = ' + SETUP_GITHUB_TOKEN.substring(0, 6) + '***');
+  Logger.log('  MEASUREMENT_POINTS = ' + SETUP_MEASUREMENT_POINTS);
+  Logger.log('');
+  Logger.log('次のステップ: setupAll() を実行してください');
+}
+
+// ============================================================
 // 設定オブジェクト
 // ============================================================
 const CONFIG = {
