@@ -82,11 +82,12 @@ h1.page-title {
 /* ========= バッジ ========= */
 .badge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius);
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 .badge-live {
   background: #C0392B;
@@ -515,9 +516,8 @@ h1.page-title {
   .update-bar { font-size: 11px; padding: 0 10px; }
   .hide-mobile-flex { display: none !important; }
   .schedule-table { font-size: 13px; } /* 12px → 13px */
-  .sc-event-name { max-width: 130px; }
+  .sc-event-name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
   .sc-winner { display: none; }
-  .sc-winner-name { max-width: 100px; }
 }
 
 /* ========= スケルトンローディング ========= */
@@ -657,22 +657,16 @@ h1.page-title {
 .sc-event { }
 .sc-event-name {
   display: block;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 400;
 }
-.sc-round { width: 60px; font-size: 12px; color: var(--text-sub); }
-.sc-status { width: 60px; }
-.sc-winner { width: 130px; }
+.sc-round { width: 72px; font-size: 12px; color: var(--text-sub); white-space: nowrap; }
+.sc-status { width: 72px; white-space: nowrap; }
+.sc-winner { min-width: 180px; }
 .sc-winner-name {
   display: block;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-sub);
 }
 
