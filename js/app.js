@@ -235,7 +235,9 @@ function renderAll() {
   renderTournamentHeader();
   renderYoutube();
   renderFilterOptions();
-  // 個別ビュー描画は loadAll() から呼ぶ（二重描画防止のため renderAll() では行わない）
+  renderToggleView();
+  renderTableView();
+  renderScheduleView();
 }
 
 /**
@@ -334,7 +336,7 @@ function renderToggleView() {
   if (!container) return;
 
   // 種目コードでグループ化
-  const groups = groupByEventCode(masterData.schedule);
+  const groups = groupByEventCode(masterData?.schedule || []);
 
   container.innerHTML = '';
   groups.forEach(({ eventCode, eventName, category, races }) => {
@@ -520,7 +522,7 @@ function renderScheduleView() {
   if (!container || !masterData) return;
 
   // 日付・時刻順にソート
-  const sorted = [...masterData.schedule].sort((a, b) => {
+  const sorted = [...(masterData?.schedule || [])].sort((a, b) => {
     const aStr = a.date + ' ' + a.time;
     const bStr = b.date + ' ' + b.time;
     return aStr.localeCompare(bStr);
