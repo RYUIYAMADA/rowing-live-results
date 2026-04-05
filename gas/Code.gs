@@ -345,8 +345,12 @@ function buildRaceJSON(raceNo, measurementData, measurementPoints) {
     }
   }
 
-  // フィニッシュタイム（最後の計測ポイント）でソート
-  const laneEntries = Object.values(laneMap).filter(entry => entry.times[lastPoint]);
+  // フィニッシュあり（完走）とDNF（途中棄権）に分ける
+  const allLanes = Object.values(laneMap);
+  const laneEntries = allLanes.filter(entry => entry.times[lastPoint]);
+  const dnfLanes = allLanes.filter(entry => !entry.times[lastPoint]);
+
+  // 完走レーンをフィニッシュタイムでソート
   laneEntries.sort((a, b) => a.times[lastPoint].time_ms - b.times[lastPoint].time_ms);
 
   // ランク付け（同着考慮）
@@ -368,13 +372,12 @@ function buildRaceJSON(raceNo, measurementData, measurementPoints) {
   }
 
   // split タイム計算（計測ポイントが2つ以上の場合）
-  const results = laneEntries.map(entry => {
+  const finishedResults = laneEntries.map(entry => {
     let split = '';
     if (measurementPoints.length >= 2 && entry.times[firstPoint] && entry.times[lastPoint]) {
       const splitMs = entry.times[lastPoint].time_ms - entry.times[firstPoint].time_ms;
       split = '(' + formatTime(splitMs) + ')';
     }
-
     return {
       lane: entry.lane,
       rank: entry.rank,
@@ -384,13 +387,27 @@ function buildRaceJSON(raceNo, measurementData, measurementPoints) {
       tie_group: entry.tie_group || '',
       photo_flag: entry.photo_flag || false,
       note: entry.note || '',
+      status: 'finish',
     };
   });
+
+  // 途中棄権（DNF）レーン: 順位なし
+  const dnfResults = dnfLanes.map(entry => ({
+    lane: entry.lane,
+    rank: null,
+    times: entry.times,
+    finish: null,
+    split: '',
+    tie_group: '',
+    photo_flag: false,
+    note: entry.note || '',
+    status: 'dnf',
+  }));
 
   return {
     race_no: raceNo,
     updated_at: new Date().toISOString(),
-    results: results,
+    results: [...finishedResults, ...dnfResults],
   };
 }
 
@@ -1267,4 +1284,48 @@ function createTestCSVs() {
 
   Logger.log('[createTestCSVs] 完了: ' + csvData.length + 'ファイル生成');
   Logger.log('5分以内に onTrigger が自動実行してJSONを生成します');
+}
+
+/**
+ * テスト用: 棄権・途中棄権を含むrace_006のCSVをDriveに生成する
+ * レーン1〜3: 完走 / レーン4: 途中棄権（500mのみ） / レーン5: 棄権（CSVなし）
+ */
+function createTestRace006() {
+  const props = PropertiesService.getScriptProperties();
+  const rootId = props.getProperty(CONFIG.props.driveFolderId);
+  const raceCsvFolder = getOrCreateFolder(rootId, CONFIG.folders.raceCsv);
+  const folder500 = getOrCreateFolder(raceCsvFolder.getId(), '500m');
+  const folder1000 = getOrCreateFolder(raceCsvFolder.getId(), '1000m');
+  const header = 'measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note\n';
+
+  const csvData = [
+    // 500m: レーン1〜4（レーン5はDNS=CSVなし）
+    {
+      name: '20250607_083000_R006_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,118200,1:58.200,6,,,\n' +
+        '500m,2,1,119800,1:59.800,6,,,\n' +
+        '500m,3,1,117500,1:57.500,6,,,\n' +
+        '500m,4,1,121000,2:01.000,6,,,\n'  // レーン4: DNF（1000mなし）
+    },
+    // 1000m: レーン1〜3のみ（レーン4はDNF・レーン5はDNS）
+    {
+      name: '20250607_083800_R006_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,239400,3:59.400,6,,,\n' +
+        '1000m,2,1,242600,4:02.600,6,,,\n' +
+        '1000m,3,1,237200,3:57.200,6,,,\n'
+    },
+  ];
+
+  csvData.forEach(({ name, folder, content }) => {
+    const existing = folder.getFilesByName(name);
+    while (existing.hasNext()) existing.next().setTrashed(true);
+    folder.createFile(name, content, MimeType.PLAIN_TEXT);
+    Logger.log('[createTestRace006] 作成: ' + name);
+  });
+
+  Logger.log('[createTestRace006] 完了');
+  Logger.log('  レーン1〜3: 完走 / レーン4: 途中棄権（500mのみ） / レーン5: 棄権（CSVなし）');
+  Logger.log('5分以内に onTrigger が自動実行します');
 }

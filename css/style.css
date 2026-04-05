@@ -789,3 +789,8 @@ td.age-group-cell { text-align: center; }
   .notion-page { padding: 0; max-width: 100%; }
   .schedule-next-race td { background: none !important; }
 }
+
+/* 棄権・途中棄権 */
+.row-retired td { color: var(--text-muted); }
+.rank-dns, .rank-dnf { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.status-dns, .status-dnf { font-size: 12px; color: var(--text-muted); letter-spacing: 0.05em; }

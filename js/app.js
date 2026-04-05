@@ -357,8 +357,19 @@ function renderResultTable(race, result) {
   const entryMap = {};
   (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
 
-  // 結果をrank順にソート
-  const sorted = [...result.results].sort((a, b) => a.rank - b.rank);
+  // エントリーにあるが結果にないレーン → 棄権（DNS）として追加
+  const resultLanes = new Set(result.results.map(r => r.lane));
+  const dnsRows = (race.entries || [])
+    .filter(e => !resultLanes.has(e.lane))
+    .map(e => ({ lane: e.lane, rank: null, times: {}, finish: null, split: '', tie_group: '', photo_flag: false, note: '', status: 'dns' }));
+
+  // 結果をrank順にソート（完走→DNF→DNS の順）
+  const sorted = [...result.results, ...dnsRows].sort((a, b) => {
+    if (a.status === 'finish' && b.status !== 'finish') return -1;
+    if (a.status !== 'finish' && b.status === 'finish') return 1;
+    if (a.rank !== null && b.rank !== null) return a.rank - b.rank;
+    return a.lane - b.lane;
+  });
 
   // 同着グループを集計: tie_group が同じ艇が複数いるか
   const tieGroupCounts = {};
@@ -370,29 +381,39 @@ function renderResultTable(race, result) {
 
   const rows = sorted.map(r => {
     const entry = entryMap[r.lane] || {};
+    const isDns = r.status === 'dns';
+    const isDnf = r.status === 'dnf';
+
     const midTime = showMidpoint && r.times && r.times[pts[0]]
       ? `<span class="time-split">${r.times[pts[0]].formatted}</span>`
-      : '-';
+      : (isDns ? '-' : '-');
 
-    const rankClass = r.rank <= 3 ? `rank-${r.rank}` : '';
+    const rankClass = r.rank !== null && r.rank <= 3 ? `rank-${r.rank}` : '';
     const photoMark = r.photo_flag ? '📷' : '';
     const note = r.note ? `<span style="color:#e03e3e;font-size:11px">${r.note}</span>` : '';
-    // 同着判定: tie_group があり、かつ同じtie_groupを持つ艇が複数いる場合のみ「=」付与
     const isTie = r.tie_group && tieGroupCounts[r.tie_group] > 1;
-    const rankDisplay = `<span class="rank rank-${r.rank}">${r.rank}${isTie ? '=' : ''}</span>`;
+
+    let rankDisplay, finishDisplay;
+    if (isDns) {
+      rankDisplay = `<span class="rank-dns">棄権</span>`;
+      finishDisplay = `<span class="status-dns">DNS</span>`;
+    } else if (isDnf) {
+      rankDisplay = `<span class="rank-dnf">途中棄権</span>`;
+      finishDisplay = `<span class="status-dnf">DNF</span>`;
+    } else {
+      rankDisplay = `<span class="rank rank-${r.rank}">${r.rank}${isTie ? '=' : ''}</span>`;
+      finishDisplay = `<span class="time-main">${r.finish ? r.finish.formatted : '-'}</span>${r.split ? `<div class="time-half">${r.split}</div>` : ''}`;
+    }
 
     return `
-      <tr class="${rankClass}">
+      <tr class="${rankClass}${isDns || isDnf ? ' row-retired' : ''}">
         <td>${rankDisplay}</td>
         <td>${r.lane}</td>
         <td class="crew-name">${entry.crew_name || '-'}</td>
         <td>${entry.affiliation || '-'}</td>
-        <td class="hide-mobile">${midTime}</td>
-        <td>
-          <span class="time-main">${r.finish ? r.finish.formatted : '-'}</span>
-          ${r.split ? `<div class="time-half">${r.split}</div>` : ''}
-        </td>
-        <td>${photoMark}${note}</td>
+        <td class="hide-mobile">${isDns ? '-' : midTime}</td>
+        <td>${finishDisplay}</td>
+        <td>${isDns ? '' : photoMark + note}</td>
       </tr>`;
   }).join('');
 
