@@ -1,87 +1,128 @@
-/* ========= ベース ========= */
+/* ========= リセット・ベース ========= */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-  background: #fff;
-  color: #37352f;
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
 }
 
-/* ========= カバー・ページ ========= */
-.notion-cover {
-  height: 180px;
-  background: linear-gradient(135deg, #1a3a5c 0%, #2d6aa3 50%, #4a90d9 100%);
-  position: relative;
-}
-.notion-cover-text {
-  position: absolute;
-  bottom: 20px;
-  left: 40px;
-  color: #fff;
-  font-size: 12px;
-  opacity: 0.7;
-}
-/* カバーエリア大会情報 */
-.cover-content {
-  position: absolute;
-  bottom: 24px;
-  left: 40px;
-  color: #fff;
-}
-/* notion-cover-text と重ならないよう非表示（cover-contentで代替） */
-.notion-cover-text {
-  display: none;
-}
-.cover-tournament-name {
-  font-size: 18px;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-}
-.cover-meta {
-  font-size: 13px;
-  opacity: 0.85;
-  margin-top: 4px;
-}
-.notion-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 80px 24px 120px;
+/* ========= カラー変数 ========= */
+:root {
+  --bg:         #F7F4EF;
+  --card:       #FFFFFF;
+  --border:     #D9D4CA;
+  --text:       #3D3B38;
+  --text-sub:   #7A7570;
+  --text-muted: #B0AAA3;
+  --accent:     #5C8A5A;
+  --accent-bg:  #EBF1EA;
+  --gold:       #A08C5B;
+  --silver:     #8A8883;
+  --bronze:     #9E7B5A;
+  --live:       #C0392B;
+  --live-bg:    #FDF0EE;
+  --radius:     2px;
 }
 
-h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-top: 20px; }
+/* ========= カバーエリア（site-header） ========= */
+.site-header {
+  background: #2D4F2C;
+  padding: 32px 40px 28px;
+}
+.site-header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.site-header-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+.cover-tournament-name {
+  font-size: 22px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+.cover-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 6px;
+  letter-spacing: 0.03em;
+}
+
+/* ========= ページ本体 ========= */
+.notion-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
+
+/* ========= 大会タイトル ========= */
+h1.page-title {
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-top: 20px;
+  color: var(--text);
+}
 .page-meta {
-  font-size: 14px;
-  color: #999;
-  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 28px;
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
 }
 
 /* ========= バッジ ========= */
-.badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: 600; }
-.badge-live { background: #ffe0e0; color: #e03e3e; }
-.badge-done { background: #dbeddb; color: #0f7b0f; }
-.badge-upcoming { background: #f0f0f0; color: #787774; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+.badge-live {
+  background: var(--live-bg);
+  color: var(--live);
+}
+.badge-done {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.badge-upcoming {
+  background: #F0EDE7;
+  color: var(--text-muted);
+}
 
 /* ========= ビュー切替タブ ========= */
 .view-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
 }
 .view-tab {
   padding: 10px 20px;
   cursor: pointer;
   font-size: 14px;
-  color: #999;
+  color: var(--text-muted);
   border-bottom: 2px solid transparent;
-  transition: all 0.15s;
+  transition: color 0.2s ease, border-color 0.2s ease;
   user-select: none;
 }
-.view-tab:hover { color: #37352f; }
-.view-tab.active { color: #37352f; border-bottom-color: #2383e2; font-weight: 600; }
+.view-tab:hover { color: var(--text); }
+.view-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  font-weight: 400;
+}
 .view-content { display: none; }
 .view-content.active { display: block; }
 
@@ -89,73 +130,114 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 .filter-bar {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   align-items: center;
-  padding: 10px 14px;
-  background: #f7f7f5;
-  border-radius: 6px;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
-.filter-bar label { font-size: 12px; color: #999; font-weight: 600; }
+.filter-bar label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
 .filter-select {
   padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   font-size: 13px;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.2s ease;
 }
-.filter-select:focus { outline: none; border-color: #2383e2; }
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 .filter-search {
   padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   font-size: 13px;
   width: 180px;
+  color: var(--text);
+  font-family: inherit;
+  background: var(--card);
+  transition: border-color 0.2s ease;
 }
-.filter-search::placeholder { color: #ccc; }
+.filter-search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.filter-search::placeholder { color: var(--text-muted); }
 .filter-reset {
   padding: 5px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: none;
+  background: none;
   font-size: 12px;
-  background: #fff;
   cursor: pointer;
-  color: #999;
+  color: var(--text-sub);
+  font-family: inherit;
+  transition: color 0.2s ease;
 }
-.filter-reset:hover { background: #f0f0f0; }
-.filter-count { font-size: 12px; color: #999; margin-left: auto; }
+.filter-reset:hover { color: var(--text); }
+.filter-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
 
-/* ========= トグル ========= */
+/* ========= トグル（種目ブロック） ========= */
 .toggle {
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   margin-bottom: 8px;
-  background: #fff;
+  background: var(--card);
+  transition: border-color 0.2s ease;
+}
+.toggle.open {
+  border-left: 3px solid var(--accent);
 }
 .toggle-header {
   display: flex;
   align-items: center;
-  padding: 10px 14px;
+  padding: 12px 16px;
   cursor: pointer;
   user-select: none;
-  transition: background 0.1s;
+  transition: background 0.2s ease;
   gap: 10px;
 }
-.toggle-header:hover { background: #fafafa; }
-.toggle-arrow { font-size: 12px; color: #999; transition: transform 0.2s; flex-shrink: 0; width: 16px; }
+.toggle-header:hover { background: #FAF8F4; }
+.toggle-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  width: 16px;
+}
 .toggle.open .toggle-arrow { transform: rotate(90deg); }
-.toggle-title { font-weight: 600; font-size: 15px; flex: 1; }
+.toggle-title {
+  font-weight: 400;
+  font-size: 15px;
+  flex: 1;
+  color: var(--text);
+}
 .toggle-code {
   font-size: 11px;
-  color: #999;
-  background: #f0f0f0;
+  color: var(--text-muted);
+  background: #F0EDE7;
   padding: 2px 8px;
-  border-radius: 3px;
+  border-radius: var(--radius);
   font-family: monospace;
+  letter-spacing: 0.03em;
 }
-.toggle-count { font-size: 12px; color: #999; }
-.toggle-body { display: none; padding: 0 14px 14px; }
+.toggle-count { font-size: 12px; color: var(--text-muted); }
+.toggle-body { display: none; padding: 0 16px 16px; }
 .toggle.open .toggle-body { display: block; }
 
 /* ========= レース結果テーブル ========= */
@@ -164,71 +246,118 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
-  margin-top: 12px;
+  margin-top: 14px;
   padding: 8px 12px;
-  background: #f7f7f5;
-  border-radius: 4px;
+  background: #FAF8F4;
+  border-radius: var(--radius);
 }
-.race-label { font-weight: 600; font-size: 14px; }
-.race-info { font-size: 12px; color: #888; }
+.race-label {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text);
+}
+.race-info { font-size: 12px; color: var(--text-sub); }
 
-.result-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
-.result-table th {
-  padding: 7px 8px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  color: #999;
-  border-bottom: 2px solid #e8e8e8;
-  background: #fafafa;
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 8px;
 }
-.result-table td { padding: 7px 8px; border-bottom: 1px solid #f0f0f0; }
-.result-table tr:hover { background: #fafafa; }
-.rank-1 { font-weight: 600; }
-.rank-1 td:first-child { color: #d4a017; }
-.rank-2 td:first-child { color: #8a8a8a; }
-.rank-3 td:first-child { color: #b87333; }
-.crew-name { font-weight: 600; }
-.time-main { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14px; }
-.time-split { font-variant-numeric: tabular-nums; color: #666; font-size: 12px; }
-.time-half { font-size: 11px; color: #999; }
+.result-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: #FAF8F4;
+}
+.result-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #F0EDE7;
+  color: var(--text);
+}
+.result-table tr:hover td { background: #FAF8F4; }
+
+/* 1位行: 左に gold の 3px ボーダー */
+.rank-1 td:first-child {
+  color: var(--gold);
+  font-weight: 600;
+  border-left: 3px solid var(--gold);
+  padding-left: 7px;
+}
+.rank-2 td:first-child { color: var(--silver); }
+.rank-3 td:first-child { color: var(--bronze); }
+
+.crew-name { font-weight: 400; color: var(--text); }
+.time-main {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: var(--text);
+}
+.time-split {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-sub);
+  font-size: 12px;
+}
+.time-half { font-size: 11px; color: var(--text-muted); }
 
 /* 結果なし */
-.no-result { color: #bbb; font-size: 13px; padding: 12px 0; font-style: italic; }
+.no-result {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 14px 0;
+}
 
 /* ========= 全レーステーブル（DBビュー） ========= */
 .db-table-wrapper { overflow-x: auto; }
-.db-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
 .db-table th {
-  padding: 8px 8px;
+  padding: 9px 10px;
   text-align: left;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 11px;
-  color: #999;
-  border-bottom: 2px solid #e8e8e8;
-  background: #fafafa;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: #FAF8F4;
   position: sticky;
   top: 0;
   cursor: pointer;
   white-space: nowrap;
 }
-.db-table th:hover { background: #f0f0f0; }
-.db-table th .sort-icon { font-size: 10px; margin-left: 2px; color: #ccc; }
-.db-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-.db-table tr:hover { background: #f7f7f5; }
+.db-table th:hover { background: #F0EDE7; }
+.db-table th .sort-icon { font-size: 10px; margin-left: 2px; color: var(--text-muted); }
+.db-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #F0EDE7;
+  white-space: nowrap;
+  color: var(--text);
+}
+.db-table tr:hover td { background: #FAF8F4; }
 .db-code {
   font-family: monospace;
-  background: #e8f4fd;
-  color: #2383e2;
+  background: var(--accent-bg);
+  color: var(--accent);
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--radius);
   font-size: 11px;
 }
-.db-round { font-size: 11px; padding: 2px 6px; border-radius: 3px; }
-.db-round-fa { background: #ffe0e0; color: #e03e3e; }
-.db-round-h { background: #e8f4fd; color: #2383e2; }
-.db-round-rk { background: #f0f0f0; color: #666; }
+.db-round {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: var(--radius);
+}
+.db-round-fa { background: var(--live-bg); color: var(--live); }
+.db-round-h { background: var(--accent-bg); color: var(--accent); }
+.db-round-rk { background: #F0EDE7; color: var(--text-sub); }
 
 /* ========= ステータスバー ========= */
 .update-bar {
@@ -236,10 +365,11 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   bottom: 0;
   left: 0;
   right: 0;
-  background: #37352f;
+  background: #3D3B38;
   color: #fff;
-  padding: 8px 24px;
-  font-size: 13px;
+  padding: 0 24px;
+  height: 44px;
+  font-size: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -254,7 +384,7 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 }
 .update-bar-center {
   font-size: 12px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.65);
   text-align: center;
   flex: 1;
   white-space: nowrap;
@@ -265,10 +395,10 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 .hide-mobile-flex { display: flex; justify-content: center; }
 .live-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #4caf50;
+  background: var(--accent);
   margin-right: 6px;
   animation: pulse 1.5s infinite;
 }
@@ -280,9 +410,10 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
-  margin-bottom: 24px;
-  border-radius: 6px;
+  margin-bottom: 28px;
+  border-radius: var(--radius);
   background: #000;
+  border: 1px solid var(--border);
 }
 .youtube-wrapper iframe {
   position: absolute;
@@ -292,13 +423,18 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 }
 
 /* ========= ローディング ========= */
-.loading { text-align: center; padding: 40px; color: #999; font-size: 14px; }
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
 .loading-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #e0e0e0;
-  border-top-color: #2383e2;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-right: 8px;
@@ -308,9 +444,9 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 
 /* ========= レスポンシブ ========= */
 @media (max-width: 768px) {
-  .notion-page { padding: 16px 12px 80px; }
-  h1.page-title { font-size: 26px; }
-  /* フィルタバーをモバイルで横スクロール可能に */
+  .site-header { padding: 24px 20px 20px; }
+  .notion-page { padding: 20px 14px 80px; }
+  h1.page-title { font-size: 22px; }
   .filter-bar {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -320,7 +456,6 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
     -webkit-overflow-scrolling: touch;
   }
   .filter-bar label { display: none; }
-  /* フィルタセレクトを小さく */
   .filter-select {
     font-size: 12px;
     padding: 4px 6px;
@@ -338,27 +473,22 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
     flex-shrink: 0;
   }
   .filter-count { margin-left: 0; flex-shrink: 0; }
-  /* トグルヘッダーのテキスト折り返し改善 */
   .toggle-title { font-size: 13px; }
   .toggle-code { display: none; }
-  /* クルー名の省略表示 */
   .crew-name {
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* ランク・レーン列をコンパクトに */
   .result-table th:first-child,
   .result-table td:first-child { width: 28px; padding: 6px 4px; }
   .result-table th:nth-child(2),
   .result-table td:nth-child(2) { width: 22px; padding: 6px 4px; }
   .db-table { font-size: 11px; }
   .hide-mobile { display: none !important; }
-  /* ステータスバー */
-  .update-bar { font-size: 11px; padding: 6px 10px; }
+  .update-bar { font-size: 11px; padding: 0 10px; }
   .hide-mobile-flex { display: none !important; }
-  /* スケジュールビューのモバイル対応 */
   .schedule-table { font-size: 12px; }
   .sc-event-name { max-width: 130px; }
   .sc-winner { display: none; }
@@ -367,28 +497,24 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 
 /* ========= スケルトンローディング ========= */
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #EDE9E3 25%, #E5E0D9 50%, #EDE9E3 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 @keyframes shimmer {
   0%  { background-position: 200% 0; }
   100%{ background-position: -200% 0; }
 }
-/* スケルトントグルブロック */
 .skeleton-toggle {
   height: 44px;
   margin-bottom: 8px;
 }
-/* スケルトン行（テーブル内） */
-.skeleton-row td {
-  padding: 10px 8px;
-}
+.skeleton-row td { padding: 10px 8px; }
 .skeleton-cell {
   display: inline-block;
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius);
 }
 
 /* ========= トースト通知 ========= */
@@ -403,15 +529,14 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   pointer-events: none;
 }
 .toast {
-  background: #37352f;
+  background: #3D3B38;
   color: #fff;
   padding: 10px 16px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 13px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.25s, transform 0.25s;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: auto;
   max-width: 280px;
 }
@@ -426,23 +551,25 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
 
 /* ========= レースアンカーハイライト ========= */
 .toggle.highlighted {
-  box-shadow: 0 0 0 2px #2383e2;
+  border-color: var(--accent);
+  border-left: 3px solid var(--accent);
 }
 
 /* ========= ステータスバー：手動更新ボタン ========= */
 .refresh-btn {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.4);
-  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
   padding: 3px 10px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.2s ease;
   margin-left: 10px;
+  font-family: inherit;
 }
-.refresh-btn:hover { background: rgba(255,255,255,0.15); }
-.refresh-btn:disabled { opacity: 0.5; cursor: default; }
+.refresh-btn:hover { background: rgba(255,255,255,0.12); }
+.refresh-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* ========= スケジュールビュー ========= */
 .schedule-table {
@@ -451,43 +578,48 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   font-size: 13px;
 }
 .schedule-table th {
-  padding: 8px 10px;
+  padding: 9px 12px;
   text-align: left;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 11px;
-  color: #999;
-  border-bottom: 2px solid #e8e8e8;
-  background: #fafafa;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: #FAF8F4;
   white-space: nowrap;
 }
 .schedule-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 9px 12px;
+  border-bottom: 1px solid #F0EDE7;
+  color: var(--text);
 }
-.schedule-table tr:hover td {
-  background: #fafafa;
-}
+.schedule-table tr:hover td { background: #FAF8F4; }
+
 /* 日付セパレーター行 */
 .schedule-date-sep td {
   text-align: center;
-  font-size: 12px;
-  color: #999;
-  background: #f7f7f5;
-  font-weight: 600;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg);
+  font-weight: 400;
   padding: 6px;
-  letter-spacing: 1px;
+  letter-spacing: 0.1em;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
+
 /* 次のレース行のハイライト */
 .schedule-next-race td {
-  background: #e8f4fd !important;
+  background: var(--accent-bg) !important;
 }
 .schedule-next-race .sc-time {
-  font-weight: 700;
-  color: #2383e2;
+  font-weight: 600;
+  color: var(--accent);
 }
+
 /* 列幅 */
 .sc-time  { width: 52px; white-space: nowrap; }
-.sc-no    { width: 60px; white-space: nowrap; font-size: 12px; color: #888; }
+.sc-no    { width: 60px; white-space: nowrap; font-size: 12px; color: var(--text-sub); }
 .sc-event { }
 .sc-event-name {
   display: block;
@@ -495,9 +627,9 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 400;
 }
-.sc-round { width: 60px; font-size: 12px; color: #666; }
+.sc-round { width: 60px; font-size: 12px; color: var(--text-sub); }
 .sc-status { width: 60px; }
 .sc-winner { width: 130px; }
 .sc-winner-name {
@@ -507,21 +639,98 @@ h1.page-title { font-size: 36px; font-weight: 700; margin-bottom: 8px; padding-t
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
-  color: #555;
+  color: var(--text-sub);
 }
 
 /* ========= テーブルソートアイコン ========= */
-.db-table th.sort-asc  .sort-icon::after { content: ' ↑'; color: #2383e2; }
-.db-table th.sort-desc .sort-icon::after { content: ' ↓'; color: #2383e2; }
-.db-table th .sort-icon { color: #ccc; }
+.db-table th.sort-asc  .sort-icon::after { content: ' ↑'; color: var(--accent); }
+.db-table th.sort-desc .sort-icon::after { content: ' ↓'; color: var(--accent); }
+.db-table th .sort-icon { color: var(--text-muted); }
+
+/* ========= ランク表示（絵文字廃止・シンプル数字） ========= */
+.rank {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 13px;
+}
+.rank-1 { color: var(--gold); }
+.rank-2 { color: var(--silver); }
+.rank-3 { color: var(--bronze); }
+
+/* ========= スケジュールビュー追加スタイル ========= */
+/* 未実施レース行を薄く表示 */
+.schedule-row-pending td {
+  color: var(--text-muted);
+}
+/* 全レース確定時のフッターメッセージ */
+.schedule-all-done {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 16px 0;
+  letter-spacing: 0.05em;
+}
+
+/* ========= エラーカード ========= */
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 360px;
+  margin: 48px auto;
+  text-align: center;
+}
+.error-icon {
+  font-size: 32px;
+  color: var(--text-muted);
+  line-height: 1;
+}
+.error-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+.error-body {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.error-card button {
+  margin-top: 12px;
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.error-card button:hover { background: var(--accent-bg); }
+
+/* ========= アーカイブバッジ ========= */
+#archive-badge {
+  display: none;
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--text-muted);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
 
 /* ========= 印刷用スタイル ========= */
 @media print {
   .filter-bar, .view-tabs, .update-bar, .toggle-arrow, #toast-container { display: none !important; }
-  .toggle { border: none; }
+  body { background: #fff; }
+  .toggle { border: 1px solid #ddd; }
   .toggle-body { display: block !important; }
   h1.page-title { font-size: 20px; }
-  .notion-cover { display: none; }
+  .site-header { display: none; }
   .notion-page { padding: 0; max-width: 100%; }
   .schedule-next-race td { background: none !important; }
 }

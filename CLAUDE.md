@@ -72,12 +72,13 @@ Google Drive (race_csv/500m/, race_csv/1000m/)
 ## 開発フェーズ
 - [x] Phase 0: 設計（モックアップ・CSV仕様・マニュアル・見積もり）
 - [x] Phase 1: MVP開発
-  - [x] GAS自動連携スクリプト (Code.gs)
-  - [x] セットアップガイド
-  - [x] 仕様書 v3.1
-  - [x] フロントエンド（index.html + CSS + JS）
-  - [ ] GitHub → Cloudflare Pages 連携設定
-  - [ ] エンドツーエンドテスト
+  - [x] GAS自動連携スクリプト (gas/Code.gs) - 1047行
+  - [x] セットアップガイド (gas/セットアップガイド.html)
+  - [x] フロントエンド (index.html + css/style.css + js/app.js)
+  - [x] GitHub Actions CI (.github/workflows/)
+  - [x] Cloudflare Pages デプロイ済み (https://rowing-live-results.pages.dev)
+  - [x] E2Eテスト (test/e2e_test.py) - 全13テストPASS
+  - [x] 運用ツール (tools/)
 - [ ] Phase 2: テスト大会実証 + スタッフトレーニング
 - [ ] Phase 3: 通知機能（任意）
 
@@ -134,6 +135,20 @@ Google Drive (race_csv/500m/, race_csv/1000m/)
   ]
 }
 ```
+
+## デプロイ先
+- **本番サイト**: https://rowing-live-results.pages.dev
+- **GitHub**: https://github.com/RYUIYAMADA/rowing-live-results
+
+## 開発・運用コマンド
+| コマンド | 用途 |
+|---|---|
+| `make test` | E2Eテスト実行 |
+| `make watch` | CSV watchモード（ブラウザ確認あり） |
+| `make status` | システム状態確認 |
+| `make pipeline` | テストCSVからrace JSON生成 |
+| `python3 tools/init_tournament.py` | 新大会セットアップ |
+| `python3 tools/check_status.py --site URL` | 本番サイト確認 |
 
 ## コーディング規約
 - コメントは日本語

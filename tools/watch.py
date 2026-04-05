@@ -33,6 +33,9 @@ import simulate_pipeline as pipeline
 # 定数
 # ---------------------------------------------------------------------------
 
+# 処理済みファイルリストの永続化ファイル
+STATE_FILE = PROJECT_DIR / ".watch_state.json"
+
 # ポーリング間隔（秒）
 POLL_INTERVAL = 3
 
@@ -60,6 +63,33 @@ class C:
     RED    = "\033[31m"
     GRAY   = "\033[90m"
     BLUE   = "\033[34m"
+
+
+def load_state() -> set:
+    """
+    前回の処理済みファイルリストを .watch_state.json から読み込む。
+    ファイルが存在しない・壊れている場合は空セットを返す。
+    """
+    if not STATE_FILE.exists():
+        return set()
+    try:
+        with open(STATE_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+        return set(data.get("processed_files", []))
+    except (json.JSONDecodeError, OSError):
+        return set()
+
+
+def save_state(processed: set) -> None:
+    """
+    処理済みファイルリストを .watch_state.json に保存する。
+    watch.py 終了・再起動時に同じファイルを再処理しないようにするため。
+    """
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump({"processed_files": sorted(processed)}, f, ensure_ascii=False, indent=2)
+    except OSError as e:
+        log_error(f"状態ファイルの保存に失敗しました: {e}")
 
 
 def _timestamp() -> str:
@@ -276,10 +306,19 @@ def run(args: argparse.Namespace) -> None:
         log_server(f"ブラウザで確認: http://localhost:{HTTP_PORT}")
         print()
 
+    # 前回の処理済みファイルリストを読み込む
+    persisted_files = load_state()
+    if persisted_files:
+        log_watch(f"前回の処理済みファイルを復元: {len(persisted_files)} ファイル")
+
     # 初期ファイルリスト（起動時点の既存ファイルは処理済みとみなす）
-    known_files: set = scan_csv_files(csv_dir)
-    if known_files:
-        log_watch(f"起動時点で {len(known_files)} ファイルを確認（処理済みとして登録）")
+    current_at_start = scan_csv_files(csv_dir)
+    known_files: set = persisted_files | current_at_start
+    if current_at_start - persisted_files:
+        log_watch(
+            f"起動時点で {len(current_at_start - persisted_files)} ファイルを新たに確認"
+            "（処理済みとして登録）"
+        )
     log_watch("新しいCSVファイルの追加を待機中... (Ctrl+C で終了)\n")
 
     # ポーリングループ
@@ -293,6 +332,7 @@ def run(args: argparse.Namespace) -> None:
             for filename in sorted(new_files):
                 # 処理済みセットに追加（2重処理防止）
                 known_files.add(filename)
+                save_state(known_files)
                 try:
                     process_new_file(
                         filename          = filename,
@@ -309,6 +349,8 @@ def run(args: argparse.Namespace) -> None:
     except KeyboardInterrupt:
         print(f"\n{C.CYAN}[Watch]{C.RESET} Ctrl+C を受信 → 監視を終了します")
         print(f"{C.CYAN}[Watch]{C.RESET} 処理済みファイル数: {len(known_files)}")
+        save_state(known_files)
+        print(f"{C.CYAN}[Watch]{C.RESET} 状態を {STATE_FILE} に保存しました")
         print()
 
 

@@ -61,6 +61,9 @@ class C:
 # テスト定数
 # ---------------------------------------------------------------------------
 
+# プロジェクトルートディレクトリ
+ROOT_DIR = PROJECT_DIR
+
 # テスト用CSVディレクトリ
 CSV_DIR = TEST_DIR / "csv"
 
@@ -412,6 +415,78 @@ def test_master_json(result: TestResult, verbose: bool) -> None:
             )
 
 
+def test_html_structure(result: TestResult, verbose: bool) -> None:
+    """
+    テスト8: フロントエンド HTML構造検証
+    index.html の構造が正しいか検証する。
+    - 必須IDが存在するか: tournament-name, view-toggle, view-table, view-schedule 等
+    - 必須スクリプトが読み込まれているか: js/app.js
+    - 必須CSSが読み込まれているか: css/style.css
+    """
+    html_path = ROOT_DIR / "index.html"
+
+    if not html_path.exists():
+        result.fail("HTML構造: index.html", f"ファイルが存在しません: {html_path}")
+        return
+
+    content = html_path.read_text(encoding="utf-8")
+
+    required_ids = [
+        "tournament-name",
+        "view-toggle",
+        "view-table",
+        "view-schedule",
+        "filter-cat",
+        "filter-round",
+        "filter-day",
+        "last-updated",
+    ]
+    required_scripts = ["js/app.js"]
+    required_css     = ["css/style.css"]
+
+    # 必須IDの存在確認
+    missing_ids = [id_ for id_ in required_ids if f'id="{id_}"' not in content]
+    if missing_ids:
+        result.fail(
+            "HTML構造: 必須IDが見つかりません",
+            f"不足: {missing_ids}",
+        )
+    else:
+        result.ok(
+            "HTML構造: 全必須IDが存在",
+            f"{len(required_ids)}件確認",
+        )
+        if verbose:
+            for id_ in required_ids:
+                print(f"  {C.GRAY}  id=\"{id_}\" ... OK{C.RESET}")
+
+    # 必須スクリプトの存在確認
+    missing_scripts = [s for s in required_scripts if s not in content]
+    if missing_scripts:
+        result.fail(
+            "HTML構造: 必須スクリプトが見つかりません",
+            f"不足: {missing_scripts}",
+        )
+    else:
+        result.ok(
+            "HTML構造: 必須スクリプトが読み込まれている",
+            f"{', '.join(required_scripts)}",
+        )
+
+    # 必須CSSの存在確認
+    missing_css = [c for c in required_css if c not in content]
+    if missing_css:
+        result.fail(
+            "HTML構造: 必須CSSが見つかりません",
+            f"不足: {missing_css}",
+        )
+    else:
+        result.ok(
+            "HTML構造: 必須CSSが読み込まれている",
+            f"{', '.join(required_css)}",
+        )
+
+
 def test_split_format(result: TestResult, generated: dict, verbose: bool) -> None:
     """
     テスト7: splitTime フォーマット検証
@@ -530,6 +605,9 @@ def run(args: argparse.Namespace) -> int:
 
     # テスト7: splitTime フォーマット検証
     test_split_format(result, generated, verbose)
+
+    # テスト8: フロントエンドHTML構造検証
+    test_html_structure(result, verbose)
 
     # フッター出力
     print(f"{'='*40}")

@@ -9,22 +9,22 @@
 <meta property="og:title" content="ボート競技 速報サイト">
 <meta property="og:description" content="レース結果をリアルタイム更新">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#1a3a5c">
+<meta name="theme-color" content="#2D4F2C">
 
 <!-- favicon（外部ファイル不要のbase64 SVG） -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚣</text></svg>">
 
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background: #F7F4EF">
 
-<div class="notion-cover">
-  <div class="notion-cover-text">🚣 ボート競技速報サイト</div>
-  <div class="cover-content">
-    <div class="cover-tournament-name" id="cover-tournament-name"></div>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="site-header-label">BOAT RACE RESULTS</div>
+    <div class="cover-tournament-name" id="cover-tournament-name">速報サイト</div>
     <div class="cover-meta" id="cover-meta"></div>
   </div>
-</div>
+</header>
 
 <div class="notion-page">
 
@@ -140,7 +140,8 @@
 <!-- ステータスバー -->
 <div class="update-bar">
   <div class="update-bar-left">
-    <span class="live-dot"></span>LIVE |
+    <span class="live-dot"></span>LIVE
+    <span id="archive-badge" style="display:none">アーカイブ</span> |
     更新 <span id="last-updated">-</span>
     <!-- 手動更新ボタン（短縮版） -->
     <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">🔄</button>

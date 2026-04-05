@@ -337,7 +337,7 @@ function renderRaceBlock(race) {
         <span class="race-label">${race.event_name}${ageLabel} ${roundName}</span>
         ${statusBadge}
       </div>
-      <div class="race-info">Race No.${race.race_no} | ${dateStr} ${race.time}</div>
+      <div class="race-info">Race No.${race.race_no} | ${dateStr} ${formatRaceTime(race.time)}</div>
     </div>
     ${tableHTML}`;
 }
@@ -356,12 +356,13 @@ function renderResultTable(race, result) {
   // 結果をrank順にソート
   const sorted = [...result.results].sort((a, b) => a.rank - b.rank);
 
-  const rankIcon = (rank) => {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
-    return rank;
-  };
+  // 同着グループを集計: tie_group が同じ艇が複数いるか
+  const tieGroupCounts = {};
+  sorted.forEach(r => {
+    if (r.tie_group) {
+      tieGroupCounts[r.tie_group] = (tieGroupCounts[r.tie_group] || 0) + 1;
+    }
+  });
 
   const rows = sorted.map(r => {
     const entry = entryMap[r.lane] || {};
@@ -372,10 +373,13 @@ function renderResultTable(race, result) {
     const rankClass = r.rank <= 3 ? `rank-${r.rank}` : '';
     const photoMark = r.photo_flag ? '📷' : '';
     const note = r.note ? `<span style="color:#e03e3e;font-size:11px">${r.note}</span>` : '';
+    // 同着判定: tie_group があり、かつ同じtie_groupを持つ艇が複数いる場合のみ「=」付与
+    const isTie = r.tie_group && tieGroupCounts[r.tie_group] > 1;
+    const rankDisplay = `<span class="rank rank-${r.rank}">${r.rank}${isTie ? '=' : ''}</span>`;
 
     return `
       <tr class="${rankClass}">
-        <td>${rankIcon(r.rank)}</td>
+        <td>${rankDisplay}</td>
         <td>${r.lane}</td>
         <td class="crew-name">${entry.crew_name || '-'}</td>
         <td>${entry.affiliation || '-'}</td>
@@ -426,16 +430,16 @@ function renderScheduleView() {
   // 日付ごとにグループ化（日付セパレーター挿入用）
   const uniqueDates = [...new Set(sorted.map(r => r.date))].sort();
 
-  // 現在時刻に最も近い「未実施」レースのrace_noを求める
+  // 現在時刻より後で最も近い「未確定」レースを「次」とする
   const now = new Date();
   let nextRaceNo = null;
-  let minDiff = Infinity;
+  let minFutureDiff = Infinity;
   sorted.forEach(race => {
-    if (resultsCache[race.race_no]) return; // 結果済みはスキップ
+    if (resultsCache[race.race_no]) return; // 結果確定済みは除外
     const raceTime = new Date(race.date + 'T' + race.time + ':00');
-    const diff = Math.abs(raceTime - now);
-    if (diff < minDiff) {
-      minDiff = diff;
+    const diff = raceTime - now;
+    if (diff >= 0 && diff < minFutureDiff) {
+      minFutureDiff = diff;
       nextRaceNo = race.race_no;
     }
   });
@@ -471,7 +475,7 @@ function renderScheduleView() {
       ? '<span class="badge badge-done">確定</span>'
       : '<span class="badge badge-upcoming">未実施</span>';
 
-    // 1位クルー名（結果ありの場合のみ）
+    // 1位クルー名・所属（結果ありの場合のみ）
     let winnerHtml = '-';
     if (result) {
       const winner = result.results.find(r => r.rank === 1);
@@ -479,13 +483,19 @@ function renderScheduleView() {
         const entryMap = {};
         (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
         const entry = entryMap[winner.lane] || {};
-        winnerHtml = `<span class="sc-winner-name">${entry.crew_name || '-'}</span>`;
+        const affiliation = entry.affiliation ? `${entry.affiliation} / ` : '';
+        winnerHtml = `<span class="sc-winner-name">${affiliation}${entry.crew_name || '-'}</span>`;
       }
     }
 
-    const rowClass = isNext ? 'schedule-next-race' : '';
+    // 未実施レースは薄い色で表示、実施済みは通常
+    const rowClass = [
+      isNext ? 'schedule-next-race' : '',
+      result ? '' : 'schedule-row-pending',
+    ].filter(Boolean).join(' ');
+
     html += `<tr class="${rowClass}" data-race="${race.race_no}">
-      <td class="sc-time">${race.time}</td>
+      <td class="sc-time">${formatRaceTime(race.time)}</td>
       <td class="sc-no">${race.race_no}</td>
       <td class="sc-event"><span class="sc-event-name">${race.event_name}${ageLabel}</span></td>
       <td class="sc-round hide-mobile">${roundName}</td>
@@ -495,6 +505,13 @@ function renderScheduleView() {
   });
 
   html += '</tbody></table>';
+
+  // 全レースが確定済みの場合は「本日のレースは終了しました」を末尾に表示
+  const allConfirmed = masterData.schedule.every(r => resultsCache[r.race_no]);
+  if (allConfirmed) {
+    html += '<p class="schedule-all-done">全レース結果が確定しました</p>';
+  }
+
   container.innerHTML = html;
 
   // 次のレース行があればスクロール位置を設定（ページ先頭から遠い場合のみ）
@@ -565,7 +582,9 @@ function renderTableView() {
       sorted.forEach(r => {
         const entry = entryMap[r.lane] || {};
         const midTime = r.times && r.times[pts[0]] ? r.times[pts[0]].formatted : '-';
-        const rankIcon = r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank;
+        // テーブルビューでも同着判定してシンプルなrank表示を使用
+        const tieFlag = r.tie_group && result.results.filter(x => x.tie_group === r.tie_group).length > 1;
+        const rankIcon = `<span class="rank rank-${r.rank}">${r.rank}${tieFlag ? '=' : ''}</span>`;
         // ソート用のデータも付属させる
         dbRows.push({
           race_no: race.race_no,
@@ -756,20 +775,29 @@ function updateDbTableCount() {
 
 /**
  * ビュータブを切り替える
+ * @param {string} id - ビューID ('toggle' | 'table' | 'schedule')
+ * @param {HTMLElement} [tabEl] - クリックされたタブ要素（onclick="switchView('toggle', this)" 形式で渡す）
  */
 function switchView(id, tabEl) {
   document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-  const content = document.getElementById('view-' + id);
-  if (content) content.classList.add('active');
-  // tabElが渡されない場合は event.target から取得（後方互換）
-  const tab = tabEl || (typeof event !== 'undefined' && event.target?.closest('.view-tab'));
-  if (tab) tab.classList.add('active');
+  document.getElementById('view-' + id)?.classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
   // URLハッシュを更新（pushStateで履歴に残さない）
   history.replaceState(null, '', '#view-' + id);
 }
 
 // ========= ステータスバー =========
+
+/**
+ * 大会日程が全て過去かどうかを判定する
+ */
+function isTournamentOver() {
+  if (!masterData) return false;
+  const lastDate = masterData.tournament.dates.slice(-1)[0];
+  const today = new Date().toISOString().split('T')[0];
+  return lastDate < today;
+}
 
 /**
  * ステータスバーを更新する
@@ -784,30 +812,49 @@ function updateStatusBar() {
   if (summaryEl && masterData) {
     const totalRaces = masterData.schedule.length;
     const doneRaces = Object.keys(resultsCache).length;
-    summaryEl.textContent = `${doneRaces}/${totalRaces} 確定`;
+    // 全レース確定の場合は専用メッセージを表示
+    if (doneRaces === totalRaces && totalRaces > 0) {
+      summaryEl.textContent = '全レース結果確定';
+    } else {
+      summaryEl.textContent = `${doneRaces}/${totalRaces} 確定`;
+    }
   }
+
+  // 大会終了後はライブドットを非表示、アーカイブバッジを表示
+  const liveDot = document.querySelector('.live-dot');
+  const archiveBadge = document.getElementById('archive-badge');
+  const tournamentOver = isTournamentOver();
+  if (liveDot) liveDot.style.display = tournamentOver ? 'none' : '';
+  if (archiveBadge) archiveBadge.style.display = tournamentOver ? 'inline-block' : 'none';
 
   // 次のレース情報を計算して中央に表示
   const nextInfoEl = document.getElementById('next-race-info');
   if (nextInfoEl && masterData) {
     const now = new Date();
-    // 未実施レースから時刻が現在以降に最も近いものを選ぶ
-    let nextRace = null;
-    let minFutureDiff = Infinity;
-    masterData.schedule.forEach(race => {
-      if (resultsCache[race.race_no]) return;
-      const raceTime = new Date(race.date + 'T' + race.time + ':00');
-      const diff = raceTime - now;
-      if (diff >= -15 * 60 * 1000 && diff < minFutureDiff) {
-        minFutureDiff = diff;
-        nextRace = race;
-      }
-    });
-    if (nextRace) {
-      const ageLabel = nextRace.age_group ? ` ${nextRace.age_group}` : '';
-      nextInfoEl.textContent = `次: Race ${nextRace.race_no} ${nextRace.event_name}${ageLabel} ${nextRace.time}`;
+    // 全レース確定、または大会終了後は「次のレース」なし
+    const totalRaces = masterData.schedule.length;
+    const doneRaces = Object.keys(resultsCache).length;
+    if (doneRaces === totalRaces && totalRaces > 0) {
+      nextInfoEl.textContent = '本日のレースは終了しました';
     } else {
-      nextInfoEl.textContent = '';
+      // 未実施レースから現在時刻以降に最も近いものを選ぶ
+      let nextRace = null;
+      let minFutureDiff = Infinity;
+      masterData.schedule.forEach(race => {
+        if (resultsCache[race.race_no]) return;
+        const raceTime = new Date(race.date + 'T' + race.time + ':00');
+        const diff = raceTime - now;
+        if (diff >= 0 && diff < minFutureDiff) {
+          minFutureDiff = diff;
+          nextRace = race;
+        }
+      });
+      if (nextRace) {
+        const ageLabel = nextRace.age_group ? ` ${nextRace.age_group}` : '';
+        nextInfoEl.textContent = `次: Race ${nextRace.race_no} ${nextRace.event_name}${ageLabel} ${formatRaceTime(nextRace.time)}`;
+      } else {
+        nextInfoEl.textContent = '';
+      }
     }
   }
 }
@@ -987,6 +1034,16 @@ function matchesFilter(category, races) {
 }
 
 /**
+ * "07:00" → "7:00" に変換（先頭ゼロを除去）
+ * スケジュールビューやレースヘッダーで使用する
+ */
+function formatRaceTime(timeStr) {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':');
+  return `${parseInt(h)}:${m}`;
+}
+
+/**
  * YYYY-MM-DD を M/D 形式にフォーマットする
  */
 function formatDate(dateStr) {
@@ -1029,12 +1086,18 @@ function showLoading(show) {
 }
 
 /**
- * エラーメッセージを表示する
+ * エラーメッセージをカード形式で表示する
  */
 function showError(msg) {
   const el = document.getElementById('error-message');
   if (el) {
-    el.textContent = msg;
+    el.innerHTML = `
+      <div class="error-card">
+        <div class="error-icon">⚠</div>
+        <div class="error-title">データを読み込めませんでした</div>
+        <div class="error-body">${msg || 'しばらく待ってから画面を更新してください'}</div>
+        <button onclick="location.reload()">再読み込み</button>
+      </div>`;
     el.style.display = 'block';
   }
 }
