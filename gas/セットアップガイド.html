@@ -848,27 +848,30 @@ youtube_url,</pre>
 
     <h3>6-1. RowingTimerWeb のファイル名設定</h3>
     <p>
-      タイマーアプリ RowingTimerWeb が出力する CSV ファイル名は、以下のフォーマットに従って自動的に命名されます。
-      アプリ側の設定でレース番号と計測ポイントが正しく入力されているか確認してください。
+      CSVファイル名は <strong>レース番号と計測ポイントだけ</strong>で構いません。大会はフォルダで管理するため、日時の付与は不要です。
     </p>
 
-    <pre>YYYYMMDD_HHMMSS_R{NNN}_{計測ポイント}.csv
+    <pre>【推奨】R{NNN}_{計測ポイント}.csv
 
 例:
-  20250607_070000_R001_500m.csv   ← Race 1, 500m 地点
-  20250607_070800_R001_1000m.csv  ← Race 1, 1000m 地点（フィニッシュ）</pre>
+  R001_500m.csv    ← Race 1, 500m 地点
+  R001_1000m.csv   ← Race 1, 1000m 地点（フィニッシュ）
+  R003_500m.csv    ← Race 3, 500m 地点</pre>
 
     <table>
       <thead>
         <tr><th>要素</th><th>説明</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>YYYYMMDD</code></td><td>日付（例: 20250607）</td></tr>
-        <tr><td><code>HHMMSS</code></td><td>計測時刻（例: 070000）</td></tr>
-        <tr><td><code>R{NNN}</code></td><td>レース番号・3桁ゼロ埋め（例: R001）</td></tr>
+        <tr><td><code>R{NNN}</code></td><td>レース番号・3桁ゼロ埋め（例: R001, R012）</td></tr>
         <tr><td><code>{計測ポイント}</code></td><td>500m または 1000m</td></tr>
       </tbody>
     </table>
+
+    <div class="callout callout-info" style="background:#e8f0fe;border:1px solid #8ab4f8;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:14px;">
+      ⚙️ <strong>旧形式（YYYYMMDD_HHMMSS_R001_500m.csv）も引き続き使用可能です。</strong>
+      タイマーアプリ側が自動で日時を付与する場合はそのままで問題ありません。
+    </div>
 
     <h3>6-2. CSV のアップロード</h3>
     <ol class="steps">
@@ -903,7 +906,7 @@ youtube_url,</pre>
     <h3 style="margin-top: 20px;">サイトが更新されない場合</h3>
     <ol class="steps">
       <li>CSV ファイルが正しいフォルダ（500m または 1000m）にアップロードされているか確認します。</li>
-      <li>ファイル名が正しいフォーマット（<code>YYYYMMDD_HHMMSS_R001_500m.csv</code>）になっているか確認します。</li>
+      <li>ファイル名が正しいフォーマット（<code>R001_500m.csv</code> または <code>YYYYMMDD_HHMMSS_R001_500m.csv</code>）になっているか確認します。</li>
       <li>GAS のトリガーが有効になっているか確認します（時計アイコン → トリガー一覧）。</li>
       <li>GAS のログを確認します（下記参照）。</li>
     </ol>

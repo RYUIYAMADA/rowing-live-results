@@ -180,23 +180,21 @@
       <h2>ファイル名の見方</h2>
     </div>
 
-    <p>タイマーアプリが出力するCSVのファイル名には必要な情報がすべて入っています。</p>
+    <p>CSVファイルの名前は <strong>レース番号と計測ポイント</strong> の2つだけです。シンプルに覚えてください。</p>
 
-<pre><span class="hl">20250914</span>_<span class="hl">090012</span>_<span class="hl">R003</span>_<span class="hl">1000m</span>.csv
-   ↑          ↑         ↑        ↑
-  日付      計測時刻   レース番号  計測ポイント</pre>
+<pre><span class="hl">R003</span>_<span class="hl">1000m</span>.csv
+  ↑       ↑
+レース番号  計測ポイント</pre>
 
     <table>
       <tr><th>部分</th><th>意味</th><th>例</th></tr>
-      <tr><td><code>20250914</code></td><td>計測した日付</td><td>2025年9月14日</td></tr>
-      <tr><td><code>090012</code></td><td>計測した時刻</td><td>09時00分12秒</td></tr>
-      <tr><td><code>R003</code></td><td>レース番号（3桁）</td><td>第3レース</td></tr>
-      <tr><td><code>1000m</code></td><td>計測ポイント</td><td>フィニッシュ（1000m地点）</td></tr>
+      <tr><td><code>R001</code> 〜 <code>R999</code></td><td>レース番号（3桁ゼロ埋め）</td><td>R001 = 第1レース、R012 = 第12レース</td></tr>
+      <tr><td><code>500m</code> または <code>1000m</code></td><td>計測ポイント</td><td>500m = 中間、1000m = フィニッシュ</td></tr>
     </table>
 
     <h3>1レースにつき2ファイル届く（1000mコースの場合）</h3>
-<pre><span class="ok">20250914_090012_R003_500m.csv</span>   ← 中間タイム（500m）
-<span class="ok">20250914_090500_R003_1000m.csv</span>  ← フィニッシュ（1000m）</pre>
+<pre><span class="ok">R003_500m.csv</span>    ← 中間タイム（500m地点）
+<span class="ok">R003_1000m.csv</span>   ← フィニッシュ（1000m地点）</pre>
 
     <div class="callout callout-warn">
       <div class="callout-icon">⚠️</div>
@@ -283,7 +281,7 @@
       <tr>
         <td>5分以上経っても更新されない</td>
         <td>ファイル名が正しい形式か？</td>
-        <td>ファイル名が <code>YYYYMMDD_HHMMSS_R001_500m.csv</code> の形式か確認する</td>
+        <td>ファイル名が <code>R001_500m.csv</code> の形式か確認する</td>
       </tr>
       <tr>
         <td>上記で解決しない</td>

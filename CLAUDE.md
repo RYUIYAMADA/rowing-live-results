@@ -60,8 +60,9 @@ Google Drive (race_csv/500m/, race_csv/1000m/)
 
 ## CSV仕様
 ### レース結果CSV（RowingTimerWeb出力）
-- ファイル名: `YYYYMMDD_HHMMSS_R{NNN}_{計測ポイント}.csv`
-- 例: `20260309_002304_R001_500m.csv`
+- ファイル名（推奨）: `R{NNN}_{計測ポイント}.csv`
+- 例: `R001_500m.csv` / `R001_1000m.csv`
+- 旧形式（後方互換）: `YYYYMMDD_HHMMSS_R{NNN}_{計測ポイント}.csv` も使用可能
 - カラム: measurement_point, lane, lap_index, time_ms, formatted, race_no, tie_group, photo_flag, note
 
 ### 更新ルール

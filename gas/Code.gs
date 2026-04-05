@@ -83,8 +83,9 @@ const CONFIG = {
     processed: 'processed',
   },
   // CSVファイル名の正規表現パターン
-  // 例: 20260309_002304_R001_500m.csv
-  csvPattern: /^\d{8}_\d{6}_R(\d{3})_(.+)\.csv$/,
+  // 簡略形式（推奨）: R001_500m.csv
+  // 旧形式（後方互換）: 20260309_002304_R001_500m.csv
+  csvPattern: /^(?:\d{8}_\d{6}_)?R(\d{3})_(.+)\.csv$/i,
   // スクリプトプロパティキー
   props: {
     driveFolderId: 'DRIVE_ROOT_FOLDER_ID',
@@ -197,11 +198,17 @@ function processPendingCSVs(startTime) {
       if (!raceFiles[raceNo]) {
         raceFiles[raceNo] = {};
       }
-      // 同じレース・同じポイントで複数ファイルがある場合はファイル名（タイムスタンプ）が新しい方を採用
+      // 同じレース・同じポイントで複数ファイルがある場合は新しい方を採用
+      // 旧形式（YYYYMMDD_HHMMSS_...）はファイル名比較、簡略形式（R001_...）はDriveの更新日時で比較
       const existing = raceFiles[raceNo][point];
-      if (existing && existing.getName() >= fileName) {
-        Logger.log('[processPendingCSVs] 古いファイルのためスキップ: ' + fileName + ' (採用中: ' + existing.getName() + ')');
-        continue;
+      if (existing) {
+        const isNewerByName = existing.getName() < fileName; // 旧形式：名前の辞書順で新しい
+        const isNewerByDate = file.getLastUpdated() > existing.getLastUpdated(); // 簡略形式：更新日時
+        const useNew = isNewerByName || (!isNewerByName && isNewerByDate);
+        if (!useNew) {
+          Logger.log('[processPendingCSVs] 古いファイルのためスキップ: ' + fileName + ' (採用中: ' + existing.getName() + ')');
+          continue;
+        }
       }
       raceFiles[raceNo][point] = file;
       Logger.log('[processPendingCSVs] CSV検知: race_no=' + raceNo + ' point=' + point + ' file=' + fileName);
