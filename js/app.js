@@ -1083,11 +1083,13 @@ function setupRefreshTimer() {
   // 実施中レース判定タイマー（独立管理）
   timers.highlight = setInterval(highlightCurrentRace, 60000);
 
-  // ページ離脱時にタイマーをクリア
-  window.addEventListener('beforeunload', () => {
+  // ページ離脱時にタイマーをクリア（beforeunload + pagehide 両対応）
+  const cleanup = () => {
     clearInterval(timers.refresh);
     clearInterval(timers.highlight);
-  }, { once: true });
+  };
+  window.addEventListener('beforeunload', cleanup, { once: true });
+  window.addEventListener('pagehide', cleanup, { once: true });
 }
 
 // ========= オフライン検知 =========
@@ -1214,18 +1216,22 @@ function matchesFilter(category, races) {
  * スケジュールビューやレースヘッダーで使用する
  */
 function formatRaceTime(timeStr) {
-  if (!timeStr) return '';
-  const [h, m] = timeStr.split(':');
-  return `${parseInt(h)}:${m}`;
+  if (!timeStr || typeof timeStr !== 'string') return '--:--';
+  const parts = timeStr.split(':');
+  if (parts.length !== 2) return '--:--';
+  const h = parseInt(parts[0], 10);
+  if (isNaN(h)) return '--:--';
+  return `${h}:${parts[1]}`;
 }
 
 /**
  * YYYY-MM-DD を M/D 形式にフォーマットする
  */
 function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const [, m, d] = dateStr.split('-');
-  return `${parseInt(m)}/${parseInt(d)}`;
+  if (!dateStr || dateStr === 'all') return dateStr || '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return '';
+  return `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
 }
 
 /**

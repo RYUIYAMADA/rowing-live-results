@@ -95,7 +95,7 @@ const CONFIG = {
     apiRateLimited: 'API_RATE_LIMITED',
   },
   // 最大実行時間（ミリ秒）
-  maxExecutionMs: 5 * 60 * 1000,
+  maxExecutionMs: 4 * 60 * 1000,
 };
 
 // ============================================================
@@ -112,8 +112,8 @@ function onTrigger() {
 
   // 二重実行防止ロック（前の実行がまだ動いていればスキップ）
   const lock = LockService.getScriptLock();
-  if (!lock.tryLock(0)) {
-    Logger.log('[onTrigger] 別の実行が進行中のためスキップ');
+  if (!lock.tryLock(5000)) {
+    Logger.log('[onTrigger] 別の実行が進行中のためスキップ（5秒待機後もロック取得失敗）');
     return;
   }
 
@@ -123,8 +123,8 @@ function onTrigger() {
     if (props.getProperty(CONFIG.props.apiRateLimited) === 'true') {
       const flaggedAt = parseInt(props.getProperty('API_RATE_LIMITED_AT') || '0', 10);
       const elapsed = Date.now() - flaggedAt;
-      if (elapsed < 60 * 60 * 1000) {
-        Logger.log('[onTrigger] API レート制限中のため処理をスキップ（残り約' + Math.ceil((60 * 60 * 1000 - elapsed) / 60000) + '分）');
+      if (elapsed < 15 * 60 * 1000) {
+        Logger.log('[onTrigger] API レート制限中のため処理をスキップ（残り約' + Math.ceil((15 * 60 * 1000 - elapsed) / 60000) + '分）');
         return;
       }
       // 1時間経過したら自動解除
@@ -594,19 +594,23 @@ function checkRateLimit(response) {
  * @param {string} point - 計測ポイント名（例: "500m"）
  */
 function moveToProcessed(file, point) {
-  Logger.log('[moveToProcessed] ファイル移動: ' + file.getName() + ' -> processed/' + point + '/');
+  const fileName = file.getName();
+  Logger.log('[moveToProcessed] ファイル移動: ' + fileName + ' -> processed/' + point + '/');
 
-  const props = PropertiesService.getScriptProperties();
-  const rootFolderId = props.getProperty(CONFIG.props.driveFolderId);
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const rootFolderId = props.getProperty(CONFIG.props.driveFolderId);
 
-  const processedFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.processed);
-  const processedPointFolder = getOrCreateFolder(processedFolder.getId(), point);
+    const processedFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.processed);
+    const processedPointFolder = getOrCreateFolder(processedFolder.getId(), point);
 
-  // 元のフォルダを取得して親フォルダから削除
-  const parents = file.getParents();
-  file.moveTo(processedPointFolder);
-
-  Logger.log('[moveToProcessed] 移動完了: ' + file.getName());
+    file.moveTo(processedPointFolder);
+    Logger.log('[moveToProcessed] 移動完了: ' + fileName);
+    return true;
+  } catch (e) {
+    Logger.log('[moveToProcessed] [エラー] ' + fileName + ' の移動に失敗: ' + e.message + ' ※手動で processed/' + point + '/ に移動してください');
+    return false;
+  }
 }
 
 // ============================================================

@@ -27,125 +27,228 @@
   body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
 
   /* ヘッダー */
-  .site-header { background: var(--accent); padding: 28px 40px 24px; }
-  .site-header-inner { max-width: 1100px; margin: 0 auto; }
-  .site-header-label { font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-  .site-header-title { font-size: 20px; font-weight: 300; color: #fff; letter-spacing: 0.04em; }
-  .site-header-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+  .site-header { background: var(--accent); padding: 0 40px; }
+  .site-header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; min-height: 70px; gap: 24px; }
+  .site-header-left {}
+  .site-header-label { font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.5); }
+  .site-header-title { font-size: 17px; font-weight: 300; color: #fff; letter-spacing: 0.03em; }
+  .site-header-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+  /* リアルタイム時計 */
+  .live-clock {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .live-clock-time {
+    font-size: 28px;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+  .live-clock-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+  }
+
+  /* 進行中レースバナー */
+  .current-race-bar {
+    background: rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .current-race-bar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+  }
+  .current-race-dot { width: 8px; height: 8px; border-radius: 50%; background: #C0392B; animation: pulse 1s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .current-race-label { font-size: 10px; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); }
+  .current-race-name { font-weight: 400; }
+  .current-race-time { color: rgba(255,255,255,0.7); font-size: 12px; }
 
   /* ページ本体 */
-  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
 
   /* インデックス */
-  .toc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 48px; }
-  .toc-title { font-size: 10px; letter-spacing: 0.18em; color: var(--text-muted); margin-bottom: 14px; font-weight: 400; }
-  .toc-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 24px; }
-  .toc-list li a { color: var(--accent); text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 36px; }
+  .toc-title { font-size: 10px; letter-spacing: 0.18em; color: var(--text-muted); margin-bottom: 12px; font-weight: 400; }
+  .toc-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px 20px; }
+  .toc-list li a { color: var(--accent); text-decoration: none; font-size: 13px; }
   .toc-list li a:hover { text-decoration: underline; }
 
   /* セクション */
-  .section { margin-bottom: 56px; }
-  .section-anchor { display: block; height: 1px; margin-top: -20px; padding-top: 20px; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .section { margin-bottom: 48px; }
+  .section-anchor { display: block; height: 1px; margin-top: -24px; padding-top: 24px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .section-title { font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; font-weight: 400; }
-  .section-meta { font-size: 12px; color: var(--text-muted); }
 
   /* サマリーカード */
-  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
-  .summary-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
-  .summary-card-value { font-size: 22px; font-weight: 300; color: var(--text); }
-  .summary-card-sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .summary-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .summary-card-value { font-size: 20px; font-weight: 300; color: var(--text); }
+  .summary-card-sub { font-size: 11px; color: var(--text-sub); margin-top: 3px; }
 
   /* バッジ */
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; white-space: nowrap; }
-  .badge-ok  { background: var(--ok-bg);  color: var(--ok); }
-  .badge-warn{ background: var(--warn-bg); color: var(--warn); border: 1px solid #e8c840; }
-  .badge-ng  { background: var(--ng-bg);  color: var(--ng); }
-  .badge-none{ background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+  .badge-ok   { background: var(--ok-bg);  color: var(--ok); }
+  .badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid #e8c840; }
+  .badge-ng   { background: var(--ng-bg);  color: var(--ng); }
+  .badge-none { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
   .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .dot-ok   { background: var(--ok); }
+  .dot-ok { background: var(--ok); }
   .dot-warn { background: var(--warn); }
-  .dot-ng   { background: var(--ng); }
-  .dot-none { background: var(--border); }
+  .dot-ng { background: var(--ng); }
+  .dot-none { background: #ccc; }
 
-  /* レース一覧カード */
-  .day-group { margin-bottom: 28px; }
-  .day-label { font-size: 12px; color: var(--text-sub); font-weight: 400; margin-bottom: 10px; padding: 6px 12px; background: #F0EDE7; border-radius: var(--radius); display: inline-block; }
-  .race-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-  .race-card {
+  /* ===== タブUI ===== */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+  .tab-btn {
+    padding: 11px 22px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-family: inherit;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* 日付タブ */
+  .day-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+  .day-tab-btn {
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    font-size: 12px;
+    color: var(--text-sub);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .day-tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .day-tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* ===== タイムライン ===== */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 9px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 10px; }
+  .tl-dot {
+    position: absolute;
+    left: -22px;
+    top: 14px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 2px solid var(--border);
+    z-index: 1;
+  }
+  .tl-dot.done   { background: var(--ok);   border-color: var(--ok); }
+  .tl-dot.active { background: #C0392B; border-color: #C0392B; box-shadow: 0 0 0 3px rgba(192,57,43,0.2); animation: pulse 1s infinite; }
+  .tl-dot.upcoming { background: var(--card); border-color: var(--border); }
+
+  .tl-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px 16px;
+    padding: 12px 16px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
     transition: border-color 0.2s;
   }
-  .race-card.has-result { border-left: 3px solid var(--ok); }
-  .race-card.no-result  { border-left: 3px solid var(--border); }
-  .race-card-no { font-size: 11px; color: var(--text-muted); width: 28px; flex-shrink: 0; padding-top: 2px; }
-  .race-card-body { flex: 1; min-width: 0; }
-  .race-card-name { font-size: 13px; color: var(--text); }
-  .race-card-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  .race-card-updated { font-size: 11px; color: var(--ok); margin-top: 4px; }
-  .race-card-badge { flex-shrink: 0; padding-top: 1px; }
+  .tl-card.done   { border-left: 3px solid var(--ok); }
+  .tl-card.active { border-left: 3px solid #C0392B; background: #fffafa; }
+  .tl-card.upcoming { border-left: 3px solid var(--border); opacity: 0.8; }
 
-  /* CSV自動アップロード監視 */
-  .pipeline { display: flex; flex-direction: column; gap: 0; }
-  .pipeline-step {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 0;
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: relative;
-  }
+  .tl-time { font-size: 13px; font-weight: 400; color: var(--text-sub); width: 40px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .tl-no   { font-size: 11px; color: var(--text-muted); width: 32px; flex-shrink: 0; }
+  .tl-body { flex: 1; min-width: 0; }
+  .tl-name { font-size: 13px; color: var(--text); }
+  .tl-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .tl-updated { font-size: 11px; color: var(--ok); margin-top: 2px; }
+  .tl-badge { flex-shrink: 0; }
+
+  /* パイプライン */
+  .pipeline { display: flex; flex-direction: column; }
+  .pipeline-step { background: var(--card); border: 1px solid var(--border); padding: 16px 22px; display: flex; align-items: center; gap: 14px; }
   .pipeline-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
   .pipeline-step:last-child  { border-radius: 0 0 var(--radius) var(--radius); }
-  .pipeline-step + .pipeline-step { border-top: none; }
-  .pipeline-step-icon { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
-  .pipeline-step-body { flex: 1; }
-  .pipeline-step-title { font-size: 13px; font-weight: 400; color: var(--text); }
-  .pipeline-step-desc  { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-  .pipeline-arrow { text-align: center; font-size: 16px; color: var(--text-muted); padding: 2px 0; background: var(--bg); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .pipeline-step+.pipeline-step { border-top: none; }
+  .pipeline-arrow { text-align: center; font-size: 14px; color: var(--text-muted); padding: 2px; background: var(--bg); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .pipeline-icon { font-size: 20px; width: 30px; text-align: center; flex-shrink: 0; }
+  .pipeline-body { flex: 1; }
+  .pipeline-title { font-size: 13px; font-weight: 400; }
+  .pipeline-desc  { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+  .pipeline-note  { font-size: 11px; color: var(--text-muted); text-align: right; white-space: nowrap; }
 
-  /* リンク一覧テーブル */
+  /* リンクテーブル */
   .links-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .links-table th { padding: 8px 14px; text-align: left; font-size: 11px; color: var(--text-muted); font-weight: 400; border-bottom: 1px solid var(--border); background: #FAF8F4; }
-  .links-table td { padding: 12px 14px; border-bottom: 1px solid #F0EDE7; vertical-align: top; }
+  .links-table td { padding: 11px 14px; border-bottom: 1px solid #F0EDE7; vertical-align: top; }
   .links-table tr:hover td { background: #FAF8F4; }
-  .links-table a { color: var(--accent); text-decoration: none; font-weight: 400; }
+  .links-table a { color: var(--accent); text-decoration: none; }
   .links-table a:hover { text-decoration: underline; }
   .links-table-wrapper { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; }
   .link-use { font-size: 12px; color: var(--text-sub); }
 
   /* ボタン */
-  .refresh-btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: var(--radius); font-size: 13px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+  .refresh-btn { background: var(--accent); color: #fff; border: none; padding: 7px 16px; border-radius: var(--radius); font-size: 12px; cursor: pointer; font-family: inherit; }
   .refresh-btn:hover { background: var(--accent-light); }
 
   /* スピナー */
   .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 4px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* フッター */
-  .footer { text-align: center; font-size: 11px; color: var(--text-muted); padding: 32px 0 16px; border-top: 1px solid var(--border); margin-top: 40px; }
-  .back-to-top { display: inline-block; font-size: 12px; color: var(--accent); text-decoration: none; margin-bottom: 12px; }
-  .back-to-top:hover { text-decoration: underline; }
-
   .last-check { font-size: 11px; color: var(--text-muted); margin-top: 10px; }
+  .back-to-top { display: inline-block; font-size: 12px; color: var(--accent); text-decoration: none; margin-bottom: 12px; }
+  .footer { text-align: center; font-size: 11px; color: var(--text-muted); padding: 24px 0 16px; border-top: 1px solid var(--border); margin-top: 32px; }
+
+  @media (max-width: 640px) {
+    .site-header { padding: 0 16px; }
+    .live-clock-time { font-size: 20px; }
+    .page { padding: 20px 12px 60px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
 <body>
 
 <header class="site-header" id="top">
   <div class="site-header-inner">
-    <div class="site-header-label">ADMIN DASHBOARD</div>
-    <div class="site-header-title" id="header-title">ボート競技 速報サイト — 管理者ダッシュボード</div>
-    <div class="site-header-sub" id="header-sub"><span class="spinner"></span>読み込み中...</div>
+    <div class="site-header-left">
+      <div class="site-header-label">ADMIN DASHBOARD</div>
+      <div class="site-header-title" id="header-title">ボート競技 速報サイト — 管理者ダッシュボード</div>
+      <div class="site-header-sub" id="header-sub"><span class="spinner"></span>読み込み中...</div>
+    </div>
+    <div class="live-clock">
+      <div class="live-clock-time" id="clock-time">--:--:--</div>
+      <div class="live-clock-date" id="clock-date"></div>
+    </div>
+  </div>
+  <div class="current-race-bar" id="current-race-bar" style="display:none">
+    <div class="current-race-bar-inner">
+      <span class="current-race-dot"></span>
+      <span class="current-race-label">CURRENT /</span>
+      <span class="current-race-name" id="current-race-name"></span>
+      <span class="current-race-time" id="current-race-time"></span>
+    </div>
   </div>
 </header>
 
@@ -156,8 +259,8 @@
     <div class="toc-title">INDEX</div>
     <ul class="toc-list">
       <li><a href="#section-status">① システム状態</a></li>
-      <li><a href="#section-races">② レース結果 反映状況</a></li>
-      <li><a href="#section-pipeline">③ CSV自動アップロード 監視</a></li>
+      <li><a href="#section-races">② レース反映状況（日別タイムライン）</a></li>
+      <li><a href="#section-pipeline">③ CSV自動アップロード監視</a></li>
       <li><a href="#section-links">④ リンク一覧</a></li>
     </ul>
   </nav>
@@ -199,29 +302,47 @@
     <div class="last-check" id="last-check"></div>
   </section>
 
-  <!-- ===== ② レース結果 反映状況 ===== -->
+  <!-- ===== ② レース反映状況 ===== -->
   <section class="section">
     <div id="section-races" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">② レース結果 反映状況</div>
-      <div class="section-meta" id="races-summary"></div>
+      <div class="section-title">② レース反映状況</div>
+      <div style="font-size:12px;color:var(--text-muted)" id="races-summary"></div>
     </div>
-    <div id="races-container">
-      <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
+
+    <!-- メインタブ（概要 / タイムライン） -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('overview', this)">📊 概要</button>
+      <button class="tab-btn" onclick="switchTab('timeline', this)">🕐 日別タイムライン</button>
+    </div>
+
+    <!-- 概要パネル -->
+    <div class="tab-panel active" id="panel-overview">
+      <div id="overview-container">
+        <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
+      </div>
+    </div>
+
+    <!-- タイムラインパネル -->
+    <div class="tab-panel" id="panel-timeline">
+      <div class="day-tabs" id="timeline-day-tabs"></div>
+      <div id="timeline-container">
+        <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
+      </div>
     </div>
   </section>
 
-  <!-- ===== ③ CSV自動アップロード 監視 ===== -->
+  <!-- ===== ③ CSV自動アップロード監視 ===== -->
   <section class="section">
     <div id="section-pipeline" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">③ CSV自動アップロード 監視</div>
+      <div class="section-title">③ CSV自動アップロード監視</div>
     </div>
     <div class="pipeline" id="pipeline">
       <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>確認中...</div>
     </div>
-    <p style="font-size:12px;color:var(--text-muted);margin-top:12px">
-      ※ GASは2分間隔でCSVを監視→JSON変換→GitHubにPushします。master.jsonの生成時刻から稼働状況を判定しています。
+    <p style="font-size:12px;color:var(--text-muted);margin-top:10px">
+      ※ GASは5分間隔でCSVを監視→JSON変換→GitHubにPushします。master.jsonの生成時刻から稼働状況を判定しています。
     </p>
   </section>
 
@@ -233,76 +354,35 @@
     </div>
     <div class="links-table-wrapper">
       <table class="links-table">
-        <thead>
-          <tr><th>名称</th><th>URL</th><th>用途</th></tr>
-        </thead>
+        <thead><tr><th>名称</th><th>URL</th><th>用途</th></tr></thead>
         <tbody>
-          <tr>
-            <td>🌐 本番サイト</td>
-            <td><a href="https://rowing-live-results.pages.dev" target="_blank">rowing-live-results.pages.dev</a></td>
-            <td class="link-use">観客・関係者がレース結果を見る。大会当日の動作確認にも使用</td>
-          </tr>
-          <tr>
-            <td>📋 当日担当者マニュアル</td>
-            <td><a href="https://rowing-live-results.pages.dev/docs/day-manual.html" target="_blank">docs/day-manual.html</a></td>
-            <td class="link-use">大会当日、計測スタッフがCSVアップロード手順を確認</td>
-          </tr>
-          <tr>
-            <td>📅 スケジュール入力ガイド</td>
-            <td><a href="https://rowing-live-results.pages.dev/docs/schedule_input_guide.html" target="_blank">docs/schedule_input_guide.html</a></td>
-            <td class="link-use">大会前にCSV作成方法を確認。サンプルZIPのDLもここから</td>
-          </tr>
-          <tr>
-            <td>✅ 公開前チェックリスト</td>
-            <td><a href="https://rowing-live-results.pages.dev/docs/site-checklist.html" target="_blank">docs/site-checklist.html</a></td>
-            <td class="link-use">デプロイ前の動作確認22項目</td>
-          </tr>
-          <tr>
-            <td>⚙️ GASセットアップガイド</td>
-            <td><a href="https://rowing-live-results.pages.dev/gas/%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%82%AC%E3%82%A4%E3%83%89.html" target="_blank">gas/セットアップガイド.html</a></td>
-            <td class="link-use">新大会前に管理者がGAS・Drive・GitHubの初期設定をするとき</td>
-          </tr>
-          <tr>
-            <td>📁 Google Drive（大会フォルダ）</td>
-            <td><a href="https://drive.google.com/drive/folders/1sCKohwJK8DWjINLxEfe_eO9Nm-DBshop" target="_blank">drive.google.com → 大会フォルダ</a></td>
-            <td class="link-use">CSVの投入先。race_csv/500/ と 1000/ にアップするだけで自動反映</td>
-          </tr>
-          <tr>
-            <td>🐙 GitHub リポジトリ</td>
-            <td><a href="https://github.com/RYUIYAMADA/rowing-live-results" target="_blank">RYUIYAMADA/rowing-live-results</a></td>
-            <td class="link-use">コード管理。GASがレース結果JSONをここにPushしサイトが自動更新</td>
-          </tr>
-          <tr>
-            <td>🔧 Google Apps Script</td>
-            <td><a href="https://script.google.com" target="_blank">script.google.com</a></td>
-            <td class="link-use">GAS管理・ログ確認・手動実行（importMasterData / processNewCSVFiles）</td>
-          </tr>
-          <tr>
-            <td>☁️ Cloudflare Pages</td>
-            <td><a href="https://dash.cloudflare.com" target="_blank">dash.cloudflare.com</a></td>
-            <td class="link-use">デプロイ状況確認・ドメイン設定など</td>
-          </tr>
+          <tr><td>🌐 本番サイト</td><td><a href="https://rowing-live-results.pages.dev" target="_blank">rowing-live-results.pages.dev</a></td><td class="link-use">観客・関係者がレース結果を見る。動作確認にも使用</td></tr>
+          <tr><td>📋 当日担当者マニュアル</td><td><a href="https://rowing-live-results.pages.dev/docs/day-manual.html" target="_blank">docs/day-manual.html</a></td><td class="link-use">計測スタッフがCSVアップロード手順を確認</td></tr>
+          <tr><td>📅 スケジュール入力ガイド</td><td><a href="https://rowing-live-results.pages.dev/docs/schedule_input_guide.html" target="_blank">docs/schedule_input_guide.html</a></td><td class="link-use">大会前にCSV作成方法を確認</td></tr>
+          <tr><td>✅ 公開前チェックリスト</td><td><a href="https://rowing-live-results.pages.dev/docs/site-checklist.html" target="_blank">docs/site-checklist.html</a></td><td class="link-use">デプロイ前の動作確認22項目</td></tr>
+          <tr><td>⚙️ GASセットアップガイド</td><td><a href="https://rowing-live-results.pages.dev/gas/%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%82%AC%E3%82%A4%E3%83%89.html" target="_blank">gas/セットアップガイド.html</a></td><td class="link-use">新大会前の初期設定時</td></tr>
+          <tr><td>📁 Google Drive（大会フォルダ）</td><td><a href="https://drive.google.com/drive/folders/1sCKohwJK8DWjINLxEfe_eO9Nm-DBshop" target="_blank">drive.google.com → 大会フォルダ</a></td><td class="link-use">CSVの投入先（race_csv/500m・1000m/）</td></tr>
+          <tr><td>🐙 GitHub リポジトリ</td><td><a href="https://github.com/RYUIYAMADA/rowing-live-results" target="_blank">RYUIYAMADA/rowing-live-results</a></td><td class="link-use">コード管理・GASがJSONをここにPush</td></tr>
+          <tr><td>🔧 Google Apps Script</td><td><a href="https://script.google.com" target="_blank">script.google.com</a></td><td class="link-use">GAS管理・ログ確認・手動実行</td></tr>
+          <tr><td>☁️ Cloudflare Pages</td><td><a href="https://dash.cloudflare.com" target="_blank">dash.cloudflare.com</a></td><td class="link-use">デプロイ状況確認・ドメイン設定</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <a href="#top" class="back-to-top">↑ トップへ戻る</a>
-
-  <div class="footer">
-    管理者専用ページ — このURLは第三者に共有しないでください<br>
-    Rowing Live Results Admin Dashboard
-  </div>
-
+  <div class="footer">管理者専用ページ — このURLは第三者に共有しないでください<br>Rowing Live Results Admin Dashboard</div>
 </div>
 
 <script>
-const MASTER_JSON  = '../../data/master.json';
-const RESULT_JSON  = no => `../../data/results/race_${String(no).padStart(3,'0')}.json`;
-const ROUND_NAMES  = { FA:'決勝A', FB:'決勝B', SF:'準決勝', H:'予選', RK:'順位決定', R:'敗者復活' };
+const MASTER_JSON = '../../data/master.json';
+const RESULT_JSON = no => `../../data/results/race_${String(no).padStart(3,'0')}.json`;
+const ROUND_NAMES = { FA:'決勝A', FB:'決勝B', SF:'準決勝', H:'予選', RK:'順位決定', R:'敗者復活' };
 
 let masterData = null;
 let resultsCache = {};
+let currentTimelineDay = null;
+let clockInterval = null;
 
 /* ===== ユーティリティ ===== */
 function fmtDate(d) {
@@ -322,10 +402,79 @@ function timeAgo(iso) {
   if (min < 1440) return `${Math.floor(min/60)}時間前`;
   return `${Math.floor(min/1440)}日前`;
 }
+function h(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ===== 時計 ===== */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const jst = new Date(now.getTime() + (9*60 - now.getTimezoneOffset()) * 60000);
+    document.getElementById('clock-time').textContent =
+      jst.toISOString().slice(11,19);
+    document.getElementById('clock-date').textContent =
+      jst.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'long', day:'numeric', weekday:'short' });
+    updateCurrentRaceBanner();
+  }
+  tick();
+  clockInterval = setInterval(tick, 1000);
+}
+
+/* ===== 進行中レースバナー ===== */
+function updateCurrentRaceBanner() {
+  if (!masterData) return;
+  const now = Date.now();
+  const schedule = masterData.schedule || [];
+  const WINDOW = 20 * 60 * 1000; // ±20分
+
+  let currentRace = null;
+  let minDiff = Infinity;
+
+  schedule.forEach(race => {
+    const raceTime = new Date(race.date + 'T' + (race.time||'00:00') + ':00+09:00').getTime();
+    const diff = now - raceTime;
+    if (diff >= 0 && diff < WINDOW) {
+      if (diff < minDiff) { minDiff = diff; currentRace = race; }
+    }
+  });
+
+  // 現在進行中がなければ次のレースを探す
+  if (!currentRace) {
+    let nextDiff = Infinity;
+    schedule.forEach(race => {
+      if (resultsCache[race.race_no]) return;
+      const raceTime = new Date(race.date + 'T' + (race.time||'00:00') + ':00+09:00').getTime();
+      const diff = raceTime - now;
+      if (diff > 0 && diff < nextDiff) { nextDiff = diff; currentRace = race; }
+    });
+  }
+
+  const bar = document.getElementById('current-race-bar');
+  if (!currentRace) { bar.style.display = 'none'; return; }
+
+  bar.style.display = '';
+  const raceTime = new Date(currentRace.date + 'T' + (currentRace.time||'00:00') + ':00+09:00').getTime();
+  const diff = raceTime - now;
+  const isActive = diff <= 0 && (-diff) < 20 * 60 * 1000;
+  const round = ROUND_NAMES[currentRace.round] || currentRace.round || '';
+
+  document.getElementById('current-race-name').textContent =
+    `R${currentRace.race_no} ${currentRace.event_name || ''}${currentRace.age_group ? ' ('+currentRace.age_group+')' : ''} ${round}`;
+  document.getElementById('current-race-time').textContent =
+    isActive ? `（${currentRace.time} スタート済み）` : `（次のレース ${currentRace.time}）`;
+}
+
+/* ===== タブ切替 ===== */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
 
 /* ===== メインロード ===== */
 async function loadAll() {
-  document.getElementById('header-sub').innerHTML = '<span class="spinner"></span>読み込み中...';
   try {
     const res = await fetch(MASTER_JSON + '?t=' + Date.now());
     masterData = await res.json();
@@ -337,12 +486,10 @@ async function loadAll() {
   const t = masterData.tournament || {};
   const schedule = masterData.schedule || [];
 
-  // ヘッダー
   document.getElementById('header-title').textContent = (t.race_name || '大会名未設定') + ' — 管理者ダッシュボード';
   const datesStr = (t.dates||[]).map(fmtDate).join(' · ');
   document.getElementById('header-sub').textContent = datesStr + (t.venue ? '  |  ' + t.venue : '');
 
-  // サマリー
   document.getElementById('st-name').textContent      = t.race_name || '未設定';
   document.getElementById('st-dates').textContent     = datesStr || '-';
   document.getElementById('st-races').textContent     = schedule.length;
@@ -365,140 +512,159 @@ async function loadAll() {
   document.getElementById('st-done').textContent = `${doneCount} / ${schedule.length}`;
   document.getElementById('st-pct').textContent  = `進捗 ${pct}%`;
   document.getElementById('last-check').textContent = `最終確認: ${new Date().toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})}`;
+  document.getElementById('races-summary').textContent = `確定 ${doneCount} / ${schedule.length} レース`;
 
-  // セクション描画
-  renderRaces(schedule);
+  // 描画
+  renderOverview(schedule);
+  renderTimelineDayTabs(schedule);
   renderPipeline();
+  updateCurrentRaceBanner();
 }
 
-/* ===== ② レース一覧 ===== */
-function renderRaces(schedule) {
-  const container = document.getElementById('races-container');
+/* ===== 概要パネル ===== */
+function renderOverview(schedule) {
+  const container = document.getElementById('overview-container');
   const sorted = [...schedule].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-
-  // 日付ごとにグループ化
   const groups = {};
-  sorted.forEach(race => {
-    if (!groups[race.date]) groups[race.date] = [];
-    groups[race.date].push(race);
-  });
-
-  const doneCount = Object.keys(resultsCache).length;
-  document.getElementById('races-summary').innerHTML =
-    `確定 <strong>${doneCount}</strong> / ${schedule.length} レース`;
-
+  sorted.forEach(r => { if(!groups[r.date]) groups[r.date]=[]; groups[r.date].push(r); });
   const uniqueDates = Object.keys(groups).sort();
+
   container.innerHTML = uniqueDates.map((date, di) => {
     const races = groups[date];
     const dayDone = races.filter(r => resultsCache[r.race_no]).length;
     const cards = races.map(race => {
       const result = resultsCache[race.race_no];
-      const round  = ROUND_NAMES[race.round] || race.round || '';
-      let badge, updatedHtml, cardClass;
-      if (result) {
-        badge      = `<span class="badge badge-ok"><span class="dot dot-ok"></span>確定</span>`;
-        updatedHtml= result.updated_at ? `<div class="race-card-updated">✓ ${fmtDateTime(result.updated_at)} 更新</div>` : '';
-        cardClass  = 'race-card has-result';
-      } else {
-        badge      = `<span class="badge badge-none"><span class="dot dot-none"></span>未実施</span>`;
-        updatedHtml= '';
-        cardClass  = 'race-card no-result';
-      }
-      return `<div class="${cardClass}">
-        <div class="race-card-no">R${race.race_no}</div>
-        <div class="race-card-body">
-          <div class="race-card-name">${race.event_name || '-'}${race.age_group ? ` (${race.age_group})` : ''}</div>
-          <div class="race-card-meta">${race.time || ''} &nbsp;${round}</div>
-          ${updatedHtml}
+      const round = ROUND_NAMES[race.round] || race.race_no || '';
+      const badge = result
+        ? `<span class="badge badge-ok"><span class="dot dot-ok"></span>確定</span>`
+        : `<span class="badge badge-none"><span class="dot dot-none"></span>未実施</span>`;
+      const updated = result?.updated_at ? `<div style="font-size:11px;color:var(--ok);margin-top:2px">✓ ${fmtDateTime(result.updated_at)}</div>` : '';
+      return `<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${result?'var(--ok)':'var(--border)'};border-radius:var(--radius);padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:11px;color:var(--text-muted);width:28px;flex-shrink:0;padding-top:2px">R${race.race_no}</div>
+        <div style="flex:1">
+          <div style="font-size:13px">${h(race.event_name||'-')}${race.age_group?' ('+h(race.age_group)+')':''}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${race.time||''} ${round}</div>
+          ${updated}
         </div>
-        <div class="race-card-badge">${badge}</div>
+        <div>${badge}</div>
       </div>`;
     }).join('');
 
-    return `<div class="day-group">
-      <div class="day-label">${di+1}日目 &nbsp;${fmtDate(date)} &nbsp;— &nbsp;${dayDone}/${races.length} 確定</div>
-      <div class="race-list">${cards}</div>
+    return `<div style="margin-bottom:24px">
+      <div style="font-size:12px;color:var(--text-sub);padding:5px 12px;background:#F0EDE7;border-radius:var(--radius);display:inline-block;margin-bottom:10px">${di+1}日目 ${fmtDate(date)} — ${dayDone}/${races.length} 確定</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">${cards}</div>
     </div>`;
   }).join('');
 }
 
-/* ===== ③ パイプライン監視 ===== */
-function renderPipeline() {
-  const genAt  = masterData?.generated_at;
-  const diffMin= genAt ? (Date.now()-new Date(genAt))/60000 : Infinity;
-
-  let gasStatus, gasDesc, gasIcon;
-  if (diffMin <= 5) {
-    gasStatus = 'ok';   gasIcon = '✅';
-    gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— 正常稼働中`;
-  } else if (diffMin <= 15) {
-    gasStatus = 'warn'; gasIcon = '⚠️';
-    gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— やや時間が経過しています`;
-  } else {
-    gasStatus = 'ng';   gasIcon = '🔴';
-    gasDesc = `最終生成: ${genAt ? fmtDateTime(genAt)+'（'+timeAgo(genAt)+'）' : '不明'}— GASのログを確認してください`;
+/* ===== タイムライン 日付タブ ===== */
+function renderTimelineDayTabs(schedule) {
+  const uniqueDates = [...new Set(schedule.map(r=>r.date))].sort();
+  if (!currentTimelineDay || !uniqueDates.includes(currentTimelineDay)) {
+    currentTimelineDay = uniqueDates[0] || null;
   }
 
-  const badgeMap = {
-    ok:   `<span class="badge badge-ok"><span class="dot dot-ok"></span>正常</span>`,
-    warn: `<span class="badge badge-warn"><span class="dot dot-warn"></span>確認推奨</span>`,
-    ng:   `<span class="badge badge-ng"><span class="dot dot-ng"></span>要確認</span>`,
-  };
+  const tabsEl = document.getElementById('timeline-day-tabs');
+  tabsEl.innerHTML = uniqueDates.map((d, i) =>
+    `<button class="day-tab-btn${d===currentTimelineDay?' active':''}" onclick="selectTimelineDay('${d}',this)">${i+1}日目 ${fmtDate(d)}</button>`
+  ).join('');
 
-  const steps = [
-    {
-      icon: '📁',
-      title: 'Google Drive — CSV投入',
-      desc: 'race_csv/500/ および 1000/ にCSVをアップロード',
-      badge: 'ok',
-      note: '手動アップロード（計測スタッフ）'
-    },
-    {
-      icon: '⚙️',
-      title: 'GAS — CSV監視・JSON変換',
-      desc: gasDesc,
-      badge: gasStatus,
-      note: '2分間隔で自動実行'
-    },
-    {
-      icon: '🐙',
-      title: 'GitHub — JSON Push',
-      desc: genAt ? `master.json / race_XXX.json を自動Push` : '未確認',
-      badge: diffMin <= 15 ? 'ok' : 'ng',
-      note: 'GAS経由で自動更新'
-    },
-    {
-      icon: '☁️',
-      title: 'Cloudflare Pages — デプロイ',
-      desc: 'GitHubのPushを検知して約1分でデプロイ完了',
-      badge: diffMin <= 15 ? 'ok' : 'warn',
-      note: '自動デプロイ（GitHub連携）'
-    },
-    {
-      icon: '🌐',
-      title: 'サイト公開',
-      desc: 'https://rowing-live-results.pages.dev',
-      badge: 'ok',
-      note: '閲覧者がリアルタイムで確認'
-    },
-  ];
-
-  document.getElementById('pipeline').innerHTML = steps.map((s, i) => `
-    ${i > 0 ? '<div class="pipeline-arrow">↓</div>' : ''}
-    <div class="pipeline-step">
-      <div class="pipeline-step-icon">${s.icon}</div>
-      <div class="pipeline-step-body">
-        <div class="pipeline-step-title">${s.title} &nbsp; ${badgeMap[s.badge]}</div>
-        <div class="pipeline-step-desc">${s.desc}</div>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);text-align:right;white-space:nowrap">${s.note}</div>
-    </div>
-  `).join('');
+  renderTimeline(schedule, currentTimelineDay);
 }
 
+function selectTimelineDay(date, btn) {
+  currentTimelineDay = date;
+  document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTimeline(masterData?.schedule || [], date);
+}
+
+/* ===== タイムライン描画 ===== */
+function renderTimeline(schedule, date) {
+  const container = document.getElementById('timeline-container');
+  const now = Date.now();
+  const WINDOW = 20 * 60 * 1000;
+
+  const races = [...schedule]
+    .filter(r => r.date === date)
+    .sort((a,b) => (a.time||'').localeCompare(b.time||''));
+
+  if (!races.length) {
+    container.innerHTML = '<div style="color:var(--text-muted);padding:20px 0">この日のレースはありません</div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="timeline">' + races.map(race => {
+    const result = resultsCache[race.race_no];
+    const raceTime = new Date(race.date + 'T' + (race.time||'00:00') + ':00+09:00').getTime();
+    const diff = now - raceTime;
+    const isActive = diff >= 0 && diff < WINDOW;
+    const isDone = !!result;
+    const state = isDone ? 'done' : isActive ? 'active' : 'upcoming';
+    const round = ROUND_NAMES[race.round] || race.round || '';
+
+    let badge;
+    if (isDone)       badge = `<span class="badge badge-ok"><span class="dot dot-ok"></span>確定</span>`;
+    else if (isActive) badge = `<span class="badge badge-ng"><span class="dot dot-ng"></span>進行中</span>`;
+    else               badge = `<span class="badge badge-none"><span class="dot dot-none"></span>未実施</span>`;
+
+    const updatedRow = result?.updated_at
+      ? `<div class="tl-updated">✓ ${fmtDateTime(result.updated_at)} 更新</div>` : '';
+
+    return `<div class="tl-item">
+      <div class="tl-dot ${state}"></div>
+      <div class="tl-card ${state}">
+        <div class="tl-time">${race.time||'--:--'}</div>
+        <div class="tl-no">R${race.race_no}</div>
+        <div class="tl-body">
+          <div class="tl-name">${h(race.event_name||'-')}${race.age_group?' ('+h(race.age_group)+')':''}</div>
+          <div class="tl-meta">${round}</div>
+          ${updatedRow}
+        </div>
+        <div class="tl-badge">${badge}</div>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+/* ===== パイプライン ===== */
+function renderPipeline() {
+  const genAt = masterData?.generated_at;
+  const diffMin = genAt ? (Date.now()-new Date(genAt))/60000 : Infinity;
+  let gasStatus, gasDesc;
+  if (diffMin <= 8)  { gasStatus='ok';   gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— 正常稼働中`; }
+  else if (diffMin <= 20){ gasStatus='warn'; gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— やや時間が経過`; }
+  else               { gasStatus='ng';   gasDesc = `最終生成: ${genAt?fmtDateTime(genAt)+'（'+timeAgo(genAt)+'）':'不明'}— GASのログを確認`; }
+
+  const bMap = {
+    ok:  `<span class="badge badge-ok"><span class="dot dot-ok"></span>正常</span>`,
+    warn:`<span class="badge badge-warn"><span class="dot dot-warn"></span>確認推奨</span>`,
+    ng:  `<span class="badge badge-ng"><span class="dot dot-ng"></span>要確認</span>`,
+  };
+  const steps = [
+    { icon:'📁', title:'Google Drive — CSV投入', desc:'race_csv/500m/ および 1000m/ にCSVをアップロード', badge:'ok', note:'計測スタッフが手動アップ' },
+    { icon:'⚙️', title:'GAS — CSV監視・JSON変換', desc:gasDesc, badge:gasStatus, note:'5分間隔で自動実行' },
+    { icon:'🐙', title:'GitHub — JSON Push', desc:'master.json / race_XXX.json を自動Push', badge:diffMin<=20?'ok':'ng', note:'GAS経由で自動更新' },
+    { icon:'☁️', title:'Cloudflare Pages — デプロイ', desc:'GitHubのPushを検知して約1分でデプロイ完了', badge:diffMin<=20?'ok':'warn', note:'自動デプロイ' },
+    { icon:'🌐', title:'サイト公開', desc:'https://rowing-live-results.pages.dev', badge:'ok', note:'閲覧者がリアルタイム確認' },
+  ];
+  document.getElementById('pipeline').innerHTML = steps.map((s,i) =>
+    (i>0?'<div class="pipeline-arrow">↓</div>':'') +
+    `<div class="pipeline-step">
+      <div class="pipeline-icon">${s.icon}</div>
+      <div class="pipeline-body">
+        <div class="pipeline-title">${s.title} &nbsp; ${bMap[s.badge]}</div>
+        <div class="pipeline-desc">${s.desc}</div>
+      </div>
+      <div class="pipeline-note">${s.note}</div>
+    </div>`
+  ).join('');
+}
+
+// 初期化
+startClock();
 loadAll();
-// 2分ごとに自動再取得
-setInterval(loadAll, 120000);
+setInterval(loadAll, 120000); // 2分ごと自動再取得
 </script>
 </body>
 </html>
