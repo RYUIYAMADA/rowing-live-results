@@ -136,7 +136,7 @@ async function loadAll() {
     });
 
     // ページタイトルを大会名に動的更新
-    document.title = masterData.tournament.name + ' 速報';
+    document.title = masterData.tournament.race_name + ' 速報';
 
     // master.json 読み込み直後にスケジュールの骨格を表示
     renderAll();
@@ -236,7 +236,7 @@ function renderAll() {
 function renderTournamentHeader() {
   const t = masterData.tournament;
   const el = document.getElementById('tournament-name');
-  if (el) el.textContent = '🏁 ' + t.name;
+  if (el) el.textContent = '🏁 ' + t.race_name;
 
   const metaEl = document.getElementById('tournament-meta');
   const dates = t.dates.map(d => formatDate(d)).join('・');
@@ -246,7 +246,7 @@ function renderTournamentHeader() {
 
   // カバーエリアにも大会情報を表示
   const coverName = document.getElementById('cover-tournament-name');
-  if (coverName) coverName.textContent = t.name;
+  if (coverName) coverName.textContent = t.race_name;
   const coverMeta = document.getElementById('cover-meta');
   if (coverMeta) coverMeta.textContent = `${dates} | ${t.venue}`;
 }

@@ -42,6 +42,11 @@
     <th>アップロード先</th>
   </tr>
   <tr>
+    <td><span class="file-name">tournament.csv</span></td>
+    <td>大会情報（大会名・会場・開催日・YouTube URLなど）</td>
+    <td><code>master/</code> フォルダ</td>
+  </tr>
+  <tr>
     <td><span class="file-name">schedule.csv</span></td>
     <td>レース一覧（種目・日時・ラウンド）</td>
     <td><code>master/</code> フォルダ</td>
@@ -54,69 +59,141 @@
 </table>
 
 <!-- ============================================================ -->
-<h2>② schedule.csv の書き方</h2>
+<h2>② tournament.csv の書き方（大会情報）</h2>
+
+<div class="note">
+  大会名・会場・YouTube URLなど、大会全体の情報を登録します。<br>
+  <strong>key</strong>（項目名）と <strong>value</strong>（値）の2列構成です。
+</div>
+
+<h3>登録できる項目</h3>
+<table>
+  <tr>
+    <th>key（項目名）</th>
+    <th>日本語の意味</th>
+    <th>必須</th>
+    <th>型</th>
+    <th>入力例</th>
+  </tr>
+  <tr>
+    <td><code>race_name</code></td>
+    <td>大会名</td>
+    <td><span class="badge badge-req">必須</span></td>
+    <td>テキスト</td>
+    <td>全日本マスターズレガッタ 第100回大会</td>
+  </tr>
+  <tr>
+    <td><code>venue</code></td>
+    <td>会場名</td>
+    <td><span class="badge badge-opt">任意</span></td>
+    <td>テキスト</td>
+    <td>手取川ダム湖 1000mコース</td>
+  </tr>
+  <tr>
+    <td><code>course_length</code></td>
+    <td>コース距離（m）</td>
+    <td><span class="badge badge-opt">任意</span></td>
+    <td>数値（整数）</td>
+    <td>1000　（500・1000・2000 のいずれか。省略時は1000）</td>
+  </tr>
+  <tr>
+    <td><code>dates</code></td>
+    <td>開催日（追加指定）</td>
+    <td><span class="badge badge-opt">任意</span></td>
+    <td>日付・カンマ区切り</td>
+    <td>2025-09-14,2025-09-15<br>（通常は schedule.csv の date 列から自動収集されるため空欄可）</td>
+  </tr>
+  <tr>
+    <td><code>youtube_url</code></td>
+    <td>YouTube Live URL</td>
+    <td><span class="badge badge-opt">任意</span></td>
+    <td>テキスト（URL）</td>
+    <td>https://www.youtube.com/watch?v=xxxxxxx<br>（配信がない場合は空欄）</td>
+  </tr>
+</table>
+
+<h3>サンプルデータ（tournament.csv）</h3>
+<div class="sample">key,value
+race_name,全日本マスターズレガッタ 第100回大会
+venue,手取川ダム湖 1000mコース
+course_length,1000
+dates,
+youtube_url,</div>
+
+<!-- ============================================================ -->
+<h2>③ schedule.csv の書き方（レース一覧）</h2>
 
 <h3>カラム説明</h3>
 <table>
   <tr>
     <th>カラム名</th>
+    <th>日本語の意味</th>
     <th>必須</th>
-    <th>説明</th>
+    <th>型</th>
     <th>入力例</th>
   </tr>
   <tr>
     <td><code>race_no</code></td>
+    <td>レース番号</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>レース番号（1始まりの整数）</td>
-    <td>1, 2, 3…</td>
+    <td>数値（整数）</td>
+    <td>1, 2, 3…　（1から始まる連番）</td>
   </tr>
   <tr>
     <td><code>event_name</code></td>
+    <td>種目名</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>種目名（表示に使用）</td>
-    <td>男子シングルスカル</td>
+    <td>テキスト</td>
+    <td>男子シングルスカル　／　女子クォドルプル</td>
   </tr>
   <tr>
     <td><code>category</code></td>
-    <td><span class="badge badge-req">必須</span></td>
     <td>性別区分</td>
-    <td><code>M</code>=男子 / <code>W</code>=女子 / <code>X</code>=混成</td>
+    <td><span class="badge badge-req">必須</span></td>
+    <td>テキスト（固定値）</td>
+    <td><code>M</code> = 男子　／　<code>W</code> = 女子　／　<code>X</code> = 混成</td>
   </tr>
   <tr>
     <td><code>age_group</code></td>
+    <td>年齢・クラス区分</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>年齢区分</td>
-    <td><code>G</code>=一般 / <code>J</code>=ジュニア / <code>U23</code> / <code>M</code>=マスターズ</td>
+    <td>テキスト（固定値）</td>
+    <td><code>G</code> = 一般　／　<code>J</code> = ジュニア　／　<code>U23</code> = U23　／　<code>M</code> = マスターズ</td>
   </tr>
   <tr>
     <td><code>round</code></td>
+    <td>ラウンド（レースの種別）</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>ラウンド</td>
-    <td><code>FA</code>=決勝A / <code>FB</code>=決勝B / <code>SF</code>=準決勝 / <code>H</code>=予選 / <code>R</code>=敗者復活 / <code>RK</code>=順位決定</td>
+    <td>テキスト（固定値）</td>
+    <td><code>FA</code> = 決勝A　／　<code>FB</code> = 決勝B　／　<code>SF</code> = 準決勝<br><code>H</code> = 予選　／　<code>R</code> = 敗者復活　／　<code>RK</code> = 順位決定</td>
   </tr>
   <tr>
     <td><code>date</code></td>
+    <td>レース実施日</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>レース日（YYYY-MM-DD形式）</td>
-    <td>2025-09-14</td>
+    <td>日付（文字列）</td>
+    <td>2025-09-14　（YYYY-MM-DD形式。Excelでは文字列書式で入力）</td>
   </tr>
   <tr>
     <td><code>time</code></td>
+    <td>スタート時刻</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>スタート時刻（HH:MM形式）</td>
-    <td>09:00</td>
+    <td>時刻（文字列）</td>
+    <td>09:00　（HH:MM形式・24時間表記。Excelでは文字列書式で入力）</td>
   </tr>
   <tr>
     <td><code>event_code</code></td>
+    <td>種目コード（フィルタ用）</td>
     <td><span class="badge badge-opt">任意</span></td>
-    <td>種目コード（フィルタに使用。省略時は自動生成）</td>
-    <td>M_1X / W_2X / X_4+</td>
+    <td>テキスト</td>
+    <td>M_1X　／　W_2X　／　X_4+　（省略可）</td>
   </tr>
   <tr>
     <td><code>course_length</code></td>
+    <td>このレースのコース距離（m）</td>
     <td><span class="badge badge-opt">任意</span></td>
-    <td>このレースのコース距離（m）。省略時は大会デフォルト距離を使用。1000m大会の中に500m種目がある場合に指定</td>
-    <td>500 / 1000 / 2000（空欄可）</td>
+    <td>数値（整数）</td>
+    <td>500　（1000m大会の中に500m種目がある場合のみ指定。省略時は tournament.csv の course_length を使用）</td>
   </tr>
 </table>
 
@@ -134,39 +211,44 @@
 10,女子シングルスカル,W,G,H,2025-09-14,10:12,W_1X,</div>
 
 <!-- ============================================================ -->
-<h2>③ entries.csv の書き方</h2>
+<h2>④ entries.csv の書き方（エントリー情報）</h2>
 
 <h3>カラム説明</h3>
 <table>
   <tr>
     <th>カラム名</th>
+    <th>日本語の意味</th>
     <th>必須</th>
-    <th>説明</th>
+    <th>型</th>
     <th>入力例</th>
   </tr>
   <tr>
     <td><code>race_no</code></td>
+    <td>レース番号</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>schedule.csv の race_no と一致させる</td>
-    <td>1</td>
+    <td>数値（整数）</td>
+    <td>1　（schedule.csv の race_no と一致させる）</td>
   </tr>
   <tr>
     <td><code>lane</code></td>
+    <td>レーン番号</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>レーン番号（1始まり）</td>
-    <td>1, 2, 3…</td>
+    <td>数値（整数）</td>
+    <td>1, 2, 3…　（1から始まる整数）</td>
   </tr>
   <tr>
     <td><code>crew_name</code></td>
+    <td>クルー名・選手名</td>
     <td><span class="badge badge-req">必須</span></td>
-    <td>クルー名（艇名・選手名）</td>
-    <td>山田太郎</td>
+    <td>テキスト</td>
+    <td>山田太郎　／　高橋雄介 / 小林誠（複数人は「 / 」で区切る）</td>
   </tr>
   <tr>
     <td><code>affiliation</code></td>
-    <td><span class="badge badge-req">必須</span></td>
     <td>所属団体名</td>
-    <td>諏訪漕艇クラブ</td>
+    <td><span class="badge badge-req">必須</span></td>
+    <td>テキスト</td>
+    <td>諏訪漕艇クラブ　／　長野県立松本高等学校</td>
   </tr>
 </table>
 
@@ -197,7 +279,7 @@
 10,2,津田由紀,諏訪漕艇クラブ</div>
 
 <!-- ============================================================ -->
-<h2>④ Excelで作成する場合の注意点</h2>
+<h2>⑤ Excelで作成する場合の注意点</h2>
 
 <table>
   <tr>
@@ -223,12 +305,12 @@
 </table>
 
 <!-- ============================================================ -->
-<h2>⑤ アップロード手順</h2>
+<h2>⑥ アップロード手順</h2>
 
 <ol style="line-height:2.2; font-size:14px;">
   <li>Google Drive の大会フォルダを開く</li>
   <li><code>master/</code> フォルダに移動</li>
-  <li><span class="file-name">schedule.csv</span> と <span class="file-name">entries.csv</span> をドラッグ＆ドロップ</li>
+  <li><span class="file-name">tournament.csv</span>・<span class="file-name">schedule.csv</span>・<span class="file-name">entries.csv</span> をドラッグ＆ドロップ</li>
   <li>GASエディタで <strong>runImportMaster()</strong> を実行（または5分後に自動処理）</li>
   <li>サイトに大会スケジュールが反映されます ✅</li>
 </ol>

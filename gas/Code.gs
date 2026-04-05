@@ -623,6 +623,23 @@ function importMasterData() {
 
     const masterFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.master);
 
+    // tournament.csv を読み込み（任意ファイル。なければデフォルト値を使用）
+    let tournamentInfo = {};
+    try {
+      const tRows = readMasterFile_(masterFolder, 'tournament');
+      if (tRows.length > 0) {
+        // key,value 形式（1列目=項目名, 2列目=値）
+        tRows.forEach(row => {
+          const key = (row.key || row['項目'] || '').trim();
+          const val = (row.value || row['値'] || '').trim();
+          if (key) tournamentInfo[key] = val;
+        });
+        Logger.log('[importMasterData] tournament.csv 読込: ' + JSON.stringify(tournamentInfo));
+      }
+    } catch (e) {
+      Logger.log('[importMasterData] tournament.csv なし（スキップ）');
+    }
+
     // schedule を読み込み（CSV または Googleスプレッドシート どちらでも対応）
     const scheduleRows = readMasterFile_(masterFolder, 'schedule');
     Logger.log('[importMasterData] schedule 行数: ' + scheduleRows.length);
@@ -684,11 +701,15 @@ function importMasterData() {
       updated_at: now,
       measurement_points: measurementPointsList,
       tournament: {
-        name: '',
-        dates: [...new Set(schedule.map(r => r.date).filter(Boolean))].sort(),
-        venue: '',
-        course_length: 1000,
-        youtube_url: '',
+        race_name: tournamentInfo['race_name'] || '',
+        // dates は schedule.csv の date 列から自動収集（tournament.csv で追加指定も可）
+        dates: [...new Set([
+          ...(tournamentInfo['dates'] ? tournamentInfo['dates'].split(',').map(d => d.trim()).filter(Boolean) : []),
+          ...schedule.map(r => r.date).filter(Boolean),
+        ])].sort(),
+        venue: tournamentInfo['venue'] || '',
+        course_length: tournamentInfo['course_length'] ? parseInt(tournamentInfo['course_length'], 10) : 1000,
+        youtube_url: tournamentInfo['youtube_url'] || '',
       },
       schedule: schedule,
     };
