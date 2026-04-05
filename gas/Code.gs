@@ -9,7 +9,7 @@
 
 // 1. Google Drive のルートフォルダID
 //    （DriveでフォルダURLの末尾の文字列 例: https://drive.google.com/drive/folders/★ここ★）
-const SETUP_DRIVE_FOLDER_ID = '1sCKohwJK8DWjINLxEfe_eO9Nm-DBshop';
+const SETUP_DRIVE_FOLDER_ID = '';  // ← ここに貼り付け（saveSetup()実行後は空に戻してください）
 
 // 2. GitHub Personal Access Token
 //    （https://github.com/settings/tokens で取得）
@@ -110,11 +110,19 @@ function onTrigger() {
   Logger.log('[onTrigger] 開始: ' + new Date().toISOString());
 
   try {
-    // API レート制限フラグを確認
+    // API レート制限フラグを確認（1時間経過で自動解除）
     const props = PropertiesService.getScriptProperties();
     if (props.getProperty(CONFIG.props.apiRateLimited) === 'true') {
-      Logger.log('[onTrigger] API レート制限中のため処理をスキップ');
-      return;
+      const flaggedAt = parseInt(props.getProperty('API_RATE_LIMITED_AT') || '0', 10);
+      const elapsed = Date.now() - flaggedAt;
+      if (elapsed < 60 * 60 * 1000) {
+        Logger.log('[onTrigger] API レート制限中のため処理をスキップ（残り約' + Math.ceil((60 * 60 * 1000 - elapsed) / 60000) + '分）');
+        return;
+      }
+      // 1時間経過したら自動解除
+      props.deleteProperty(CONFIG.props.apiRateLimited);
+      props.deleteProperty('API_RATE_LIMITED_AT');
+      Logger.log('[onTrigger] API レート制限フラグを自動解除しました');
     }
 
     processPendingCSVs(startTime);
@@ -264,7 +272,9 @@ function buildAndPushRaceJSON(raceNo, files, measurementPoints) {
  * @returns {{ lane: number, time_ms: number, formatted: string, tie_group: string, photo_flag: boolean, note: string }[]}
  */
 function parseResultCSV(csvContent) {
-  const lines = csvContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  // BOM除去（Excel保存CSVで付与される場合がある）
+  const cleaned = removeBom_(csvContent);
+  const lines = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   const results = [];
 
   // 1行目はヘッダーなのでスキップ
@@ -279,9 +289,18 @@ function parseResultCSV(csvContent) {
     }
 
     // measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note
+    const lane = parseInt(cols[1], 10);
+    const time_ms = parseInt(cols[3], 10);
+
+    // NaNチェック: 数値変換失敗の行はスキップ
+    if (isNaN(lane) || isNaN(time_ms)) {
+      Logger.log('[parseResultCSV] 数値変換エラーのためスキップ: lane=' + cols[1] + ' time_ms=' + cols[3]);
+      continue;
+    }
+
     results.push({
-      lane: parseInt(cols[1], 10),
-      time_ms: parseInt(cols[3], 10),
+      lane: lane,
+      time_ms: time_ms,
       formatted: cols[4].trim(),
       tie_group: cols[6].trim(),
       photo_flag: cols[7].trim().toLowerCase() === 'true' || cols[7].trim() === '1',
@@ -539,12 +558,13 @@ function pushToGitHub(path, content) {
  */
 function checkRateLimit(response) {
   const code = response.getResponseCode();
-  if (code === 403 || code === 429) {
-    Logger.log('[checkRateLimit] API レート制限検知: HTTP ' + code);
+  if (code === 401 || code === 403 || code === 429 || code === 503) {
+    Logger.log('[checkRateLimit] GitHub API エラー検知: HTTP ' + code);
     const props = PropertiesService.getScriptProperties();
     props.setProperty(CONFIG.props.apiRateLimited, 'true');
-    props.setProperty(CONFIG.props.lastError, 'Rate limited at ' + new Date().toISOString() + ': HTTP ' + code);
-    throw new Error('GitHub API レート制限: HTTP ' + code);
+    props.setProperty('API_RATE_LIMITED_AT', String(Date.now())); // 自動解除用タイムスタンプ
+    props.setProperty(CONFIG.props.lastError, 'API error at ' + new Date().toISOString() + ': HTTP ' + code);
+    throw new Error('GitHub API エラー: HTTP ' + code + '（1時間後に自動解除）');
   }
 }
 

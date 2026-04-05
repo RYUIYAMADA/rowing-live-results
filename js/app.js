@@ -36,8 +36,10 @@ function h(str) {
 let masterData = null;       // master.json の内容
 let resultsCache = {};       // race_no → race_XXX.json の内容
 let lastUpdated = null;      // 最終更新時刻
-let refreshTimer = null;     // 自動更新タイマー
 let isOffline = false;       // オフラインフラグ
+let isUpdating = false;      // 自動更新多重実行防止フラグ
+// タイマーを一元管理（メモリリーク防止）
+const timers = { refresh: null, highlight: null };
 // フィルタ状態（status フィールドを追加）
 const filterState = { category: 'all', round: 'all', date: 'all', crew: '', status: 'all' };
 // テーブルビューのソート状態
@@ -181,8 +183,11 @@ async function loadResults() {
         newlyUpdated.push(no);
       }
       resultsCache[no] = data;
-    } catch (_) {
-      // 結果未投入のレースは静かにスキップ（エラーを出さない）
+    } catch (e) {
+      // 404は正常系（結果未投入）、それ以外は警告
+      if (!e.message.includes('HTTP 404')) {
+        console.warn(`結果JSON取得失敗 race_no=${no}:`, e.message);
+      }
     }
   });
 
@@ -194,10 +199,19 @@ async function loadResults() {
 /**
  * JSONをfetchしてパースする
  */
-async function fetchJSON(path) {
-  const res = await fetch(path + '?t=' + Date.now());
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${path}`);
-  return res.json();
+async function fetchJSON(path, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(path + '?t=' + Date.now(), { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${path}`);
+    return res.json();
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error(`タイムアウト: ${path}`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ========= 描画 =========
@@ -954,6 +968,7 @@ async function manualRefresh() {
     });
   } catch (e) {
     console.error('手動更新エラー:', e);
+    showToast('更新に失敗しました。しばらく待ってから再試行してください。');
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -965,31 +980,43 @@ async function manualRefresh() {
 // ========= 自動更新 =========
 
 /**
- * 自動更新タイマーをセットする
+ * 自動更新タイマーをセットする（既存タイマーをクリアしてから登録）
  */
 function setupRefreshTimer() {
-  refreshTimer = setInterval(async () => {
-    console.log('自動更新中...');
+  // 既存タイマーをクリア（メモリリーク防止）
+  if (timers.refresh) clearInterval(timers.refresh);
+  if (timers.highlight) clearInterval(timers.highlight);
+
+  timers.refresh = setInterval(async () => {
+    if (isOffline || isUpdating) return; // オフライン中・更新中はスキップ
+    isUpdating = true;
     try {
       const newlyUpdated = await loadResults();
-      renderToggleView();
-      renderTableView();
-      renderScheduleView();
-      highlightCurrentRace();
-      lastUpdated = new Date();
-      updateStatusBar();
-      // 新しい結果があればトースト通知
-      newlyUpdated.forEach(no => {
-        showToast(`Race No.${no} の結果が更新されました`);
-      });
+      if (newlyUpdated.length > 0) {
+        renderToggleView();
+        renderTableView();
+        renderScheduleView();
+        highlightCurrentRace();
+        lastUpdated = new Date();
+        updateStatusBar();
+        newlyUpdated.forEach(no => showToast(`Race No.${no} の結果が更新されました`));
+      }
     } catch (e) {
       console.error('自動更新エラー:', e);
       showToast('データの更新に失敗しました。通信状況をご確認ください。');
+    } finally {
+      isUpdating = false;
     }
   }, CONFIG.REFRESH_INTERVAL);
 
-  // 1分ごとに実施中レースを再評価
-  setInterval(highlightCurrentRace, 60000);
+  // 実施中レース判定タイマー（独立管理）
+  timers.highlight = setInterval(highlightCurrentRace, 60000);
+
+  // ページ離脱時にタイマーをクリア
+  window.addEventListener('beforeunload', () => {
+    clearInterval(timers.refresh);
+    clearInterval(timers.highlight);
+  }, { once: true });
 }
 
 // ========= オフライン検知 =========
@@ -998,13 +1025,20 @@ function setupRefreshTimer() {
  * オンライン/オフラインイベントを監視してステータスバーに反映する
  */
 function setupOfflineDetection() {
+  // 重複登録防止
+  if (window.__offlineListenerAdded) return;
+  window.__offlineListenerAdded = true;
+
   window.addEventListener('offline', () => {
     isOffline = true;
     updateOfflineStatus();
+    showToast('⚠️ オフラインです。キャッシュ表示中。');
   });
   window.addEventListener('online', () => {
     isOffline = false;
     updateOfflineStatus();
+    showToast('✓ オンライン復帰 - 最新データを取得中');
+    setTimeout(() => manualRefresh(), 500);
   });
 }
 
