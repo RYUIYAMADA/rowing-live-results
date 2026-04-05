@@ -8,7 +8,8 @@
   "tournament": {
     "race_name": "",
     "dates": [
-      "2025-06-07"
+      "2025-06-07",
+      "2025-06-08"
     ],
     "venue": "",
     "course_length": 1000,
@@ -365,6 +366,38 @@
         {
           "lane": 4,
           "crew_name": "平野智美",
+          "affiliation": "上田ローイング"
+        }
+      ]
+    },
+    {
+      "race_no": 13,
+      "event_code": "M_1X",
+      "event_name": "男子シングルスカル",
+      "category": "M",
+      "age_group": "G",
+      "round": "FA",
+      "date": "2025-06-08",
+      "time": "09:00",
+      "entries": [
+        {
+          "lane": 1,
+          "crew_name": "木村四郎",
+          "affiliation": "諏訪漕艇クラブ"
+        },
+        {
+          "lane": 2,
+          "crew_name": "山田太郎",
+          "affiliation": "松本ボートクラブ"
+        },
+        {
+          "lane": 3,
+          "crew_name": "佐藤健一",
+          "affiliation": "長野漕艇協会"
+        },
+        {
+          "lane": 4,
+          "crew_name": "鈴木次郎",
           "affiliation": "上田ローイング"
         }
       ]
