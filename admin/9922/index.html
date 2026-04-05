@@ -259,9 +259,8 @@
     <div class="toc-title">INDEX</div>
     <ul class="toc-list">
       <li><a href="#section-status">① システム状態</a></li>
-      <li><a href="#section-races">② レース反映状況（日別タイムライン）</a></li>
-      <li><a href="#section-pipeline">③ CSV自動アップロード監視</a></li>
-      <li><a href="#section-links">④ リンク一覧</a></li>
+      <li><a href="#section-pipeline">② CSV自動アップロード監視</a></li>
+      <li><a href="#section-links">③ リンク一覧</a></li>
     </ul>
   </nav>
 
@@ -302,41 +301,11 @@
     <div class="last-check" id="last-check"></div>
   </section>
 
-  <!-- ===== ② レース反映状況 ===== -->
-  <section class="section">
-    <div id="section-races" class="section-anchor"></div>
-    <div class="section-header">
-      <div class="section-title">② レース反映状況</div>
-      <div style="font-size:12px;color:var(--text-muted)" id="races-summary"></div>
-    </div>
-
-    <!-- メインタブ（概要 / タイムライン） -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('overview', this)">📊 概要</button>
-      <button class="tab-btn" onclick="switchTab('timeline', this)">🕐 日別タイムライン</button>
-    </div>
-
-    <!-- 概要パネル -->
-    <div class="tab-panel active" id="panel-overview">
-      <div id="overview-container">
-        <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
-      </div>
-    </div>
-
-    <!-- タイムラインパネル -->
-    <div class="tab-panel" id="panel-timeline">
-      <div class="day-tabs" id="timeline-day-tabs"></div>
-      <div id="timeline-container">
-        <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>読み込み中...</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== ③ CSV自動アップロード監視 ===== -->
+  <!-- ===== ② CSV自動アップロード監視 ===== -->
   <section class="section">
     <div id="section-pipeline" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">③ CSV自動アップロード監視</div>
+      <div class="section-title">② CSV自動アップロード監視</div>
     </div>
     <div class="pipeline" id="pipeline">
       <div style="color:var(--text-muted);font-size:13px"><span class="spinner"></span>確認中...</div>
@@ -350,7 +319,7 @@
   <section class="section">
     <div id="section-links" class="section-anchor"></div>
     <div class="section-header">
-      <div class="section-title">④ リンク一覧</div>
+      <div class="section-title">③ リンク一覧</div>
     </div>
     <div class="links-table-wrapper">
       <table class="links-table">
@@ -410,11 +379,10 @@ function h(s) {
 function startClock() {
   function tick() {
     const now = new Date();
-    const jst = new Date(now.getTime() + (9*60 - now.getTimezoneOffset()) * 60000);
     document.getElementById('clock-time').textContent =
-      jst.toISOString().slice(11,19);
+      now.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
     document.getElementById('clock-date').textContent =
-      jst.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'long', day:'numeric', weekday:'short' });
+      now.toLocaleString('ja-JP', { timeZone:'Asia/Tokyo', year:'numeric', month:'long', day:'numeric', weekday:'short' });
     updateCurrentRaceBanner();
   }
   tick();
