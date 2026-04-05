@@ -48,6 +48,22 @@ function saveSetup() {
 }
 
 // ============================================================
+// ▼▼▼ テスト実行用ショートカット（ドロップダウンから選んで実行） ▼▼▼
+// ============================================================
+
+/** テスト用: R001〜R005のCSVをDriveに生成 */
+function runTest1to5() { createTestCSVs(); }
+
+/** テスト用: R006（棄権・途中棄権）のCSVをDriveに生成 */
+function runTest006() { createTestRace006(); }
+
+/** テスト用: マスターデータをGitHubにPush */
+function runImportMaster() { importMasterData(); }
+
+/** 手動: CSVを今すぐ処理してJSONをPush */
+function runNow() { processPendingCSVs(); }
+
+// ============================================================
 // 設定オブジェクト
 // ============================================================
 const CONFIG = {
