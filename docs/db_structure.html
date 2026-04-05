@@ -794,5 +794,213 @@ code {
 
 </div>
 
+  <hr class="divider">
+
+  <!-- ========= CSV仕様 ========= -->
+  <h2 class="section-title">ラップ記録CSVの仕様（RowingTimerWeb出力）</h2>
+
+  <!-- ファイル命名規則 -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-sub);letter-spacing:0.06em;margin-bottom:12px">
+      ファイル命名規則
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);background:#FAF8F4">
+        <code style="font-size:15px;color:var(--c-race)">YYYYMMDD_HHMMSS_R<span style="color:var(--c-tourn)">NNN</span>_<span style="color:var(--c-lap)">計測ポイント</span>.csv</code>
+      </div>
+      <table class="relation-table" style="margin:0">
+        <thead><tr><th>要素</th><th>内容</th><th>例</th><th>備考</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>YYYYMMDD</code></td>
+            <td>計測日付</td>
+            <td><code>20260309</code></td>
+            <td>RowingTimerWebが自動付与</td>
+          </tr>
+          <tr>
+            <td><code>HHMMSS</code></td>
+            <td>計測時刻</td>
+            <td><code>002304</code></td>
+            <td>RowingTimerWebが自動付与</td>
+          </tr>
+          <tr>
+            <td><code>R<span style="color:var(--c-tourn)">NNN</span></code></td>
+            <td>レース番号（3桁ゼロ埋め）</td>
+            <td><code>R001</code></td>
+            <td>RowingTimerWebの race_no と一致させること</td>
+          </tr>
+          <tr>
+            <td><code style="color:var(--c-lap)">計測ポイント</code></td>
+            <td>地点名</td>
+            <td><code>500m</code> / <code>1000m</code></td>
+            <td>GASの <code>MEASUREMENT_POINTS</code> と一致させること</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:12px 20px;background:#F7F4EF;font-size:12px;color:var(--text-sub)">
+        ファイル例: &nbsp;
+        <code>20260309_002304_R001_500m.csv</code> &nbsp;/&nbsp;
+        <code>20260309_002304_R001_1000m.csv</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- カラム仕様 -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-sub);letter-spacing:0.06em;margin-bottom:12px">
+      CSVカラム仕様
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);background:#FAF8F4;font-size:12px;font-family:monospace;color:var(--text-sub)">
+        ヘッダー行（1行目）: &nbsp;
+        <code>measurement_point, lane, lap_index, time_ms, formatted, race_no, tie_group, photo_flag, note</code>
+      </div>
+      <table class="relation-table" style="margin:0">
+        <thead>
+          <tr>
+            <th>カラム名</th>
+            <th>型</th>
+            <th>例</th>
+            <th>用途・備考</th>
+            <th>GASでの扱い</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>measurement_point</code></td>
+            <td>string</td>
+            <td><code>500m</code></td>
+            <td>計測ポイント名。ファイル名の地点名と一致</td>
+            <td>ファイル名から取得するため参照のみ</td>
+          </tr>
+          <tr>
+            <td><code>lane</code></td>
+            <td>number</td>
+            <td><code>3</code></td>
+            <td>レーン番号。エントリーの lane と対応</td>
+            <td>結果JSONの <code>lane</code> に使用 <span class="prop-pk">必須</span></td>
+          </tr>
+          <tr>
+            <td><code>lap_index</code></td>
+            <td>number</td>
+            <td><code>1</code></td>
+            <td>同一レーン内の周回インデックス（通常は1）</td>
+            <td>現在未使用（将来の多周回対応用）</td>
+          </tr>
+          <tr>
+            <td><code>time_ms</code></td>
+            <td>number</td>
+            <td><code>108220</code></td>
+            <td>スタートからの経過時間（ミリ秒整数）</td>
+            <td>結果JSONの <code>time_ms</code> に使用 <span class="prop-pk">必須</span></td>
+          </tr>
+          <tr>
+            <td><code>formatted</code></td>
+            <td>string</td>
+            <td><code>1:48.220</code></td>
+            <td>RowingTimerWebの表示用タイム（ミリ秒3桁）</td>
+            <td>無視。<code>time_ms</code> からセンチ秒2桁で再計算 <span class="prop-opt">使用せず</span></td>
+          </tr>
+          <tr>
+            <td><code>race_no</code></td>
+            <td>number</td>
+            <td><code>1</code></td>
+            <td>レース番号。ファイル名の R001 と一致</td>
+            <td>ファイル名から取得するため確認のみ</td>
+          </tr>
+          <tr>
+            <td><code>tie_group</code></td>
+            <td>string</td>
+            <td><code>1</code> or <code>（空）</code></td>
+            <td>同着グループID。同着の艇に同じ文字列を入れる</td>
+            <td>フィニッシュポイントの値を採用。同値→同順位判定 <span class="prop-opt">任意</span></td>
+          </tr>
+          <tr>
+            <td><code>photo_flag</code></td>
+            <td>boolean</td>
+            <td><code>true</code> / <code>（空）</code></td>
+            <td>写真判定フラグ（<code>true</code> または <code>1</code> で有効）</td>
+            <td>フィニッシュポイントの値を採用 <span class="prop-opt">任意</span></td>
+          </tr>
+          <tr>
+            <td><code>note</code></td>
+            <td>string</td>
+            <td><code>大会新記録</code></td>
+            <td>備考（失格・記録等の補足）</td>
+            <td>フィニッシュポイントの値を採用 <span class="prop-opt">任意</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 処理ルール -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-sub);letter-spacing:0.06em;margin-bottom:12px">
+      GASの処理ルール
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <table class="relation-table" style="margin:0">
+        <thead><tr><th>ルール</th><th>内容</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="white-space:nowrap">全ポイント揃いで処理</td>
+            <td>同一 <code>race_no</code> の <code>MEASUREMENT_POINTS</code> が全て揃った時点でJSON生成。片方のみではサイト更新されない</td>
+          </tr>
+          <tr>
+            <td style="white-space:nowrap">フォーマット統一</td>
+            <td>CSVの <code>formatted</code>（ミリ秒3桁）は使わず、<code>time_ms</code> からセンチ秒2桁（<code>M:SS.cc</code>）で再計算</td>
+          </tr>
+          <tr>
+            <td style="white-space:nowrap">tie_group / photo_flag</td>
+            <td>複数ポイントがある場合、<strong>フィニッシュポイント（最後の計測点）</strong>の値を採用</td>
+          </tr>
+          <tr>
+            <td style="white-space:nowrap">split 計算</td>
+            <td>フィニッシュ time_ms − 最初の計測ポイント time_ms を <code>(M:SS.cc)</code> 形式で格納</td>
+          </tr>
+          <tr>
+            <td style="white-space:nowrap">処理済みCSVの移動</td>
+            <td>JSON生成後、CSVを <code>processed/500m/</code> / <code>processed/1000m/</code> へ自動移動</td>
+          </tr>
+          <tr>
+            <td style="white-space:nowrap">アップロード先</td>
+            <td><code>race_csv/500m/</code> または <code>race_csv/1000m/</code> に計測ポイントごとに格納</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CSVサンプル -->
+  <div style="margin-bottom:8px">
+    <div style="font-size:13px;font-weight:600;color:var(--text-sub);letter-spacing:0.06em;margin-bottom:12px">
+      CSVサンプル
+    </div>
+    <div style="background:#2D3748;border-radius:var(--radius);padding:20px 24px;overflow-x:auto">
+      <div style="font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.4);margin-bottom:10px">
+        20260309_002304_R001_500m.csv
+      </div>
+      <pre style="font-family:monospace;font-size:12px;line-height:1.9;color:#E2E8F0;margin:0"><span style="color:#68D391">measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note</span>
+500m,1,1,112834,1:52.834,1,,,
+500m,2,1,113201,1:53.201,1,,,
+500m,3,1,111490,1:51.490,1,,,
+500m,4,1,114560,1:54.560,1,,, </pre>
+      <div style="font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.4);margin:16px 0 10px">
+        20260309_002304_R001_1000m.csv
+      </div>
+      <pre style="font-family:monospace;font-size:12px;line-height:1.9;color:#E2E8F0;margin:0"><span style="color:#68D391">measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note</span>
+1000m,1,1,228410,3:48.410,1,,,
+1000m,2,1,231750,3:51.750,1,,,
+1000m,3,1,224880,3:44.880,1,,,
+1000m,4,1,235200,3:55.200,1,,,</pre>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:14px">
+        ※ 同着の例: tie_group に同じ値を入れる → <code style="color:#F6AD55">1000m,2,1,213760,3:33.760,3,A,,</code> / <code style="color:#F6AD55">1000m,4,1,213760,3:33.760,3,A,,</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 </body>
 </html>
