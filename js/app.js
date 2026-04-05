@@ -244,28 +244,28 @@ function renderAll() {
  * 大会名・日程・会場をヘッダーに反映する
  */
 function renderTournamentHeader() {
-  const t = masterData.tournament;
+  const t = masterData?.tournament || {};
   const el = document.getElementById('tournament-name');
-  if (el) el.textContent = '🏁 ' + t.race_name;
+  if (el) el.textContent = '🏁 ' + (t.race_name || '');
 
   const metaEl = document.getElementById('tournament-meta');
-  const dates = t.dates.map(d => formatDate(d)).join('・');
+  const dates = (t.dates || []).map(d => formatDate(d)).join('・');
   if (metaEl) {
-    metaEl.innerHTML = `<span>📅 ${h(dates)}</span><span>📍 ${h(t.venue)}</span>`;
+    metaEl.innerHTML = `<span>📅 ${h(dates)}</span><span>📍 ${h(t.venue || '')}</span>`;
   }
 
   // カバーエリアにも大会情報を表示
   const coverName = document.getElementById('cover-tournament-name');
-  if (coverName) coverName.textContent = t.race_name;
+  if (coverName) coverName.textContent = t.race_name || '';
   const coverMeta = document.getElementById('cover-meta');
-  if (coverMeta) coverMeta.textContent = `${dates} | ${t.venue}`;
+  if (coverMeta) coverMeta.textContent = `${dates} | ${t.venue || ''}`;
 }
 
 /**
  * YouTube Live URLがあれば埋め込む
  */
 function renderYoutube() {
-  const url = masterData.tournament.youtube_url;
+  const url = masterData?.tournament?.youtube_url;
   const container = document.getElementById('youtube-container');
   if (!container) return;
   if (!url) { container.style.display = 'none'; return; }
@@ -288,20 +288,16 @@ function renderYoutube() {
 function renderFilterOptions() {
   const dates = [...new Set((masterData?.schedule || []).map(r => r.date))].sort();
 
-  // 日別タブを生成
+  // 日別タブを生成（日数に関わらず常に表示）
   const dayTabs = document.getElementById('day-tabs');
   if (dayTabs) {
-    // 日程が1日だけの場合はタブを非表示
-    if (dates.length <= 1) {
-      dayTabs.style.display = 'none';
-    } else {
-      const tabs = [{ value: 'all', label: 'すべて' }]
-        .concat(dates.map((d, i) => ({ value: d, label: `${i + 1}日目｜${formatDate(d)}` })));
-      dayTabs.innerHTML = tabs.map(t =>
-        `<button class="day-tab${filterState.date === t.value ? ' active' : ''}"
-          onclick="selectDayTab('${t.value}')">${t.label}</button>`
-      ).join('');
-    }
+    const tabs = [{ value: 'all', label: 'すべて' }]
+      .concat(dates.map((d, i) => ({ value: d, label: `${i + 1}日目｜${formatDate(d)}` })));
+    dayTabs.innerHTML = tabs.map(t =>
+      `<button class="day-tab${filterState.date === t.value ? ' active' : ''}"
+        onclick="selectDayTab('${t.value}')">${t.label}</button>`
+    ).join('');
+    dayTabs.style.display = '';
   }
 
   // セレクトボックスも更新（互換性のため残す）
@@ -420,7 +416,7 @@ function renderRaceBlock(race) {
 function renderResultTable(race, result) {
   // レースごとの course_length があれば優先、なければ大会デフォルト
   const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
-  const allPts = masterData.measurement_points || ['500', '1000'];
+  const allPts = masterData?.measurement_points || ['500', '1000'];
   // このレースの距離以下の計測ポイントのみ有効とする（例: 500m種目では500m列のみ）
   const pts = allPts.filter(p => {
     const m = parseInt(p, 10);
@@ -639,26 +635,38 @@ function highlightCurrentRace() {
   const now = new Date();
   const WINDOW_MS = 15 * 60 * 1000; // ±15分
 
+  // 結果未確定のレースの中で、現在時刻に最も近い1レースだけを「実施中」にする
+  let currentRace = null;
+  let minDiff = Infinity;
   (masterData?.schedule || []).forEach(race => {
-    // 結果済みはスキップ
-    if (resultsCache[race.race_no]) return;
+    if (resultsCache[race.race_no]) return; // 結果済みはスキップ
     const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
     const diff = Math.abs(now - raceTime);
-    if (diff <= WINDOW_MS) {
-      // 対応するトグルを探してバッジをliveに更新
-      const toggle = document.querySelector(
-        `#view-toggle-content .toggle[data-code="${race.event_code}"]`
-      );
-      if (toggle) {
-        // badgeをbadge-liveに置き換え（まだ置き換えていない場合のみ）
-        const existingBadge = toggle.querySelector('.toggle-header .badge');
-        if (existingBadge && !existingBadge.classList.contains('badge-live')) {
-          existingBadge.className = 'badge badge-live';
-          existingBadge.textContent = '実施中';
-        }
-      }
+    if (diff <= WINDOW_MS && diff < minDiff) {
+      minDiff = diff;
+      currentRace = race;
     }
   });
+
+  // 全トグルのliveバッジを一旦リセット
+  document.querySelectorAll('#view-toggle-content .toggle .badge-live').forEach(badge => {
+    badge.className = 'badge badge-upcoming';
+    badge.textContent = '予定';
+  });
+
+  // 該当レースだけliveに設定
+  if (currentRace) {
+    const toggle = document.querySelector(
+      `#view-toggle-content .toggle[data-code="${currentRace.event_code}"]`
+    );
+    if (toggle) {
+      const existingBadge = toggle.querySelector('.toggle-header .badge');
+      if (existingBadge) {
+        existingBadge.className = 'badge badge-live';
+        existingBadge.textContent = '実施中';
+      }
+    }
+  }
 
   // スケジュールビューを再描画（ハイライト行を最新化）
   renderScheduleView();
@@ -671,7 +679,7 @@ function renderTableView() {
   const container = document.getElementById('view-table-content');
   if (!container) return;
 
-  const allPts = masterData.measurement_points || ['500', '1000'];
+  const allPts = masterData?.measurement_points || ['500', '1000'];
 
   const html = (masterData?.schedule || []).map(race => {
     const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
