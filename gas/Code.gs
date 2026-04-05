@@ -1159,3 +1159,112 @@ function deleteTriggers() {
   ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
   Logger.log('[OK] 全トリガーを削除しました');
 }
+
+// ============================================================
+// テスト用: サンプルCSVをDriveに生成する
+// ============================================================
+
+/**
+ * テスト用サンプルCSVを race_csv/500m/ と race_csv/1000m/ に生成する
+ * 本番前の動作確認用（R001〜R005の5レース分）
+ * 実行後5分以内に onTrigger が自動でJSONを生成してGitHubにPushする
+ */
+function createTestCSVs() {
+  const props = PropertiesService.getScriptProperties();
+  const rootId = props.getProperty(CONFIG.props.driveFolderId);
+  const raceCsvFolder = getOrCreateFolder(rootId, CONFIG.folders.raceCsv);
+  const folder500 = getOrCreateFolder(raceCsvFolder.getId(), '500m');
+  const folder1000 = getOrCreateFolder(raceCsvFolder.getId(), '1000m');
+
+  const header = 'measurement_point,lane,lap_index,time_ms,formatted,race_no,tie_group,photo_flag,note\n';
+
+  const csvData = [
+    {
+      name: '20250607_070000_R001_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,112834,1:52.834,1,,,\n' +
+        '500m,2,1,113201,1:53.201,1,,,\n' +
+        '500m,3,1,111490,1:51.490,1,,,\n' +
+        '500m,4,1,114560,1:54.560,1,,,\n'
+    },
+    {
+      name: '20250607_070800_R001_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,228410,3:48.410,1,,,\n' +
+        '1000m,2,1,231750,3:51.750,1,,,\n' +
+        '1000m,3,1,224880,3:44.880,1,,,\n' +
+        '1000m,4,1,235200,3:55.200,1,,,\n'
+    },
+    {
+      name: '20250607_071600_R002_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,115320,1:55.320,2,,,\n' +
+        '500m,2,1,116880,1:56.880,2,,,\n' +
+        '500m,3,1,118100,1:58.100,2,,,\n' +
+        '500m,4,1,114950,1:54.950,2,,,\n'
+    },
+    {
+      name: '20250607_072400_R002_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,234560,3:54.560,2,,,\n' +
+        '1000m,2,1,238900,3:58.900,2,,,\n' +
+        '1000m,3,1,240100,4:00.100,2,,,\n' +
+        '1000m,4,1,233200,3:53.200,2,,,\n'
+    },
+    {
+      name: '20250607_073200_R003_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,104210,1:44.210,3,,,\n' +
+        '500m,2,1,105880,1:45.880,3,,,\n' +
+        '500m,3,1,106340,1:46.340,3,,,\n' +
+        '500m,4,1,105880,1:45.880,3,1,,同着\n'
+    },
+    {
+      name: '20250607_073200_R004_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,125400,2:05.400,4,,,\n' +
+        '500m,2,1,127800,2:07.800,4,,,\n' +
+        '500m,3,1,124100,2:04.100,4,,,\n'
+    },
+    {
+      name: '20250607_074000_R003_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,208540,3:28.540,3,,,\n' +
+        '1000m,2,1,213760,3:33.760,3,,,\n' +
+        '1000m,3,1,218300,3:38.300,3,,,\n' +
+        '1000m,4,1,213760,3:33.760,3,1,true,フォトフィニッシュ判定\n'
+    },
+    {
+      name: '20250607_074000_R004_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,252000,4:12.000,4,,,\n' +
+        '1000m,2,1,258600,4:18.600,4,,,\n' +
+        '1000m,3,1,249800,4:09.800,4,,,\n'
+    },
+    {
+      name: '20250607_080000_R005_500m.csv', folder: folder500,
+      content: header +
+        '500m,1,1,91200,1:31.200,5,,,\n' +
+        '500m,2,1,90500,1:30.500,5,,,\n' +
+        '500m,3,1,92800,1:32.800,5,,,\n'
+    },
+    {
+      name: '20250607_080800_R005_1000m.csv', folder: folder1000,
+      content: header +
+        '1000m,1,1,183500,3:03.500,5,,,\n' +
+        '1000m,2,1,181200,3:01.200,5,,,\n' +
+        '1000m,3,1,186900,3:06.900,5,,,\n'
+    },
+  ];
+
+  csvData.forEach(({ name, folder, content }) => {
+    // 同名ファイルが既にあれば削除してから作成
+    const existing = folder.getFilesByName(name);
+    while (existing.hasNext()) existing.next().setTrashed(true);
+    folder.createFile(name, content, MimeType.PLAIN_TEXT);
+    Logger.log('[createTestCSVs] 作成: ' + name);
+  });
+
+  Logger.log('[createTestCSVs] 完了: ' + csvData.length + 'ファイル生成');
+  Logger.log('5分以内に onTrigger が自動実行してJSONを生成します');
+}
