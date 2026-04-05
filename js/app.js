@@ -484,8 +484,8 @@ function renderResultTable(race, result) {
       <tr class="${rankClass}${isDns || isDnf ? ' row-retired' : ''}">
         <td>${rankDisplay}</td>
         <td>${r.lane}</td>
-        <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
         <td>${h(entry.affiliation) || '-'}</td>
+        <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
         <td class="hide-mobile">${isDns ? '-' : midTime}</td>
         <td>${finishDisplay}</td>
         <td>${isDns ? '' : photoMark + note}</td>
@@ -504,8 +504,8 @@ function renderResultTable(race, result) {
         <tr>
           <th style="width:36px">順位</th>
           <th style="width:28px">B</th>
-          <th style="min-width:120px">クルー名</th>
           <th style="min-width:100px">所属</th>
+          <th style="min-width:120px">クルー</th>
           ${midHeader}
           <th style="width:90px">${finishHeader}</th>
           <th style="min-width:80px">備考</th>
@@ -747,8 +747,8 @@ function renderTableView() {
         return `<tr class="${r.rank && r.rank <= 3 ? `rank-${r.rank}` : ''}${isDns || isDnf ? ' row-retired' : ''}">
           <td>${rankCell}</td>
           <td>${r.lane}</td>
-          <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
           <td>${h(entry.affiliation) || '-'}</td>
+          <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
           ${showMid ? `<td class="hide-mobile">${isDns ? '-' : midTime}</td>` : ''}
           <td>${finishCell}</td>
           <td>${(!isDns && r.note) ? `<span style="color:#e03e3e;font-size:11px">${h(r.note)}</span>` : ''}</td>
@@ -758,8 +758,8 @@ function renderTableView() {
       tableBody = (race.entries || []).map(e => `
         <tr class="row-retired">
           <td>-</td><td>${e.lane}</td>
-          <td class="crew-name">${h(e.crew_name)}</td>
           <td>${h(e.affiliation)}</td>
+          <td class="crew-name">${h(e.crew_name)}</td>
           ${showMid ? `<td class="hide-mobile">-</td>` : ''}
           <td>-</td><td></td>
         </tr>`).join('');
@@ -782,7 +782,7 @@ function renderTableView() {
             <thead><tr>
               <th style="width:52px">順位</th>
               <th style="width:28px">B</th>
-              <th style="min-width:120px">クルー名</th><th style="min-width:100px">所属</th>
+              <th style="min-width:100px">所属</th><th style="min-width:120px">クルー</th>
               ${midHeader}
               <th style="width:90px">${finishHeader}</th>
               <th style="min-width:80px">備考</th>
