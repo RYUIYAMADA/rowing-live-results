@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>当日スタッフ マニュアル｜ボート競技速報サイト</title>
+<style>
+  :root {
+    --green: #2D4F2C;
+    --green-light: #e8f0e8;
+    --green-mid: #4a7a48;
+    --red: #c0392b;
+    --yellow: #f0c040;
+    --blue: #3b7dd8;
+    --text: #222;
+    --muted: #666;
+    --bg: #fff;
+    --border: #dde;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: #f7f7f5; color: var(--text); font-size: 15px; line-height: 1.7; }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ヘッダー */
+  .hero { background: var(--green); color: #fff; border-radius: 10px; padding: 28px 32px; margin-bottom: 32px; }
+  .hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .hero p { font-size: 14px; opacity: 0.85; }
+  .hero .badge-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hero .badge { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 12px; font-size: 12px; }
+
+  /* フロー図 */
+  .flow { display: flex; align-items: center; gap: 0; margin: 20px 0 28px; flex-wrap: wrap; }
+  .flow-step { background: var(--bg); border: 2px solid var(--green); border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--green); white-space: nowrap; text-align: center; }
+  .flow-arrow { font-size: 18px; color: var(--green); padding: 0 6px; }
+  .flow-time { font-size: 11px; font-weight: normal; color: var(--muted); display: block; margin-top: 2px; }
+
+  /* セクション */
+  .section { background: var(--bg); border-radius: 10px; padding: 24px 28px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .step-num { width: 36px; height: 36px; background: var(--green); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+  .section h2 { font-size: 17px; color: var(--green); }
+  .section h3 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; color: #333; border-left: 3px solid var(--green); padding-left: 8px; }
+
+  /* 手順リスト */
+  ol.steps { padding-left: 20px; }
+  ol.steps li { margin-bottom: 10px; line-height: 1.6; }
+  ol.steps li strong { color: var(--green); }
+
+  /* コールアウト */
+  .callout { display: flex; gap: 12px; border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 14px; }
+  .callout-ok  { background: #eafaf1; border: 1px solid #82e0aa; }
+  .callout-warn { background: #fef9e7; border: 1px solid var(--yellow); }
+  .callout-ng   { background: #fdedec; border: 1px solid #f1948a; }
+  .callout-icon { font-size: 20px; flex-shrink: 0; line-height: 1.4; }
+  .callout-body strong { display: block; margin-bottom: 4px; }
+
+  /* コード */
+  code { font-family: monospace; font-size: 13px; background: #f0f0f0; border: 1px solid #ddd; padding: 1px 6px; border-radius: 3px; }
+  pre { background: #1e2330; color: #d4d4d4; border-radius: 8px; padding: 16px; font-size: 13px; overflow-x: auto; margin: 10px 0; line-height: 1.7; }
+  pre .ok  { color: #6bcb77; }
+  pre .ng  { color: #ff6b6b; }
+  pre .hl  { color: #ffd166; }
+
+  /* フォルダパス */
+  .path { display: inline-block; font-family: monospace; font-size: 13px; background: #e8f0fe; border: 1px solid #8ab4f8; border-radius: 4px; padding: 2px 8px; }
+
+  /* テーブル */
+  table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 10px 0; }
+  th { background: var(--green-light); color: var(--green); padding: 7px 10px; border: 1px solid #c5d8c5; text-align: left; }
+  td { border: 1px solid var(--border); padding: 7px 10px; vertical-align: top; line-height: 1.6; }
+  tr:hover { background: #fafafa; }
+
+  /* ステータスバッジ */
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+  .tag-ok   { background: #d5f5e3; color: #1a7a3e; }
+  .tag-warn { background: #fef9e7; color: #9a7d0a; }
+  .tag-ng   { background: #fdedec; color: var(--red); }
+
+  /* 大きいボタン */
+  .big-link { display: inline-block; background: var(--green); color: #fff; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; text-decoration: none; margin: 6px 6px 6px 0; }
+  .big-link:hover { opacity: 0.85; }
+  .big-link-sub { background: #fff; color: var(--green); border: 2px solid var(--green); }
+
+  /* チェックリスト */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: '☐'; font-size: 18px; color: var(--green); flex-shrink: 0; line-height: 1.2; }
+
+  /* 重要度カラーバー */
+  .priority-high   { border-left: 4px solid var(--red); }
+  .priority-medium { border-left: 4px solid var(--yellow); }
+  .priority-low    { border-left: 4px solid #aaa; }
+
+  hr { border: none; border-top: 1px solid #ddd; margin: 28px 0; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <div class="hero">
+    <h1>🚣 ボート競技速報サイト｜当日スタッフ マニュアル</h1>
+    <p>計測終了後にCSVファイルをアップロードするだけで、サイトに自動反映されます。</p>
+    <div class="badge-list">
+      <span class="badge">📱 スマホ対応</span>
+      <span class="badge">⏱ 反映まで約3分</span>
+      <span class="badge">🤖 自動処理・手動操作不要</span>
+    </div>
+  </div>
+
+  <!-- 全体の流れ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">🔁</div>
+      <h2>全体の流れ（1レースごとに繰り返す）</h2>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step">① 計測終了<span class="flow-time">タイマーアプリ</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">② CSVを書き出し<span class="flow-time">タイマーアプリ</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">③ Driveにアップ<span class="flow-time">あなたの作業</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">④ 自動処理<span class="flow-time">〜2分</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">⑤ サイト更新<span class="flow-time">〜1分</span></div>
+    </div>
+
+    <div class="callout callout-ok">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>あなたがやることは③だけ！</strong>
+        CSVファイルを決められたフォルダにアップロードすると、あとはシステムが自動でサイトを更新します。
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1: アップロード先フォルダ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">1</div>
+      <h2>アップロード先のフォルダを確認する</h2>
+    </div>
+
+    <p>Google Drive を開き、大会フォルダの中の以下のフォルダを使います。</p>
+
+    <table style="margin-top:14px;">
+      <tr>
+        <th>計測ポイント</th>
+        <th>アップロード先フォルダ</th>
+      </tr>
+      <tr>
+        <td>500m 地点</td>
+        <td><span class="path">race_csv / 500m /</span></td>
+      </tr>
+      <tr>
+        <td>1000m フィニッシュ</td>
+        <td><span class="path">race_csv / 1000m /</span></td>
+      </tr>
+    </table>
+
+    <div class="callout callout-warn" style="margin-top:14px;">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>フォルダを間違えないでください</strong>
+        500m のファイルを 1000m フォルダに入れると正しく処理されません。<br>
+        ファイル名を見て計測ポイントを確認してからアップしましょう。
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: ファイル名の見方 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">2</div>
+      <h2>ファイル名の見方</h2>
+    </div>
+
+    <p>タイマーアプリが出力するCSVのファイル名には必要な情報がすべて入っています。</p>
+
+<pre><span class="hl">20250914</span>_<span class="hl">090012</span>_<span class="hl">R003</span>_<span class="hl">1000m</span>.csv
+   ↑          ↑         ↑        ↑
+  日付      計測時刻   レース番号  計測ポイント</pre>
+
+    <table>
+      <tr><th>部分</th><th>意味</th><th>例</th></tr>
+      <tr><td><code>20250914</code></td><td>計測した日付</td><td>2025年9月14日</td></tr>
+      <tr><td><code>090012</code></td><td>計測した時刻</td><td>09時00分12秒</td></tr>
+      <tr><td><code>R003</code></td><td>レース番号（3桁）</td><td>第3レース</td></tr>
+      <tr><td><code>1000m</code></td><td>計測ポイント</td><td>フィニッシュ（1000m地点）</td></tr>
+    </table>
+
+    <h3>1レースにつき2ファイル届く（1000mコースの場合）</h3>
+<pre><span class="ok">20250914_090012_R003_500m.csv</span>   ← 中間タイム（500m）
+<span class="ok">20250914_090500_R003_1000m.csv</span>  ← フィニッシュ（1000m）</pre>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>2ファイル両方が揃ってはじめてサイトが更新されます</strong>
+        500m だけ・1000m だけでは反映されません。両方アップされるのを待ってください。
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: アップロード手順 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">3</div>
+      <h2>CSVをアップロードする手順</h2>
+    </div>
+
+    <ol class="steps">
+      <li>タイマーアプリからCSVファイルを書き出す（ダウンロードする）</li>
+      <li>ファイル名を確認して、<strong>500m か 1000m かを確認</strong>する</li>
+      <li>Google Drive を開き、大会フォルダ →<span class="path">race_csv</span>→ 計測ポイントのフォルダを開く</li>
+      <li>ファイルを<strong>ドラッグ＆ドロップ</strong>（またはフォルダ内で「+ 新規」→「ファイルのアップロード」）</li>
+      <li>アップロード完了を確認したら作業完了！　あとは自動です</li>
+    </ol>
+
+    <div class="callout callout-ok">
+      <div class="callout-icon">⏱</div>
+      <div class="callout-body">
+        <strong>約2〜3分後にサイトに反映されます</strong>
+        サイトを開いて確認してみましょう。
+        <br>→ <a href="https://rowing-live-results.pages.dev" target="_blank" style="color:#2D4F2C;font-weight:700;">https://rowing-live-results.pages.dev</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: サイト確認 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">4</div>
+      <h2>サイトで結果を確認する</h2>
+    </div>
+
+    <p>アップロードから3分ほどでサイトが更新されます。以下の点を確認してください。</p>
+
+    <ul class="checklist" style="margin-top:12px;">
+      <li>対象レースの結果（タイム・順位）が表示されているか</li>
+      <li>選手名・所属が正しく表示されているか</li>
+      <li>棄権・途中棄権の表示が正しいか（出漕しなかった選手は「棄権」と表示される）</li>
+      <li>右下のステータスバーに「更新」時刻が最新になっているか</li>
+    </ul>
+
+    <h3>手動で更新を確認したい場合</h3>
+    <p>画面右下の <strong>🔄 ボタン</strong>を押すと今すぐ最新データを取得します。</p>
+  </div>
+
+  <!-- トラブル対応 -->
+  <div class="section priority-high" style="border-left: 4px solid var(--red);">
+    <div class="section-header">
+      <div class="step-num" style="background:var(--red);">!</div>
+      <h2>うまくいかないときのチェックリスト</h2>
+    </div>
+
+    <table>
+      <tr>
+        <th>症状</th>
+        <th>確認ポイント</th>
+        <th>対処</th>
+      </tr>
+      <tr>
+        <td>3分経ってもサイトが更新されない</td>
+        <td>フォルダの場所は合っているか？</td>
+        <td>500m/1000m フォルダを再確認。間違えていたら正しいフォルダに移動する</td>
+      </tr>
+      <tr>
+        <td>片方のタイムしか表示されない</td>
+        <td>2ファイル両方アップされているか？</td>
+        <td>500m と 1000m の両ファイルがアップ済みか確認する</td>
+      </tr>
+      <tr>
+        <td>選手名が表示されない（レーン番号だけ）</td>
+        <td>entries.csv のレース番号・レーン番号の入力ミス</td>
+        <td>大会責任者に報告する（entries.csv の修正が必要）</td>
+      </tr>
+      <tr>
+        <td>5分以上経っても更新されない</td>
+        <td>ファイル名が正しい形式か？</td>
+        <td>ファイル名が <code>YYYYMMDD_HHMMSS_R001_500m.csv</code> の形式か確認する</td>
+      </tr>
+      <tr>
+        <td>上記で解決しない</td>
+        <td>—</td>
+        <td><strong style="color:var(--red);">大会責任者（GAS管理者）に連絡する</strong></td>
+      </tr>
+    </table>
+
+    <div class="callout callout-ng" style="margin-top:16px;">
+      <div class="callout-icon">🚫</div>
+      <div class="callout-body">
+        <strong>自分で判断して GAS の設定を変えたり、GitHubを触ったりしないでください</strong>
+        システムの設定変更は大会責任者のみが行います。
+      </div>
+    </div>
+  </div>
+
+  <!-- 当日チェックリスト -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">✔</div>
+      <h2>大会開始前チェックリスト</h2>
+    </div>
+    <ul class="checklist">
+      <li>Google Drive にアクセスできる（アカウントにログインしている）</li>
+      <li>大会フォルダの場所を確認した（<span class="path">race_csv / 500m /</span> と <span class="path">race_csv / 1000m /</span>）</li>
+      <li>速報サイトが開けることを確認した（ブックマーク推奨）</li>
+      <li>タイマーアプリからCSVを書き出す方法を確認した</li>
+      <li>テスト用に1ファイル試しにアップしてみた（任意）</li>
+    </ul>
+  </div>
+
+  <!-- よくある質問 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">Q</div>
+      <h2>よくある質問</h2>
+    </div>
+
+    <h3>同じレースのCSVが2回届いた場合は？</h3>
+    <p>両方アップして大丈夫です。システムが自動で<strong>新しい方（ファイル名の時刻が新しい方）</strong>を採用します。</p>
+
+    <h3>棄権した選手はどうなりますか？</h3>
+    <p>エントリーに登録されている選手がCSVに含まれていない場合、自動的に「<strong>棄権（DNS）</strong>」として表示されます。特別な操作は不要です。</p>
+
+    <h3>500m コースしかない種目の場合は？</h3>
+    <p>500m のCSVだけをアップしてください。1000m フォルダへのアップは不要です（大会責任者がその種目を500mコースとして登録済みの場合）。</p>
+
+    <h3>サイトは誰でも見られますか？</h3>
+    <p>はい。インターネットにつながっていれば誰でもアクセスできます。観客や保護者にURLを共有してください。</p>
+
+    <h3>過去のレース結果はどこで見られますか？</h3>
+    <p>同じサイトで全レースの結果がいつでも確認できます。「全レース一覧」タブから探せます。</p>
+  </div>
+
+  <!-- リンク -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">🔗</div>
+      <h2>関連リンク</h2>
+    </div>
+    <a class="big-link" href="https://rowing-live-results.pages.dev" target="_blank">🏁 速報サイトを開く</a>
+    <a class="big-link big-link-sub" href="schedule_input_guide.html">📋 全項目定義書</a>
+    <a class="big-link big-link-sub" href="../gas/セットアップガイド.html">⚙️ セットアップガイド（管理者向け）</a>
+  </div>
+
+  <footer>ボート競技ライブリザルトシステム — 当日スタッフ マニュアル</footer>
+
+</div>
+</body>
+</html>
