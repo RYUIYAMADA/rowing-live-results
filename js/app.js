@@ -408,7 +408,14 @@ function renderRaceBlock(race) {
  * レース結果テーブルHTMLを返す
  */
 function renderResultTable(race, result) {
-  const pts = masterData.measurement_points || ['500m', '1000m'];
+  // レースごとの course_length があれば優先、なければ大会デフォルト
+  const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
+  const allPts = masterData.measurement_points || ['500m', '1000m'];
+  // このレースの距離以下の計測ポイントのみ有効とする（例: 500m種目では500m列のみ）
+  const pts = allPts.filter(p => {
+    const m = parseInt(p, 10);
+    return isNaN(m) || m <= raceCourseLength;
+  });
   const showMidpoint = pts.length > 1;
 
   // エントリー情報をlaneで引く
@@ -478,6 +485,7 @@ function renderResultTable(race, result) {
   const midHeader = showMidpoint
     ? `<th class="hide-mobile" style="width:70px">${pts[0]}</th>`
     : '';
+  const finishHeader = `${raceCourseLength}m`;
 
   return `
     <table class="result-table">
@@ -488,7 +496,7 @@ function renderResultTable(race, result) {
           <th>クルー名</th>
           <th>所属</th>
           ${midHeader}
-          <th style="width:90px">フィニッシュ</th>
+          <th style="width:90px">${finishHeader}</th>
           <th style="width:40px">備考</th>
         </tr>
       </thead>
@@ -649,10 +657,12 @@ function renderTableView() {
   const container = document.getElementById('view-table-content');
   if (!container) return;
 
-  const pts = masterData.measurement_points || ['500m', '1000m'];
-  const showMid = pts.length > 1;
+  const allPts = masterData.measurement_points || ['500m', '1000m'];
 
   const html = masterData.schedule.map(race => {
+    const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
+    const pts = allPts.filter(p => { const m = parseInt(p, 10); return isNaN(m) || m <= raceCourseLength; });
+    const showMid = pts.length > 1;
     const result = resultsCache[race.race_no];
     const entryMap = {};
     (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
@@ -725,6 +735,7 @@ function renderTableView() {
     }
 
     const midHeader = showMid ? `<th class="hide-mobile">${pts[0]}</th>` : '';
+    const finishHeader = `${raceCourseLength}m`;
 
     return `
       <div class="toggle" data-race="${race.race_no}">
@@ -741,7 +752,7 @@ function renderTableView() {
               <th style="width:28px">B</th>
               <th>クルー名</th><th>所属</th>
               ${midHeader}
-              <th style="width:90px">フィニッシュ</th>
+              <th style="width:90px">${finishHeader}</th>
               <th style="width:40px">備考</th>
             </tr></thead>
             <tbody>${tableBody}</tbody>

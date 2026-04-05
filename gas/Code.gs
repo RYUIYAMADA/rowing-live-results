@@ -632,7 +632,7 @@ function importMasterData() {
     Logger.log('[importMasterData] entries 行数: ' + entriesRows.length);
 
     // master.json を組み立て
-    // schedule.csv カラム: race_no,event_code,event_name,category,age_group,round,date,time
+    // schedule.csv カラム: race_no,event_code,event_name,category,age_group,round,date,time[,course_length]
     // entries.csv カラム: race_no,lane,crew_name,affiliation
 
     // エントリーをrace_noでグループ化
@@ -650,9 +650,11 @@ function importMasterData() {
     }
 
     // スケジュールをマージ
+    // course_length: レースごとの距離（m）。省略時は大会デフォルト（後述）を使用
     const schedule = scheduleRows.map(row => {
       const raceNo = parseInt(row.race_no, 10);
-      return {
+      const raceCourseLength = row.course_length ? parseInt(row.course_length, 10) : null;
+      const result = {
         race_no: raceNo,
         event_code: row.event_code || '',
         event_name: row.event_name || '',
@@ -663,6 +665,9 @@ function importMasterData() {
         time: formatTimeValue_(row.time),
         entries: entriesByRace[raceNo] || [],
       };
+      // course_length が指定されている場合のみセット（省略時はtournament.course_lengthを参照）
+      if (raceCourseLength) result.course_length = raceCourseLength;
+      return result;
     });
 
     // MEASUREMENT_POINTS プロパティから計測ポイント一覧を取得
