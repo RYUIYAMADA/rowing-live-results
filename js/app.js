@@ -470,11 +470,14 @@ function renderResultTable(race, result) {
       finishDisplay = `<span class="time-main">${r.finish ? r.finish.formatted : '-'}</span>${r.split ? `<div class="time-half">${r.split}</div>` : ''}`;
     }
 
+    // エントリー個別のage_groupがある場合（混合レース）はクラス名を表示
+    const entryAgeLabel = entry.age_group ? `<span class="entry-age-group">${h(entry.age_group)}</span>` : '';
+
     return `
       <tr class="${rankClass}${isDns || isDnf ? ' row-retired' : ''}">
         <td>${rankDisplay}</td>
         <td>${r.lane}</td>
-        <td class="crew-name">${h(entry.crew_name) || '-'}</td>
+        <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
         <td>${h(entry.affiliation) || '-'}</td>
         <td class="hide-mobile">${isDns ? '-' : midTime}</td>
         <td>${finishDisplay}</td>
@@ -713,10 +716,11 @@ function renderTableView() {
           rankCell = `<span class="rank rank-${r.rank}">${r.rank}${isTie ? '=' : ''}</span>`;
           finishCell = `<span class="time-main">${r.finish ? r.finish.formatted : '-'}</span>${r.split ? `<div class="time-half">${r.split}</div>` : ''}`;
         }
+        const entryAgeLabel = entry.age_group ? `<span class="entry-age-group">${h(entry.age_group)}</span>` : '';
         return `<tr class="${r.rank && r.rank <= 3 ? `rank-${r.rank}` : ''}${isDns || isDnf ? ' row-retired' : ''}">
           <td>${rankCell}</td>
           <td>${r.lane}</td>
-          <td class="crew-name">${h(entry.crew_name) || '-'}</td>
+          <td class="crew-name">${h(entry.crew_name) || '-'}${entryAgeLabel}</td>
           <td>${h(entry.affiliation) || '-'}</td>
           ${showMid ? `<td class="hide-mobile">${isDns ? '-' : midTime}</td>` : ''}
           <td>${finishCell}</td>

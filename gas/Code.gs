@@ -659,11 +659,16 @@ function importMasterData() {
       if (!entriesByRace[raceNo]) {
         entriesByRace[raceNo] = [];
       }
-      entriesByRace[raceNo].push({
+      const entry = {
         lane: parseInt(row.lane, 10),
         crew_name: row.crew_name || '',
         affiliation: row.affiliation || '',
-      });
+      };
+      // age_group が指定されている場合のみ追加（レースのage_groupと異なる場合に使用）
+      if (row.age_group && row.age_group.trim()) {
+        entry.age_group = row.age_group.trim();
+      }
+      entriesByRace[raceNo].push(entry);
     }
 
     // スケジュールをマージ
