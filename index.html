@@ -83,6 +83,9 @@
       <input type="text" class="filter-search" id="filter-crew"
         placeholder="🔍 所属・クルー名で検索" oninput="applyFilters()">
       <button class="filter-reset" onclick="resetFilters()">✕ リセット</button>
+      <!-- 全展開・全折畳ボタン（フィルタバー右端） -->
+      <button class="filter-reset" onclick="expandAll()">全展開</button>
+      <button class="filter-reset" onclick="collapseAll()">全折畳</button>
       <span class="filter-count" id="filter-count">-</span>
     </div>
 
@@ -107,8 +110,8 @@
             <!-- ソート対応列にdata-col属性を付与 -->
             <th data-col="race_no" onclick="sortDbTable(this)">Race No.<span class="sort-icon"></span></th>
             <th>種目コード</th>
-            <th>種目名</th>
-            <th>年齢区分</th>
+            <th class="hide-sp">種目名</th>
+            <th class="hide-sp">年齢区分</th>
             <th>ラウンド</th>
             <th>日程</th>
             <th>時刻</th>

@@ -723,6 +723,61 @@ h1.page-title {
   letter-spacing: 0.08em;
 }
 
+/* ========= 年齢区分 中央揃え ========= */
+.age-group { text-align: center; display: inline-block; min-width: 24px; }
+td.age-group-cell { text-align: center; }
+
+/* ========= スマホ専用UI（max-width: 640px） ========= */
+@media (max-width: 640px) {
+  /* ヘッダー */
+  .site-header { padding: 20px 16px 18px; }
+  .cover-tournament-name { font-size: 17px; }
+
+  /* ページ本体 */
+  .notion-page { padding: 20px 12px 88px; }
+  h1.page-title { font-size: 20px; }
+
+  /* タブ: 小さく */
+  .view-tab { padding: 8px 10px; font-size: 12px; }
+
+  /* フィルタ: 2列グリッドに */
+  .filter-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .filter-search { grid-column: 1 / -1; width: 100%; }
+  .filter-count  { grid-column: 1 / -1; }
+  .filter-bar label { display: none; } /* "フィルタ:" ラベル非表示 */
+
+  /* トグルヘッダー: 2行構成 */
+  .toggle-header { flex-wrap: wrap; gap: 4px; }
+  .toggle-code   { font-size: 10px; }
+  .toggle-count  { font-size: 11px; }
+
+  /* 結果テーブル: フォントさらに小さく */
+  .result-table { font-size: 12px; }
+  .result-table th { font-size: 10px; padding: 5px 4px; }
+  .result-table td { padding: 6px 4px; }
+  .time-main { font-size: 13px; }
+
+  /* テーブルビュー: 横スクロール + フォント縮小 */
+  .db-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .db-table { font-size: 11px; min-width: 600px; }
+
+  /* スケジュールビュー: コンパクト */
+  .schedule-table { font-size: 12px; }
+  .sc-event-name { max-width: 90px; }
+
+  /* ステータスバー */
+  .update-bar { padding: 6px 12px; font-size: 11px; }
+  .update-bar-center { display: none; } /* 次のレース情報は非表示 */
+  #status-summary { font-size: 10px; }
+
+  /* SP専用非表示クラス */
+  .hide-sp { display: none !important; }
+}
+
 /* ========= 印刷用スタイル ========= */
 @media print {
   .filter-bar, .view-tabs, .update-bar, .toggle-arrow, #toast-container { display: none !important; }

@@ -32,6 +32,8 @@ const filterState = { category: 'all', round: 'all', date: 'all', crew: '', stat
 const sortState = { col: null, dir: 'asc' };
 // テーブルビュー用の生データ行（ソート用に保持）
 let dbRows = [];
+// 使用中プロパティ（未使用列を非表示にするため）
+let usedProps = {};
 
 // ========= 初期化 =========
 document.addEventListener('DOMContentLoaded', () => {
@@ -192,6 +194,8 @@ async function fetchJSON(path) {
  * 全UIを描画する
  */
 function renderAll() {
+  // 使用中プロパティを計算（未使用列の非表示判定に使用）
+  usedProps = detectUsedProps();
   renderTournamentHeader();
   renderYoutube();
   renderFilterOptions();
@@ -300,7 +304,7 @@ function renderToggleView() {
       <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
         <span class="toggle-arrow">▶</span>
         <span class="toggle-title">${eventName}</span>
-        <span class="toggle-code">${eventCode}</span>
+        <span class="toggle-code">${displayCode(eventCode)}</span>
         <span class="toggle-count">${totalCount}レース</span>
         ${statusBadge}
       </div>
@@ -321,7 +325,7 @@ function renderRaceBlock(race) {
   const result = resultsCache[race.race_no];
   const roundName = CONFIG.ROUND_NAMES[race.round] || race.round;
   const dateStr = formatDate(race.date);
-  const ageLabel = race.age_group ? `(${race.age_group})` : '';
+  const ageLabel = (usedProps.hasAgeGroup && race.age_group) ? `<span class="age-group">(${race.age_group})</span>` : '';
 
   const statusBadge = result
     ? '<span class="badge badge-done">確定</span>'
@@ -467,7 +471,7 @@ function renderScheduleView() {
 
     const result = resultsCache[race.race_no];
     const roundName = CONFIG.ROUND_NAMES[race.round] || race.round;
-    const ageLabel = race.age_group ? ` (${race.age_group})` : '';
+    const ageLabel = (usedProps.hasAgeGroup && race.age_group) ? ` (${race.age_group})` : '';
     const isNext = race.race_no === nextRaceNo;
 
     // 状態バッジ
@@ -592,9 +596,9 @@ function renderTableView() {
           html: `
             <tr>
               <td>${race.race_no}</td>
-              <td><span class="db-code">${race.event_code}</span></td>
-              <td>${race.event_name}</td>
-              <td>${race.age_group || '-'}</td>
+              <td><span class="db-code">${displayCode(race.event_code)}</span></td>
+              <td class="hide-sp">${race.event_name}</td>
+              ${usedProps.hasAgeGroup ? `<td class="age-group-cell hide-sp">${race.age_group || '-'}</td>` : ''}
               <td><span class="db-round ${roundClass}">${roundName}</span></td>
               <td>${formatDate(race.date)}</td>
               <td>${race.time}</td>
@@ -617,9 +621,9 @@ function renderTableView() {
           html: `
             <tr style="color:#ccc">
               <td>${race.race_no}</td>
-              <td><span class="db-code">${race.event_code}</span></td>
-              <td>${race.event_name}</td>
-              <td>${race.age_group || '-'}</td>
+              <td><span class="db-code">${displayCode(race.event_code)}</span></td>
+              <td class="hide-sp">${race.event_name}</td>
+              ${usedProps.hasAgeGroup ? `<td class="age-group-cell hide-sp">${race.age_group || '-'}</td>` : ''}
               <td><span class="db-round ${roundClass}">${roundName}</span></td>
               <td>${formatDate(race.date)}</td>
               <td>${race.time}</td>
@@ -769,6 +773,18 @@ function updateDbTableCount() {
   if (!el) return;
   const count = document.querySelectorAll('#db-table-body tr').length;
   el.textContent = `全 ${count} 件`;
+}
+
+// ========= 全展開・全折畳 =========
+
+/** 全トグルを開く */
+function expandAll() {
+  document.querySelectorAll('#view-toggle-content .toggle').forEach(t => t.classList.add('open'));
+}
+
+/** 全トグルを折畳む */
+function collapseAll() {
+  document.querySelectorAll('#view-toggle-content .toggle').forEach(t => t.classList.remove('open'));
 }
 
 // ========= ビュー切替 =========
@@ -1058,6 +1074,26 @@ function formatDate(dateStr) {
 function extractYoutubeId(url) {
   const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
+}
+
+/**
+ * 種目コードの表示用変換（アンダースコアを除去）
+ * 内部データ（event_code）は変更せず、表示時のみ変換する
+ */
+function displayCode(code) {
+  return code ? code.replace(/_/g, '') : '';
+}
+
+/**
+ * スケジュール全体を走査して使用中のプロパティセットを返す
+ */
+function detectUsedProps() {
+  if (!masterData) return {};
+  const schedule = masterData.schedule || [];
+  return {
+    hasAgeGroup: schedule.some(r => r.age_group && r.age_group.trim() !== ''),
+    hasRound:    schedule.some(r => r.round    && r.round.trim()    !== ''),
+  };
 }
 
 /**
