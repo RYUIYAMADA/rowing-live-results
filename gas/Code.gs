@@ -164,6 +164,12 @@ function processPendingCSVs(startTime) {
       if (!raceFiles[raceNo]) {
         raceFiles[raceNo] = {};
       }
+      // 同じレース・同じポイントで複数ファイルがある場合はファイル名（タイムスタンプ）が新しい方を採用
+      const existing = raceFiles[raceNo][point];
+      if (existing && existing.getName() >= fileName) {
+        Logger.log('[processPendingCSVs] 古いファイルのためスキップ: ' + fileName + ' (採用中: ' + existing.getName() + ')');
+        continue;
+      }
       raceFiles[raceNo][point] = file;
       Logger.log('[processPendingCSVs] CSV検知: race_no=' + raceNo + ' point=' + point + ' file=' + fileName);
     }
