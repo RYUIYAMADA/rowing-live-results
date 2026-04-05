@@ -457,19 +457,22 @@ h1.page-title {
   }
   .filter-bar label { display: none; }
   .filter-select {
-    font-size: 12px;
-    padding: 4px 6px;
+    font-size: 13px;
+    padding: 8px 8px;
+    min-height: 36px;
     flex-shrink: 0;
   }
   .filter-search {
-    font-size: 12px;
-    padding: 4px 6px;
+    font-size: 13px;
+    padding: 8px 8px;
+    min-height: 36px;
     width: 130px;
     flex-shrink: 0;
   }
   .filter-reset {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: 13px;
+    padding: 8px 10px;
+    min-height: 36px;
     flex-shrink: 0;
   }
   .filter-count { margin-left: 0; flex-shrink: 0; }
@@ -560,7 +563,8 @@ h1.page-title {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.3);
   color: rgba(255,255,255,0.85);
-  padding: 3px 10px;
+  padding: 6px 12px;
+  min-height: 32px;
   border-radius: var(--radius);
   font-size: 12px;
   cursor: pointer;
@@ -804,7 +808,8 @@ td.age-group-cell { text-align: center; }
   overflow-x: auto;
 }
 .day-tab {
-  padding: 6px 14px;
+  padding: 10px 16px;
+  min-height: 40px;
   border: none;
   background: none;
   color: var(--text-sub);

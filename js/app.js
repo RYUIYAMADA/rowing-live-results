@@ -20,6 +20,18 @@ const CONFIG = {
   CATEGORY_NAMES: { M: '男子', W: '女子', X: '混成' },
 };
 
+// ========= ユーティリティ =========
+
+/** HTMLエスケープ（XSS対策） */
+function h(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ========= グローバル状態 =========
 let masterData = null;       // master.json の内容
 let resultsCache = {};       // race_no → race_XXX.json の内容
@@ -215,7 +227,7 @@ function renderTournamentHeader() {
   const metaEl = document.getElementById('tournament-meta');
   const dates = t.dates.map(d => formatDate(d)).join('・');
   if (metaEl) {
-    metaEl.innerHTML = `<span>📅 ${dates}</span><span>📍 ${t.venue}</span>`;
+    metaEl.innerHTML = `<span>📅 ${h(dates)}</span><span>📍 ${h(t.venue)}</span>`;
   }
 
   // カバーエリアにも大会情報を表示
@@ -370,7 +382,7 @@ function renderRaceBlock(race) {
   return `
     <div class="race-header" id="race-${race.race_no}">
       <div>
-        <span class="race-label">${race.event_name}${ageLabel} ${roundName}</span>
+        <span class="race-label">${h(race.event_name)}${ageLabel} ${roundName}</span>
         ${statusBadge}
       </div>
       <div class="race-info">Race No.${race.race_no} | ${dateStr} ${formatRaceTime(race.time)}</div>
@@ -422,7 +434,7 @@ function renderResultTable(race, result) {
 
     const rankClass = r.rank !== null && r.rank <= 3 ? `rank-${r.rank}` : '';
     const photoMark = r.photo_flag ? '📷' : '';
-    const note = r.note ? `<span style="color:#e03e3e;font-size:11px">${r.note}</span>` : '';
+    const note = r.note ? `<span style="color:#e03e3e;font-size:11px">${h(r.note)}</span>` : '';
     const isTie = r.tie_group && tieGroupCounts[r.tie_group] > 1;
 
     let rankDisplay, finishDisplay;
@@ -441,8 +453,8 @@ function renderResultTable(race, result) {
       <tr class="${rankClass}${isDns || isDnf ? ' row-retired' : ''}">
         <td>${rankDisplay}</td>
         <td>${r.lane}</td>
-        <td class="crew-name">${entry.crew_name || '-'}</td>
-        <td>${entry.affiliation || '-'}</td>
+        <td class="crew-name">${h(entry.crew_name) || '-'}</td>
+        <td>${h(entry.affiliation) || '-'}</td>
         <td class="hide-mobile">${isDns ? '-' : midTime}</td>
         <td>${finishDisplay}</td>
         <td>${isDns ? '' : photoMark + note}</td>
@@ -493,7 +505,7 @@ function renderScheduleView() {
   let minFutureDiff = Infinity;
   sorted.forEach(race => {
     if (resultsCache[race.race_no]) return; // 結果確定済みは除外
-    const raceTime = new Date(race.date + 'T' + race.time + ':00');
+    const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
     const diff = raceTime - now;
     if (diff >= 0 && diff < minFutureDiff) {
       minFutureDiff = diff;
@@ -540,8 +552,8 @@ function renderScheduleView() {
         const entryMap = {};
         (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
         const entry = entryMap[winner.lane] || {};
-        const affiliation = entry.affiliation ? `${entry.affiliation} / ` : '';
-        winnerHtml = `<span class="sc-winner-name">${affiliation}${entry.crew_name || '-'}</span>`;
+        const affiliation = entry.affiliation ? `${h(entry.affiliation)} / ` : '';
+        winnerHtml = `<span class="sc-winner-name">${affiliation}${h(entry.crew_name) || '-'}</span>`;
       }
     }
 
@@ -554,7 +566,7 @@ function renderScheduleView() {
     html += `<tr class="${rowClass}" data-race="${race.race_no}">
       <td class="sc-time">${formatRaceTime(race.time)}</td>
       <td class="sc-no">${race.race_no}</td>
-      <td class="sc-event"><span class="sc-event-name">${race.event_name}${ageLabel}</span></td>
+      <td class="sc-event"><span class="sc-event-name">${h(race.event_name)}${ageLabel}</span></td>
       <td class="sc-round hide-mobile">${roundName}</td>
       <td class="sc-status">${statusBadge}</td>
       <td class="sc-winner">${winnerHtml}</td>
@@ -594,7 +606,7 @@ function highlightCurrentRace() {
   masterData.schedule.forEach(race => {
     // 結果済みはスキップ
     if (resultsCache[race.race_no]) return;
-    const raceTime = new Date(race.date + 'T' + race.time + ':00');
+    const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
     const diff = Math.abs(now - raceTime);
     if (diff <= WINDOW_MS) {
       // 対応するトグルを探してバッジをliveに更新
@@ -680,19 +692,19 @@ function renderTableView() {
         return `<tr class="${r.rank && r.rank <= 3 ? `rank-${r.rank}` : ''}${isDns || isDnf ? ' row-retired' : ''}">
           <td>${rankCell}</td>
           <td>${r.lane}</td>
-          <td class="crew-name">${entry.crew_name || '-'}</td>
-          <td>${entry.affiliation || '-'}</td>
+          <td class="crew-name">${h(entry.crew_name) || '-'}</td>
+          <td>${h(entry.affiliation) || '-'}</td>
           ${showMid ? `<td class="hide-mobile">${isDns ? '-' : midTime}</td>` : ''}
           <td>${finishCell}</td>
-          <td>${(!isDns && r.note) ? `<span style="color:#e03e3e;font-size:11px">${r.note}</span>` : ''}</td>
+          <td>${(!isDns && r.note) ? `<span style="color:#e03e3e;font-size:11px">${h(r.note)}</span>` : ''}</td>
         </tr>`;
       }).join('');
     } else {
       tableBody = (race.entries || []).map(e => `
         <tr class="row-retired">
           <td>-</td><td>${e.lane}</td>
-          <td class="crew-name">${e.crew_name}</td>
-          <td>${e.affiliation}</td>
+          <td class="crew-name">${h(e.crew_name)}</td>
+          <td>${h(e.affiliation)}</td>
           ${showMid ? `<td class="hide-mobile">-</td>` : ''}
           <td>-</td><td></td>
         </tr>`).join('');
@@ -900,7 +912,7 @@ function updateStatusBar() {
       let minFutureDiff = Infinity;
       masterData.schedule.forEach(race => {
         if (resultsCache[race.race_no]) return;
-        const raceTime = new Date(race.date + 'T' + race.time + ':00');
+        const raceTime = new Date(race.date + 'T' + race.time + ':00+09:00');
         const diff = raceTime - now;
         if (diff >= 0 && diff < minFutureDiff) {
           minFutureDiff = diff;
@@ -972,6 +984,7 @@ function setupRefreshTimer() {
       });
     } catch (e) {
       console.error('自動更新エラー:', e);
+      showToast('データの更新に失敗しました。通信状況をご確認ください。');
     }
   }, CONFIG.REFRESH_INTERVAL);
 
