@@ -917,7 +917,7 @@ function switchView(id, tabEl) {
  * 大会日程が全て過去かどうかを判定する
  */
 function isTournamentOver() {
-  if (!masterData) return false;
+  if (!masterData || !masterData.tournament?.dates?.length) return false;
   const lastDate = masterData.tournament.dates.slice(-1)[0];
   const today = new Date().toISOString().split('T')[0];
   return lastDate < today;
