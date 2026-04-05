@@ -199,7 +199,7 @@
       "category": "M",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-06-08",
       "time": "00:48",
       "entries": [
         {
@@ -231,7 +231,7 @@
       "category": "W",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-06-08",
       "time": "00:56",
       "entries": [
         {
@@ -366,43 +366,6 @@
           "lane": 4,
           "crew_name": "平野智美",
           "affiliation": "上田ローイング"
-        }
-      ]
-    },
-    {
-      "race_no": 6,
-      "event_code": "W_4X",
-      "event_name": "女子クォドルプル",
-      "category": "W",
-      "age_group": "G",
-      "round": "FA",
-      "date": "2025-06-07",
-      "time": "08:30",
-      "entries": [
-        {
-          "lane": 1,
-          "crew_name": "石川クラブA",
-          "affiliation": "石川"
-        },
-        {
-          "lane": 2,
-          "crew_name": "富山マスターズ",
-          "affiliation": "富山"
-        },
-        {
-          "lane": 3,
-          "crew_name": "福井RC",
-          "affiliation": "福井"
-        },
-        {
-          "lane": 4,
-          "crew_name": "金沢漕艇",
-          "affiliation": "石川"
-        },
-        {
-          "lane": 5,
-          "crew_name": "北陸ローイング",
-          "affiliation": "富山"
         }
       ]
     }

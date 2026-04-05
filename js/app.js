@@ -247,21 +247,53 @@ function renderYoutube() {
 }
 
 /**
- * フィルタの日程オプションをマスタから動的生成する
+ * 日別タブとフィルタの日程オプションをマスタから動的生成する
  */
 function renderFilterOptions() {
   const dates = [...new Set(masterData.schedule.map(r => r.date))].sort();
-  const daySelect = document.getElementById('filter-day');
-  if (!daySelect) return;
 
-  // 既存のオプション（"all"）を残して追加
-  while (daySelect.options.length > 1) daySelect.remove(1);
-  dates.forEach((d, i) => {
-    const opt = document.createElement('option');
-    opt.value = d;
-    opt.textContent = `${i + 1}日目 (${formatDate(d)})`;
-    daySelect.appendChild(opt);
+  // 日別タブを生成
+  const dayTabs = document.getElementById('day-tabs');
+  if (dayTabs) {
+    // 日程が1日だけの場合はタブを非表示
+    if (dates.length <= 1) {
+      dayTabs.style.display = 'none';
+    } else {
+      const tabs = [{ value: 'all', label: 'すべて' }]
+        .concat(dates.map((d, i) => ({ value: d, label: `${i + 1}日目｜${formatDate(d)}` })));
+      dayTabs.innerHTML = tabs.map(t =>
+        `<button class="day-tab${filterState.date === t.value ? ' active' : ''}"
+          onclick="selectDayTab('${t.value}')">${t.label}</button>`
+      ).join('');
+    }
+  }
+
+  // セレクトボックスも更新（互換性のため残す）
+  const daySelect = document.getElementById('filter-day');
+  if (daySelect) {
+    while (daySelect.options.length > 1) daySelect.remove(1);
+    dates.forEach((d, i) => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = `${i + 1}日目 (${formatDate(d)})`;
+      daySelect.appendChild(opt);
+    });
+  }
+}
+
+/**
+ * 日別タブをクリックしたときに呼ばれる
+ */
+function selectDayTab(date) {
+  filterState.date = date;
+  // タブのactive状態を更新
+  document.querySelectorAll('.day-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.includes(date === 'all' ? 'すべて' : formatDate(date)));
   });
+  // セレクトボックスも同期
+  const daySelect = document.getElementById('filter-day');
+  if (daySelect) daySelect.value = date;
+  applyFilters();
 }
 
 /**
