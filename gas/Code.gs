@@ -135,6 +135,13 @@ function onTrigger() {
 
     processPendingCSVs(startTime);
 
+    // 定期実行ハートビート：master.json の last_trigger_at を更新
+    try {
+      updateTriggerHeartbeat_();
+    } catch (e) {
+      Logger.log('[onTrigger] ハートビート更新失敗（処理には影響なし）: ' + e.message);
+    }
+
     const elapsed = Date.now() - startTime;
     Logger.log('[onTrigger] 完了: ' + elapsed + 'ms');
   } catch (e) {
@@ -143,6 +150,51 @@ function onTrigger() {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * master.json の last_trigger_at フィールドのみを更新する
+ * 定期トリガーが正常に動作していることを管理者ダッシュボードで確認できるようにするため
+ */
+function updateTriggerHeartbeat_() {
+  const props = PropertiesService.getScriptProperties();
+  const token = props.getProperty(CONFIG.props.githubToken);
+  if (!token) return;
+
+  const apiUrl = CONFIG.github.apiBase + '/repos/' + CONFIG.github.owner + '/' +
+    CONFIG.github.repo + '/contents/' + CONFIG.github.masterPath;
+
+  // 現在の master.json を取得
+  const getRes = UrlFetchApp.fetch(apiUrl, {
+    method: 'GET',
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' },
+    muteHttpExceptions: true,
+  });
+  if (getRes.getResponseCode() !== 200) {
+    Logger.log('[heartbeat] master.json 取得失敗: ' + getRes.getResponseCode());
+    return;
+  }
+
+  const existing = JSON.parse(getRes.getContentText());
+  const currentContent = Utilities.newBlob(Utilities.base64Decode(existing.content.replace(/\n/g, ''))).getDataAsString('UTF-8');
+  const masterJson = JSON.parse(currentContent);
+
+  // last_trigger_at のみ更新
+  masterJson.last_trigger_at = new Date().toISOString();
+
+  const newContent = Utilities.base64Encode(JSON.stringify(masterJson, null, 2), Utilities.Charset.UTF_8);
+  UrlFetchApp.fetch(apiUrl, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    payload: JSON.stringify({
+      message: 'heartbeat: update last_trigger_at [GAS auto]',
+      content: newContent,
+      sha: existing.sha,
+      branch: CONFIG.github.branch,
+    }),
+    muteHttpExceptions: true,
+  });
+  Logger.log('[heartbeat] last_trigger_at 更新完了: ' + masterJson.last_trigger_at);
 }
 
 // ============================================================

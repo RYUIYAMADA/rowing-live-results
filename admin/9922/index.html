@@ -623,12 +623,25 @@ function renderTimeline(schedule, date) {
 
 /* ===== パイプライン ===== */
 function renderPipeline() {
-  const genAt = masterData?.generated_at;
-  const diffMin = genAt ? (Date.now()-new Date(genAt))/60000 : Infinity;
+  // last_trigger_at = 定期トリガーの最終実行時刻（5分ごとに自動更新）
+  // generated_at    = importMasterData() 手動実行時のみ更新
+  const triggerAt = masterData?.last_trigger_at;
+  const diffMin = triggerAt ? (Date.now()-new Date(triggerAt))/60000 : Infinity;
+
   let gasStatus, gasDesc;
-  if (diffMin <= 8)  { gasStatus='ok';   gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— 正常稼働中`; }
-  else if (diffMin <= 20){ gasStatus='warn'; gasDesc = `最終生成: ${fmtDateTime(genAt)}（${timeAgo(genAt)}）— やや時間が経過`; }
-  else               { gasStatus='ng';   gasDesc = `最終生成: ${genAt?fmtDateTime(genAt)+'（'+timeAgo(genAt)+'）':'不明'}— GASのログを確認`; }
+  if (!triggerAt) {
+    gasStatus = 'warn';
+    gasDesc = '定期実行記録なし — GASでonTrigger()を一度実行してください';
+  } else if (diffMin <= 8) {
+    gasStatus = 'ok';
+    gasDesc = `定期実行: ${fmtDateTime(triggerAt)}（${timeAgo(triggerAt)}）— 正常稼働中 ✓`;
+  } else if (diffMin <= 15) {
+    gasStatus = 'warn';
+    gasDesc = `定期実行: ${fmtDateTime(triggerAt)}（${timeAgo(triggerAt)}）— ${Math.floor(diffMin)}分経過、もう少し待機`;
+  } else {
+    gasStatus = 'ng';
+    gasDesc = `定期実行: ${fmtDateTime(triggerAt)}（${timeAgo(triggerAt)}）— ${Math.floor(diffMin)}分停止中、GASトリガーを確認してください`;
+  }
 
   const bMap = {
     ok:  `<span class="badge badge-ok"><span class="dot dot-ok"></span>正常</span>`,
