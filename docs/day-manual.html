@@ -143,32 +143,45 @@
   <div class="section">
     <div class="section-header">
       <div class="step-num">1</div>
-      <h2>アップロード先のフォルダを確認する</h2>
+      <h2>アップロード先フォルダを開く</h2>
     </div>
 
-    <p>Google Drive を開き、大会フォルダの中の以下のフォルダを使います。</p>
+    <p>以下のボタンから直接フォルダを開いてアップロードしてください。</p>
 
-    <table style="margin-top:14px;">
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin:16px 0;">
+      <a href="https://drive.google.com/drive/folders/1sCKohwJK8DWjINLxEfe_eO9Nm-DBshop"
+         target="_blank"
+         style="display:flex; align-items:center; gap:10px; background:#1967d2; color:#fff; text-decoration:none; border-radius:8px; padding:14px 20px; font-weight:700; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+        📁 大会フォルダを開く
+      </a>
+    </div>
+
+    <p style="margin-bottom:10px;">大会フォルダの中の <code>race_csv/</code> フォルダ → 計測ポイントのフォルダを選んでアップロードしてください。</p>
+
+    <table>
       <tr>
-        <th>計測ポイント</th>
-        <th>アップロード先フォルダ</th>
+        <th>CSVのファイル名</th>
+        <th>アップロード先</th>
+        <th>意味</th>
       </tr>
       <tr>
-        <td>500m 地点</td>
-        <td><span class="path">race_csv / 500m /</span></td>
+        <td><code>R001_500.csv</code></td>
+        <td><span class="path">race_csv / 500 /</span></td>
+        <td>中間タイム（500m地点）</td>
       </tr>
       <tr>
-        <td>1000m フィニッシュ</td>
-        <td><span class="path">race_csv / 1000m /</span></td>
+        <td><code>R001_1000.csv</code></td>
+        <td><span class="path">race_csv / 1000 /</span></td>
+        <td>フィニッシュ（1000m地点）</td>
       </tr>
     </table>
 
     <div class="callout callout-warn" style="margin-top:14px;">
       <div class="callout-icon">⚠️</div>
       <div class="callout-body">
-        <strong>フォルダを間違えないでください</strong>
-        500m のファイルを 1000m フォルダに入れると正しく処理されません。<br>
-        ファイル名を見て計測ポイントを確認してからアップしましょう。
+        <strong>ファイル名を見てフォルダを選んでください</strong>
+        <code>R001_500.csv</code> → <code>500/</code> フォルダ、<code>R001_1000.csv</code> → <code>1000/</code> フォルダです。
+        間違えると自動処理されません。
       </div>
     </div>
   </div>
@@ -189,12 +202,12 @@
     <table>
       <tr><th>部分</th><th>意味</th><th>例</th></tr>
       <tr><td><code>R001</code> 〜 <code>R999</code></td><td>レース番号（3桁ゼロ埋め）</td><td>R001 = 第1レース、R012 = 第12レース</td></tr>
-      <tr><td><code>500m</code> または <code>1000m</code></td><td>計測ポイント</td><td>500m = 中間、1000m = フィニッシュ</td></tr>
+      <tr><td><code>500</code> または <code>1000</code></td><td>計測ポイント</td><td>500 = 中間、1000 = フィニッシュ</td></tr>
     </table>
 
     <h3>1レースにつき2ファイル届く（1000mコースの場合）</h3>
-<pre><span class="ok">R003_500m.csv</span>    ← 中間タイム（500m地点）
-<span class="ok">R003_1000m.csv</span>   ← フィニッシュ（1000m地点）</pre>
+<pre><span class="ok">R003_500.csv</span>    ← 中間タイム（500m地点）
+<span class="ok">R003_1000.csv</span>   ← フィニッシュ（1000m地点）</pre>
 
     <div class="callout callout-warn">
       <div class="callout-icon">⚠️</div>
@@ -281,7 +294,7 @@
       <tr>
         <td>5分以上経っても更新されない</td>
         <td>ファイル名が正しい形式か？</td>
-        <td>ファイル名が <code>R001_500m.csv</code> の形式か確認する</td>
+        <td>ファイル名が <code>R001_500.csv</code> の形式か確認する</td>
       </tr>
       <tr>
         <td>上記で解決しない</td>

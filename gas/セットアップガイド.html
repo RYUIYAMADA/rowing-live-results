@@ -513,7 +513,7 @@
       <div class="callout-body">
         <strong>setupAll() を使わず手動でフォルダを作成することもできます。</strong>
         Drive に以下のフォルダ構成を手動で作成してください:
-        <code>race_csv/500m/</code>、<code>race_csv/1000m/</code>、<code>master/</code>、<code>processed/500m/</code>、<code>processed/1000m/</code>
+        <code>race_csv/500/</code>、<code>race_csv/1000/</code>、<code>master/</code>、<code>processed/500m/</code>、<code>processed/1000m/</code>
       </div>
     </div>
 
@@ -854,9 +854,9 @@ youtube_url,</pre>
     <pre>【推奨】R{NNN}_{計測ポイント}.csv
 
 例:
-  R001_500m.csv    ← Race 1, 500m 地点
-  R001_1000m.csv   ← Race 1, 1000m 地点（フィニッシュ）
-  R003_500m.csv    ← Race 3, 500m 地点</pre>
+  R001_500.csv    ← Race 1, 500 地点
+  R001_1000.csv   ← Race 1, 1000 地点（フィニッシュ）
+  R003_500.csv    ← Race 3, 500 地点</pre>
 
     <table>
       <thead>
@@ -869,7 +869,7 @@ youtube_url,</pre>
     </table>
 
     <div class="callout callout-info" style="background:#e8f0fe;border:1px solid #8ab4f8;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:14px;">
-      ⚙️ <strong>旧形式（YYYYMMDD_HHMMSS_R001_500m.csv）も引き続き使用可能です。</strong>
+      ⚙️ <strong>旧形式（YYYYMMDD_HHMMSS_R001_500.csv）も引き続き使用可能です。</strong>
       タイマーアプリ側が自動で日時を付与する場合はそのままで問題ありません。
     </div>
 
@@ -878,8 +878,8 @@ youtube_url,</pre>
       <li>レース終了後、RowingTimerWeb から CSV をエクスポートします。</li>
       <li>計測ポイントに応じて、対象フォルダにアップロードします。
         <ul>
-          <li>500m 計測 → <code>[大会名]/race_csv/500m/</code></li>
-          <li>1000m 計測（フィニッシュ）→ <code>[大会名]/race_csv/1000m/</code></li>
+          <li>500m 計測 → <code>[大会名]/race_csv/500/</code></li>
+          <li>1000m 計測（フィニッシュ）→ <code>[大会名]/race_csv/1000/</code></li>
         </ul>
       </li>
       <li>アップロード後、<strong>約2〜3分で</strong> サイトに結果が反映されます。</li>
@@ -906,7 +906,7 @@ youtube_url,</pre>
     <h3 style="margin-top: 20px;">サイトが更新されない場合</h3>
     <ol class="steps">
       <li>CSV ファイルが正しいフォルダ（500m または 1000m）にアップロードされているか確認します。</li>
-      <li>ファイル名が正しいフォーマット（<code>R001_500m.csv</code> または <code>YYYYMMDD_HHMMSS_R001_500m.csv</code>）になっているか確認します。</li>
+      <li>ファイル名が正しいフォーマット（<code>R001_500.csv</code> または <code>YYYYMMDD_HHMMSS_R001_500.csv</code>）になっているか確認します。</li>
       <li>GAS のトリガーが有効になっているか確認します（時計アイコン → トリガー一覧）。</li>
       <li>GAS のログを確認します（下記参照）。</li>
     </ol>

@@ -410,7 +410,7 @@ function renderRaceBlock(race) {
 function renderResultTable(race, result) {
   // レースごとの course_length があれば優先、なければ大会デフォルト
   const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
-  const allPts = masterData.measurement_points || ['500m', '1000m'];
+  const allPts = masterData.measurement_points || ['500', '1000'];
   // このレースの距離以下の計測ポイントのみ有効とする（例: 500m種目では500m列のみ）
   const pts = allPts.filter(p => {
     const m = parseInt(p, 10);
@@ -660,7 +660,7 @@ function renderTableView() {
   const container = document.getElementById('view-table-content');
   if (!container) return;
 
-  const allPts = masterData.measurement_points || ['500m', '1000m'];
+  const allPts = masterData.measurement_points || ['500', '1000'];
 
   const html = masterData.schedule.map(race => {
     const raceCourseLength = race.course_length || masterData.tournament?.course_length || 1000;
