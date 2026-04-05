@@ -42,6 +42,8 @@ let isUpdating = false;      // 自動更新多重実行防止フラグ
 const timers = { refresh: null, highlight: null };
 // フィルタ状態（status フィールドを追加）
 const filterState = { category: 'all', round: 'all', date: 'all', crew: '', status: 'all' };
+// スケジュールビューの日付フィルタ
+let scheduleFilterDate = 'all';
 // テーブルビューのソート状態
 const sortState = { col: null, dir: 'asc' };
 // テーブルビュー用の生データ行（ソート用に保持）
@@ -329,6 +331,14 @@ function selectDayTab(date) {
 }
 
 /**
+ * スケジュールビューの日別タブをクリックしたときに呼ばれる
+ */
+function selectScheduleDayTab(date) {
+  scheduleFilterDate = date;
+  renderScheduleView();
+}
+
+/**
  * 種目別トグルビューを描画する
  */
 function renderToggleView() {
@@ -533,6 +543,20 @@ function renderScheduleView() {
   // 日付ごとにグループ化（日付セパレーター挿入用）
   const uniqueDates = [...new Set(sorted.map(r => r.date))].sort();
 
+  // 日別タブを生成
+  const schedDayTabs = document.getElementById('schedule-day-tabs');
+  if (schedDayTabs) {
+    const tabs = [{ value: 'all', label: 'すべて' }]
+      .concat(uniqueDates.map((d, i) => ({ value: d, label: `${i + 1}日目｜${formatDate(d)}` })));
+    schedDayTabs.innerHTML = tabs.map(t =>
+      `<button class="day-tab${scheduleFilterDate === t.value ? ' active' : ''}"
+        onclick="selectScheduleDayTab('${t.value}')">${t.label}</button>`
+    ).join('');
+  }
+
+  // 日付フィルタを適用
+  const filtered = scheduleFilterDate === 'all' ? sorted : sorted.filter(r => r.date === scheduleFilterDate);
+
   // 現在時刻より後で最も近い「未確定」レースを「次」とする
   const now = new Date();
   let nextRaceNo = null;
@@ -558,9 +582,9 @@ function renderScheduleView() {
   html += '</tr></thead><tbody>';
 
   let lastDate = null;
-  sorted.forEach((race, idx) => {
-    // 日付が変わる箇所にセパレーター
-    if (race.date !== lastDate) {
+  filtered.forEach((race, idx) => {
+    // 複数日表示のときだけ日付セパレーターを挿入
+    if (scheduleFilterDate === 'all' && race.date !== lastDate) {
       lastDate = race.date;
       const dayIdx = uniqueDates.indexOf(race.date) + 1;
       html += `<tr class="schedule-date-sep">
