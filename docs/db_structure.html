@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DB構造図 — ボート競技ライブリザルト</title>
+<style>
+:root {
+  --bg:         #F7F4EF;
+  --card:       #FFFFFF;
+  --border:     #D9D4CA;
+  --text:       #3D3B38;
+  --text-sub:   #7A7570;
+  --text-muted: #B0AAA3;
+  --accent:     #5C8A5A;
+  --accent-bg:  #EBF1EA;
+  --gold:       #A08C5B;
+  --radius:     2px;
+
+  /* エンティティカラー */
+  --c-year:       #4A6FA5;
+  --c-year-bg:    #EBF0F8;
+  --c-tourn:      #5C8A5A;
+  --c-tourn-bg:   #EBF1EA;
+  --c-race:       #A08C5B;
+  --c-race-bg:    #F5EFE3;
+  --c-entry:      #7A7570;
+  --c-entry-bg:   #F0EDE7;
+  --c-result:     #9E5A5A;
+  --c-result-bg:  #F5EBEB;
+  --c-lap:        #5A7A9E;
+  --c-lap-bg:     #EBF0F8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','Yu Gothic',sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+/* ========= ヘッダー ========= */
+header {
+  background: #2D4F2C;
+  padding: 28px 40px 24px;
+}
+.header-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 6px;
+}
+.header-title {
+  font-size: 20px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+.header-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 4px;
+}
+
+/* ========= ページ本体 ========= */
+.page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+h2.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  margin: 48px 0 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+h2.section-title:first-child { margin-top: 0; }
+
+/* ========= 階層構造図 ========= */
+.hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.level {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+/* 縦の接続線 */
+.level::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  z-index: 0;
+}
+.level:first-child::before { top: 50%; }
+.level:last-child::before  { bottom: 50%; }
+
+.level-connector {
+  display: flex;
+  align-items: center;
+  width: 48px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.level-connector::after {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--border);
+}
+
+.entity-card {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  margin: 6px 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.entity-card.level-0 { border-left: 3px solid var(--c-year); }
+.entity-card.level-1 { border-left: 3px solid var(--c-tourn); margin-left: 48px; }
+.entity-card.level-2 { border-left: 3px solid var(--c-race);  margin-left: 96px; }
+.entity-card.level-3 { border-left: 3px solid var(--c-entry); margin-left: 144px; }
+.entity-card.level-4 { border-left: 3px solid var(--c-result);margin-left: 96px; }
+.entity-card.level-5 { border-left: 3px solid var(--c-lap);   margin-left: 144px; }
+
+.entity-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid #F0EDE7;
+}
+.entity-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.badge-year    { background: var(--c-year-bg);   color: var(--c-year);   }
+.badge-tourn   { background: var(--c-tourn-bg);  color: var(--c-tourn);  }
+.badge-race    { background: var(--c-race-bg);   color: var(--c-race);   }
+.badge-entry   { background: var(--c-entry-bg);  color: var(--c-entry);  }
+.badge-result  { background: var(--c-result-bg); color: var(--c-result); }
+.badge-lap     { background: var(--c-lap-bg);    color: var(--c-lap);    }
+
+.entity-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.entity-name-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+.entity-file {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+  background: #F0EDE7;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.entity-props {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0;
+}
+.prop-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 16px;
+  border-bottom: 1px solid #F7F4EF;
+}
+.prop-row:last-child { border-bottom: none; }
+.prop-key {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--c-tourn);
+  font-weight: 600;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+.prop-type {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+.prop-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.prop-key.key-year   { color: var(--c-year);   }
+.prop-key.key-tourn  { color: var(--c-tourn);  }
+.prop-key.key-race   { color: var(--c-race);   }
+.prop-key.key-entry  { color: var(--c-entry);  }
+.prop-key.key-result { color: var(--c-result); }
+.prop-key.key-lap    { color: var(--c-lap);    }
+
+.prop-pk {
+  font-size: 10px;
+  background: #FFF3CD;
+  color: #856404;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+  font-weight: 700;
+}
+.prop-fk {
+  font-size: 10px;
+  background: #D1ECF1;
+  color: #0C5460;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+.prop-opt {
+  font-size: 10px;
+  background: #F0EDE7;
+  color: var(--text-muted);
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+
+/* ========= リレーション表 ========= */
+.relation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.relation-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: #FAF8F4;
+  border-bottom: 1px solid var(--border);
+}
+.relation-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #F0EDE7;
+  vertical-align: top;
+}
+.relation-table tr:last-child td { border-bottom: none; }
+code {
+  font-family: monospace;
+  font-size: 12px;
+  background: #F0EDE7;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+/* ========= データフロー図 ========= */
+.flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 16px 0;
+}
+.flow-step {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 120px;
+}
+.flow-step-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.flow-step-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.flow-step-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.flow-arrow {
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.flow-time {
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+/* ========= ファイル構成 ========= */
+.file-tree {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 2;
+}
+.ft-dir   { color: var(--text); font-weight: 600; }
+.ft-file  { color: var(--text-sub); }
+.ft-note  { color: var(--text-muted); font-size: 11px; }
+.ft-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-left: 6px;
+  font-family: sans-serif;
+}
+.ft-gas    { background: #FEF3CD; color: #856404; }
+.ft-data   { background: var(--accent-bg); color: var(--accent); }
+.ft-static { background: #D1ECF1; color: #0C5460; }
+
+/* ========= 凡例 ========= */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ========= 将来構成 ========= */
+.future-note {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 16px;
+}
+.future-note strong { color: var(--accent); }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">SYSTEM DOCUMENTATION</div>
+  <div class="header-title">DB 構造図</div>
+  <div class="header-sub">ボート競技ライブリザルト — データモデル & アーキテクチャ</div>
+</header>
+
+<div class="page">
+
+  <!-- ========= 凡例 ========= -->
+  <h2 class="section-title">エンティティ凡例</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4A6FA5"></div>年度</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5C8A5A"></div>大会（master.json）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#A08C5B"></div>レーススケジュール</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7A7570"></div>エントリー（クルー）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9E5A5A"></div>レース結果（race_XXX.json）</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5A7A9E"></div>地点ラップ（計測ポイント）</div>
+  </div>
+
+  <!-- ========= 階層構造 ========= -->
+  <h2 class="section-title">エンティティ階層</h2>
+
+  <!-- 年度 -->
+  <div class="entity-card level-0" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-year">YEAR</span>
+      <span class="entity-name">年度</span>
+      <span class="entity-name-sub">（管理単位・将来的に追加予定）</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-year">year</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">例: 2025 <span class="prop-pk">PK</span></span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-year">label</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">例: "2025年度"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 大会 -->
+  <div class="entity-card level-1" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-tourn">TOURNAMENT</span>
+      <span class="entity-name">大会</span>
+      <span class="entity-file">data/master.json</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-tourn">name</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">大会名 &nbsp;<span class="prop-pk">PK</span></span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-tourn">dates[]</span>
+        <span class="prop-type">string[]</span>
+        <span class="prop-desc">開催日一覧（YYYY-MM-DD）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-tourn">venue</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">会場名</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-tourn">course_length</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">コース距離（m）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-tourn">youtube_url</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">YouTube Live URL <span class="prop-opt">任意</span></span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-tourn">measurement_points[]</span>
+        <span class="prop-type">string[]</span>
+        <span class="prop-desc">計測ポイント一覧（例: ["500m","1000m"]）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- レーススケジュール -->
+  <div class="entity-card level-2" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-race">SCHEDULE</span>
+      <span class="entity-name">レーススケジュール</span>
+      <span class="entity-file">master.json → schedule[]</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-race">race_no</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">レース番号 <span class="prop-pk">PK</span> RowingTimerWebと一致</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">event_code</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">種目コード（M_1X / W_2X / X_4+ 等）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">event_name</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">種目名（表示用）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">category</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">M（男子）/ W（女子）/ X（混成）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">age_group</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">年齢区分（A〜H、J=ジュニア）<span class="prop-opt">任意</span> 未使用時は列非表示</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">round</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">FA / FB / SF / H / RK / R</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">date</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">開催日（YYYY-MM-DD）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-race">time</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">発艇時刻（HH:MM）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- エントリー -->
+  <div class="entity-card level-3" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-entry">ENTRY</span>
+      <span class="entity-name">エントリー（クルー）</span>
+      <span class="entity-file">master.json → schedule[].entries[]</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-entry">lane</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">レーン番号 <span class="prop-pk">PK</span>（race_no との複合）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-entry">crew_name</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">クルー名 / 選手名（複数名は「A / B」形式）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-entry">affiliation</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">所属（クラブ・学校名）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div class="entity-card level-4" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-result">RESULT</span>
+      <span class="entity-name">レース結果</span>
+      <span class="entity-file">data/results/race_NNN.json</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-result">race_no</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">レース番号 <span class="prop-fk">FK → SCHEDULE</span></span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">updated_at</span>
+        <span class="prop-type">ISO 8601</span>
+        <span class="prop-desc">GAS更新日時（UTC）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">lane</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">レーン番号 <span class="prop-fk">FK → ENTRY</span></span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">rank</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">順位（同着は同値）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">finish</span>
+        <span class="prop-type">object</span>
+        <span class="prop-desc">{time_ms, formatted} — 最終計測ポイントのタイム</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">split</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">後半スプリット（例: "(1:50.23)"）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">tie_group</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">同着グループID（空文字=同着なし）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">photo_flag</span>
+        <span class="prop-type">boolean</span>
+        <span class="prop-desc">写真判定フラグ</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-result">note</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">備考（大会記録・失格等）<span class="prop-opt">任意</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 地点ラップ -->
+  <div class="entity-card level-5" style="margin-bottom:4px">
+    <div class="entity-header">
+      <span class="entity-badge badge-lap">LAP</span>
+      <span class="entity-name">地点ごとのラップ（計測ポイント）</span>
+      <span class="entity-file">race_NNN.json → results[].times{}</span>
+    </div>
+    <div class="entity-props">
+      <div class="prop-row">
+        <span class="prop-key key-lap">point</span>
+        <span class="prop-type">string key</span>
+        <span class="prop-desc">計測ポイント名 <span class="prop-pk">PK</span>（例: "500m", "1000m"）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-lap">time_ms</span>
+        <span class="prop-type">number</span>
+        <span class="prop-desc">スタートからの経過時間（ミリ秒）</span>
+      </div>
+      <div class="prop-row">
+        <span class="prop-key key-lap">formatted</span>
+        <span class="prop-type">string</span>
+        <span class="prop-desc">表示用タイム — M:SS.cc 形式（例: "1:48.22"）</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ========= リレーション ========= -->
+  <h2 class="section-title">リレーション</h2>
+  <table class="relation-table">
+    <thead>
+      <tr>
+        <th>親エンティティ</th>
+        <th>子エンティティ</th>
+        <th>カーディナリティ</th>
+        <th>結合キー</th>
+        <th>格納場所</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>年度</td>
+        <td>大会</td>
+        <td>1 : N</td>
+        <td><code>year</code></td>
+        <td>現在は1大会1デプロイ。将来的に <code>tournaments/</code> フォルダで管理</td>
+      </tr>
+      <tr>
+        <td>大会</td>
+        <td>レーススケジュール</td>
+        <td>1 : N</td>
+        <td><code>race_no</code></td>
+        <td><code>data/master.json → schedule[]</code></td>
+      </tr>
+      <tr>
+        <td>レーススケジュール</td>
+        <td>エントリー</td>
+        <td>1 : N</td>
+        <td><code>race_no + lane</code></td>
+        <td><code>data/master.json → schedule[].entries[]</code></td>
+      </tr>
+      <tr>
+        <td>レーススケジュール</td>
+        <td>レース結果</td>
+        <td>1 : 1</td>
+        <td><code>race_no</code></td>
+        <td><code>data/results/race_NNN.json</code>（GASが生成）</td>
+      </tr>
+      <tr>
+        <td>エントリー</td>
+        <td>レース結果</td>
+        <td>1 : 1</td>
+        <td><code>lane</code></td>
+        <td>フロントエンドが結合して表示（DB外 join）</td>
+      </tr>
+      <tr>
+        <td>レース結果</td>
+        <td>地点ラップ</td>
+        <td>1 : N</td>
+        <td><code>point（"500m" / "1000m"）</code></td>
+        <td><code>race_NNN.json → results[].times{}</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- ========= データフロー ========= -->
+  <h2 class="section-title">データフロー（当日の更新サイクル）</h2>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-label">INPUT</div>
+      <div class="flow-step-name">RowingTimerWeb</div>
+      <div class="flow-step-sub">計測システム</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-label">UPLOAD</div>
+      <div class="flow-step-name">Google Drive</div>
+      <div class="flow-step-sub">race_csv/500m/<br>race_csv/1000m/</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-label">TRIGGER（2分）</div>
+      <div class="flow-step-name">GAS</div>
+      <div class="flow-step-sub">CSV解析 + JSON生成<br>全ポイント揃い確認</div>
+      <div><span class="flow-time">〜1分</span></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-label">PUSH</div>
+      <div class="flow-step-name">GitHub</div>
+      <div class="flow-step-sub">data/results/<br>race_NNN.json</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-label">AUTO DEPLOY</div>
+      <div class="flow-step-name">Cloudflare Pages</div>
+      <div class="flow-step-sub">自動ビルド</div>
+      <div><span class="flow-time">〜1分</span></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-label">LIVE</div>
+      <div class="flow-step-name">速報サイト</div>
+      <div class="flow-step-sub">合計3分以内</div>
+      <div><span class="flow-time">✓ 完了</span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ========= ファイル構成 ========= -->
+  <h2 class="section-title">ファイル構成とデータの対応</h2>
+  <div class="file-tree">
+    <span class="ft-dir">rowing-live-results/</span><br>
+    &nbsp;&nbsp;├── <span class="ft-dir">data/</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp; ├── <span class="ft-file">master.json</span>
+      <span class="ft-badge ft-data">大会 + スケジュール + エントリー</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp; └── <span class="ft-dir">results/</span>
+      <span class="ft-note"> ← GASが自動生成</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="ft-file">race_001.json</span>
+      <span class="ft-badge ft-data">Race 1 結果 + 地点ラップ</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="ft-file">race_002.json</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="ft-file">race_NNN.json</span><br>
+    &nbsp;&nbsp;├── <span class="ft-dir">master/</span>
+      <span class="ft-note"> ← 大会前に担当者が用意</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp; ├── <span class="ft-file">schedule_template.csv</span>
+      <span class="ft-badge ft-static">スケジュール入力用</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp; └── <span class="ft-file">entries_template.csv</span>
+      <span class="ft-badge ft-static">エントリー入力用</span><br>
+    &nbsp;&nbsp;├── <span class="ft-dir">gas/</span><br>
+    &nbsp;&nbsp;│&nbsp;&nbsp; └── <span class="ft-file">Code.gs</span>
+      <span class="ft-badge ft-gas">Drive監視 → CSV解析 → GitHub Push</span><br>
+    &nbsp;&nbsp;└── <span class="ft-dir">tools/</span>
+      <span class="ft-note"> ← ローカル検証・開発用</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="ft-file">simulate_pipeline.py</span>
+      <span class="ft-badge ft-static">GASの処理をローカル再現</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="ft-file">generate_master.py</span>
+      <span class="ft-badge ft-static">CSV → master.json 変換</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="ft-file">check_status.py</span>
+      <span class="ft-badge ft-static">当日システム状態確認</span>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ========= 将来構成 ========= -->
+  <h2 class="section-title">将来の多大会対応（Phase 3 案）</h2>
+  <div class="file-tree">
+    <span class="ft-dir">rowing-live-results/</span><br>
+    &nbsp;&nbsp;├── <span class="ft-file">index.html</span>
+      <span class="ft-note"> ← 大会一覧トップページ</span><br>
+    &nbsp;&nbsp;└── <span class="ft-dir">tournaments/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="ft-dir">2025/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-dir">masters-ishikawa/</span>
+      <span class="ft-note"> ← 大会スラッグ</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="ft-file">master.json</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="ft-dir">results/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="ft-dir">national-masters/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="ft-dir">2026/</span><br>
+  </div>
+  <div class="future-note">
+    <strong>現在の構成</strong>: 1リポジトリ = 1大会（シンプル・低コスト）<br>
+    <strong>将来の構成</strong>: 1リポジトリで複数年・複数大会を管理。<code>index.html</code> が大会一覧を表示し、
+    各大会ページにルーティング。<code>tournaments/YYYY/slug/</code> にマスタと結果を格納。
+    GASのスクリプトプロパティで <code>TOURNAMENT_PATH</code> を設定して切り替え。
+  </div>
+
+</div>
+
+</body>
+</html>
