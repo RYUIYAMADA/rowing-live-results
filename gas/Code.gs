@@ -555,27 +555,13 @@ function importMasterData() {
 
     const masterFolder = getOrCreateFolder(rootFolderId, CONFIG.folders.master);
 
-    // schedule.csv を読み込み
-    const scheduleFile = findFileInFolder(masterFolder, 'schedule.csv');
-    if (!scheduleFile) {
-      throw new Error(
-        'schedule.csv が master/ フォルダに見つかりません。\n' +
-        'Drive の master/ フォルダに schedule.csv をアップロードしてから再実行してください。'
-      );
-    }
-    const scheduleRows = parseMasterCSV(removeBom_(scheduleFile.getBlob().getDataAsString('UTF-8')));
-    Logger.log('[importMasterData] schedule.csv 行数: ' + scheduleRows.length);
+    // schedule を読み込み（CSV または Googleスプレッドシート どちらでも対応）
+    const scheduleRows = readMasterFile_(masterFolder, 'schedule');
+    Logger.log('[importMasterData] schedule 行数: ' + scheduleRows.length);
 
-    // entries.csv を読み込み
-    const entriesFile = findFileInFolder(masterFolder, 'entries.csv');
-    if (!entriesFile) {
-      throw new Error(
-        'entries.csv が master/ フォルダに見つかりません。\n' +
-        'Drive の master/ フォルダに entries.csv をアップロードしてから再実行してください。'
-      );
-    }
-    const entriesRows = parseMasterCSV(removeBom_(entriesFile.getBlob().getDataAsString('UTF-8')));
-    Logger.log('[importMasterData] entries.csv 行数: ' + entriesRows.length);
+    // entries を読み込み（CSV または Googleスプレッドシート どちらでも対応）
+    const entriesRows = readMasterFile_(masterFolder, 'entries');
+    Logger.log('[importMasterData] entries 行数: ' + entriesRows.length);
 
     // master.json を組み立て
     // schedule.csv カラム: race_no,event_code,event_name,category,age_group,round,date,time
@@ -670,6 +656,43 @@ function parseMasterCSV(csvContent) {
  * @param {string} fileName
  * @returns {GoogleAppsScript.Drive.File|null}
  */
+/**
+ * master/ フォルダから指定名のファイルを読み込む
+ * CSV (.csv) と Googleスプレッドシート の両方に対応
+ * @param {GoogleAppsScript.Drive.Folder} folder
+ * @param {string} baseName - 拡張子なしのファイル名（例: 'schedule'）
+ * @returns {Array<Object>} パース済み行データ
+ */
+function readMasterFile_(folder, baseName) {
+  // まずCSVを探す
+  const csvFile = findFileInFolder(folder, baseName + '.csv');
+  if (csvFile) {
+    Logger.log('[readMasterFile] CSV読み込み: ' + baseName + '.csv');
+    return parseMasterCSV(removeBom_(csvFile.getBlob().getDataAsString('UTF-8')));
+  }
+
+  // 次にGoogleスプレッドシートを探す（拡張子なし）
+  const ssFile = findFileInFolder(folder, baseName);
+  if (ssFile) {
+    Logger.log('[readMasterFile] スプレッドシート読み込み: ' + baseName);
+    const ss = SpreadsheetApp.openById(ssFile.getId());
+    const sheet = ss.getSheets()[0];
+    const values = sheet.getDataRange().getValues();
+    if (values.length < 2) return [];
+    const headers = values[0].map(h => String(h).trim());
+    return values.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = String(row[i] ?? '').trim(); });
+      return obj;
+    });
+  }
+
+  throw new Error(
+    baseName + '.csv（またはGoogleスプレッドシート "' + baseName + '"）が master/ フォルダに見つかりません。\n' +
+    'Drive の master/ フォルダにアップロードしてから再実行してください。'
+  );
+}
+
 function findFileInFolder(folder, fileName) {
   const files = folder.getFilesByName(fileName);
   if (files.hasNext()) {
