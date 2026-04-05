@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-04-05T16:23:43.427Z",
-  "updated_at": "2026-04-05T16:23:43.427Z",
+  "generated_at": "2026-04-05T16:27:45.440Z",
+  "updated_at": "2026-04-05T16:27:45.440Z",
   "measurement_points": [
     "500m",
     "1000m"
   ],
   "tournament": {
-    "race_name": "",
+    "race_name": "全日本マスターズレガッタ 第100回大会",
     "dates": [
       "2025-06-07"
     ],
-    "venue": "",
+    "venue": "手取川ダム湖 1000mコース",
     "course_length": 1000,
     "youtube_url": ""
   },
