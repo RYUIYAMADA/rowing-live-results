@@ -1076,10 +1076,10 @@ function setupTrigger() {
 
   ScriptApp.newTrigger('onTrigger')
     .timeBased()
-    .everyMinutes(2)
+    .everyMinutes(5)
     .create();
 
-  Logger.log('[OK] トリガーを設定しました: onTrigger (2分間隔)');
+  Logger.log('[OK] トリガーを設定しました: onTrigger (5分間隔)');
 }
 
 /**
