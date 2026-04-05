@@ -1,19 +1,11 @@
 {
-  "tournament": {
-    "name": "第16回全日本マスターズレガッタ",
-    "dates": [
-      "2025-06-07",
-      "2025-06-08"
-    ],
-    "venue": "長野・下諏訪ボートコース 1000m",
-    "course_length": 1000,
-    "youtube_url": ""
-  },
+  "generated_at": "2026-04-05T07:52:30.033Z",
+  "updated_at": "2026-04-05T07:52:30.033Z",
   "measurement_points": [
     "500m",
     "1000m"
   ],
-  "schedule": [
+  "races": [
     {
       "race_no": 1,
       "event_code": "M_1X",
@@ -21,8 +13,8 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:00",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:00:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -53,8 +45,8 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:08",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:08:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -85,8 +77,8 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:16",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:16:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -117,8 +109,8 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:24",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:24:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -149,8 +141,8 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:32",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:32:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -176,8 +168,8 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:40",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:40:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -198,8 +190,8 @@
       "category": "M",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:48",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:48:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -230,8 +222,8 @@
       "category": "W",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "07:56",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 00:56:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -262,8 +254,8 @@
       "category": "M",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "08:04",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 01:04:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -289,8 +281,8 @@
       "category": "W",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
-      "time": "08:12",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 01:12:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -311,8 +303,8 @@
       "category": "M",
       "age_group": "G",
       "round": "H",
-      "date": "2025-06-07",
-      "time": "08:20",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 01:20:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
@@ -343,8 +335,8 @@
       "category": "W",
       "age_group": "G",
       "round": "H",
-      "date": "2025-06-07",
-      "time": "08:28",
+      "date": "Sat Jun 07 2025 16:00:00 GMT+0900 (Japan Standard Time)",
+      "time": "Sun Dec 31 1899 01:28:00 GMT+0900 (Japan Standard Time)",
       "entries": [
         {
           "lane": 1,
