@@ -666,69 +666,165 @@
     </div>
 
     <p>
-      選手のエントリー情報と大会プログラム（レーススケジュール）を CSV ファイルで登録します。
-      2つのファイルを用意してください。
+      大会情報・レーススケジュール・エントリーを <strong>3つの CSV ファイル</strong>で登録します。
+      Google Drive の <code>master/</code> フォルダにアップロードし、<strong>runImportMaster()</strong> を実行するだけです。
     </p>
 
-    <h3>5-1. schedule.csv（レーススケジュール）</h3>
-    <p>各レースの情報を1行1レースで記入します。</p>
-
+    <!-- ── ファイル構成 ── -->
+    <h3>5-0. 用意するファイル</h3>
     <table>
       <thead>
-        <tr><th>列名</th><th>内容</th><th>例</th></tr>
+        <tr><th>ファイル名</th><th>内容</th><th>必須</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>race_no</code></td><td>レース番号（通し番号）</td><td>1</td></tr>
-        <tr><td><code>event_code</code></td><td>種目コード</td><td>M_1X</td></tr>
-        <tr><td><code>event_name</code></td><td>種目名</td><td>男子シングルスカル</td></tr>
-        <tr><td><code>category</code></td><td>性別区分（M/W）</td><td>M</td></tr>
-        <tr><td><code>age_group</code></td><td>年齢区分（G/J/U23 など）</td><td>G</td></tr>
-        <tr><td><code>round</code></td><td>ラウンド（H/SF/FA/FB）</td><td>FA</td></tr>
-        <tr><td><code>date</code></td><td>レース日（YYYY-MM-DD）</td><td>2025-06-07</td></tr>
-        <tr><td><code>time</code></td><td>予定スタート時刻（HH:MM）</td><td>07:00</td></tr>
+        <tr><td><code>tournament.csv</code></td><td>大会情報（大会名・会場・YouTube URL など）</td><td>必須</td></tr>
+        <tr><td><code>schedule.csv</code></td><td>レース一覧（1行 = 1レース）</td><td>必須</td></tr>
+        <tr><td><code>entries.csv</code></td><td>エントリー情報（1行 = 1クルー）</td><td>必須</td></tr>
       </tbody>
     </table>
 
-    <pre>race_no,event_code,event_name,category,age_group,round,date,time
-1,M_1X,男子シングルスカル,M,G,FA,2025-06-07,07:00
-2,W_1X,女子シングルスカル,W,G,FA,2025-06-07,07:08
-3,M_2X,男子ダブルスカル,M,G,FA,2025-06-07,07:16</pre>
-
-    <h3>5-2. entries.csv（出場選手）</h3>
-    <p>各レースに出場する選手・クルーを1行1レーン1クルーで記入します。</p>
+    <!-- ── tournament.csv ── -->
+    <h3>5-1. tournament.csv（大会情報）</h3>
+    <p>1列目に項目名（key）、2列目に値（value）を入力します。</p>
 
     <table>
       <thead>
-        <tr><th>列名</th><th>内容</th><th>例</th></tr>
+        <tr><th>プロパティ名（key）</th><th>日本語の項目名</th><th>必須</th><th>型・形式</th><th>入力例</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>race_no</code></td><td>レース番号（schedule.csv と一致させる）</td><td>1</td></tr>
-        <tr><td><code>lane</code></td><td>レーン番号（1〜6）</td><td>1</td></tr>
-        <tr><td><code>crew_name</code></td><td>選手名またはクルー名</td><td>木村四郎</td></tr>
-        <tr><td><code>affiliation</code></td><td>所属クラブ・学校名</td><td>諏訪漕艇クラブ</td></tr>
+        <tr>
+          <td><code>race_name</code></td><td>大会名</td><td>必須</td><td>テキスト</td>
+          <td>全日本マスターズレガッタ 第100回大会</td>
+        </tr>
+        <tr>
+          <td><code>venue</code></td><td>会場名</td><td>任意</td><td>テキスト</td>
+          <td>手取川ダム湖 1000mコース</td>
+        </tr>
+        <tr>
+          <td><code>course_length</code></td><td>コース距離（m）</td><td>任意</td><td>数値（整数）</td>
+          <td>1000（省略時は1000）</td>
+        </tr>
+        <tr>
+          <td><code>dates</code></td><td>開催日（補足）</td><td>任意</td><td>日付・カンマ区切り</td>
+          <td>空欄でOK（schedule.csv から自動収集）</td>
+        </tr>
+        <tr>
+          <td><code>youtube_url</code></td><td>YouTube Live URL</td><td>任意</td><td>テキスト（URL）</td>
+          <td>https://www.youtube.com/watch?v=xxx（配信なしは空欄）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre>key,value
+race_name,全日本マスターズレガッタ 第100回大会
+venue,手取川ダム湖 1000mコース
+course_length,1000
+dates,
+youtube_url,</pre>
+
+    <!-- ── schedule.csv ── -->
+    <h3>5-2. schedule.csv（レース一覧）</h3>
+    <p>1行目はヘッダー。2行目以降に1レース1行で入力します。</p>
+
+    <table>
+      <thead>
+        <tr><th>プロパティ名</th><th>日本語の項目名</th><th>必須</th><th>型・形式</th><th>入力例・選択肢</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>race_no</code></td><td>レース番号</td><td>必須</td><td>数値（整数）</td>
+          <td>1, 2, 3…（1始まりの連番）</td>
+        </tr>
+        <tr>
+          <td><code>event_name</code></td><td>種目名</td><td>必須</td><td>テキスト</td>
+          <td>男子シングルスカル　／　女子クォドルプル</td>
+        </tr>
+        <tr>
+          <td><code>category</code></td><td>性別区分</td><td>必須</td><td>テキスト（固定値）</td>
+          <td><code>M</code>=男子 ／ <code>W</code>=女子 ／ <code>X</code>=混成</td>
+        </tr>
+        <tr>
+          <td><code>age_group</code></td><td>年齢・クラス区分</td><td>必須</td><td>テキスト（固定値）</td>
+          <td><code>G</code>=一般 ／ <code>J</code>=ジュニア ／ <code>U23</code>=U23 ／ <code>M</code>=マスターズ</td>
+        </tr>
+        <tr>
+          <td><code>round</code></td><td>ラウンド（レース種別）</td><td>必須</td><td>テキスト（固定値）</td>
+          <td><code>H</code>=予選 ／ <code>R</code>=敗者復活 ／ <code>SF</code>=準決勝<br><code>FA</code>=決勝A ／ <code>FB</code>=決勝B ／ <code>RK</code>=順位決定</td>
+        </tr>
+        <tr>
+          <td><code>date</code></td><td>レース実施日</td><td>必須</td><td>日付（文字列）</td>
+          <td>2025-09-14（YYYY-MM-DD形式。<strong>Excelは文字列書式で入力</strong>）</td>
+        </tr>
+        <tr>
+          <td><code>time</code></td><td>スタート予定時刻</td><td>必須</td><td>時刻（文字列）</td>
+          <td>09:00（HH:MM・24時間表記。<strong>Excelは文字列書式で入力</strong>）</td>
+        </tr>
+        <tr>
+          <td><code>event_code</code></td><td>種目コード（フィルタ用）</td><td>任意</td><td>テキスト</td>
+          <td>M_1X ／ W_2X ／ X_4+（省略可）</td>
+        </tr>
+        <tr>
+          <td><code>course_length</code></td><td>このレースのコース距離（m）</td><td>任意</td><td>数値（整数）</td>
+          <td>500（1000m大会に500m種目がある場合のみ指定。省略時はtournament.csvの値を使用）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <pre>race_no,event_name,category,age_group,round,date,time,event_code,course_length
+1,男子シングルスカル,M,G,FA,2025-09-14,09:00,M_1X,
+2,女子シングルスカル,W,G,FA,2025-09-14,09:08,W_1X,
+3,男子ダブルスカル,M,G,FA,2025-09-14,09:16,M_2X,
+9,男子ジュニアシングルスカル,M,J,FA,2025-09-15,09:00,M_1X,500</pre>
+
+    <!-- ── entries.csv ── -->
+    <h3>5-3. entries.csv（エントリー情報）</h3>
+    <p>1行目はヘッダー。2行目以降に1クルー1行で入力します。</p>
+
+    <table>
+      <thead>
+        <tr><th>プロパティ名</th><th>日本語の項目名</th><th>必須</th><th>型・形式</th><th>入力例</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>race_no</code></td><td>レース番号</td><td>必須</td><td>数値（整数）</td>
+          <td>1（schedule.csv の race_no と一致させる）</td>
+        </tr>
+        <tr>
+          <td><code>lane</code></td><td>レーン番号</td><td>必須</td><td>数値（整数）</td>
+          <td>1, 2, 3…（1始まりの整数。同一レース内で重複不可）</td>
+        </tr>
+        <tr>
+          <td><code>crew_name</code></td><td>クルー名・選手名</td><td>必須</td><td>テキスト</td>
+          <td>山田太郎（シングル）<br>高橋雄介 / 小林誠（ダブル：「 / 」区切り）<br>中島拓 / 前田亮 / 野村健 / 大野聡（クォド）</td>
+        </tr>
+        <tr>
+          <td><code>affiliation</code></td><td>所属団体名</td><td>必須</td><td>テキスト</td>
+          <td>諏訪漕艇クラブ　／　長野県立松本高等学校</td>
+        </tr>
       </tbody>
     </table>
 
     <pre>race_no,lane,crew_name,affiliation
-1,1,木村四郎,諏訪漕艇クラブ
-1,2,山田太郎,松本ボートクラブ
-1,3,佐藤健一,長野漕艇協会
-1,4,鈴木次郎,上田ローイング</pre>
+1,1,山田太郎,諏訪漕艇クラブ
+1,2,鈴木次郎,松本ボートクラブ
+3,1,高橋雄介 / 小林誠,長野漕艇協会
+5,1,中島拓 / 前田亮 / 野村健 / 大野聡,諏訪漕艇クラブ</pre>
 
-    <h3>5-3. ファイルのアップロードと取り込み</h3>
+    <!-- ── アップロードと取り込み ── -->
+    <h3>5-4. ファイルのアップロードと取り込み</h3>
     <ol class="steps">
-      <li>作成した <code>schedule.csv</code> と <code>entries.csv</code> を Google Drive の <code>[大会名]/master/</code> フォルダにアップロードします。</li>
-      <li>GAS エディタに戻り、関数セレクタで <strong>importMasterData</strong> を選択して <strong>▶ 実行</strong> をクリックします。</li>
-      <li>実行ログに <code>Master data imported successfully</code> などのメッセージが出れば完了です。</li>
-      <li>サイトを開いてレーススケジュールが表示されているか確認してください。</li>
+      <li>作成した <code>tournament.csv</code>・<code>schedule.csv</code>・<code>entries.csv</code> を Google Drive の <code>[大会名]/master/</code> フォルダにアップロードします。</li>
+      <li>GAS エディタに戻り、関数セレクタで <strong>runImportMaster</strong> を選択して <strong>▶ 実行</strong> をクリックします。</li>
+      <li>実行ログに <code>master.json Push完了</code> と表示されれば完了です。</li>
+      <li>サイトを開いてレーススケジュールと大会名が表示されているか確認してください。</li>
     </ol>
 
     <div class="callout callout-warning">
       <span class="callout-icon">⚠</span>
       <div class="callout-body">
-        <strong>CSV は必ず UTF-8 で保存してください</strong>
-        Excel で作成する場合は「名前を付けて保存」→ ファイル形式「CSV UTF-8（コンマ区切り）」を選択してください。
-        文字化けするとデータが正しく取り込めません。
+        <strong>CSV は必ず UTF-8 で保存してください</strong><br>
+        Excel で作成する場合は「名前を付けて保存」→ ファイル形式「<strong>CSV UTF-8（コンマ区切り）</strong>」を選択してください。<br>
+        また <code>date</code> 列と <code>time</code> 列は <strong>セルの書式を「文字列」に設定してから入力</strong>してください。Excelが自動変換すると取り込みエラーになります。
       </div>
     </div>
   </div>
