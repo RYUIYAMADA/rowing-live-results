@@ -582,7 +582,7 @@ function importMasterData() {
     }
 
     // スケジュールをマージ
-    const races = scheduleRows.map(row => {
+    const schedule = scheduleRows.map(row => {
       const raceNo = parseInt(row.race_no, 10);
       return {
         race_no: raceNo,
@@ -591,8 +591,8 @@ function importMasterData() {
         category: row.category || '',
         age_group: row.age_group || '',
         round: row.round || '',
-        date: row.date || '',
-        time: row.time || '',
+        date: formatDateValue_(row.date),
+        time: formatTimeValue_(row.time),
         entries: entriesByRace[raceNo] || [],
       };
     });
@@ -610,7 +610,14 @@ function importMasterData() {
       generated_at: now,
       updated_at: now,
       measurement_points: measurementPointsList,
-      races: races,
+      tournament: {
+        name: '',
+        dates: [...new Set(schedule.map(r => r.date).filter(Boolean))].sort(),
+        venue: '',
+        course_length: 1000,
+        youtube_url: '',
+      },
+      schedule: schedule,
     };
 
     pushToGitHub(CONFIG.github.masterPath, JSON.stringify(masterJson, null, 2));
@@ -621,6 +628,35 @@ function importMasterData() {
     recordError('importMasterData', e);
     throw e;
   }
+}
+
+/**
+ * スプレッドシートのセル値を YYYY-MM-DD 形式の文字列に変換する
+ * 文字列の場合はそのまま返す
+ */
+function formatDateValue_(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    const y = val.getFullYear();
+    const m = String(val.getMonth() + 1).padStart(2, '0');
+    const d = String(val.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+  return String(val).trim();
+}
+
+/**
+ * スプレッドシートのセル値を HH:MM 形式の文字列に変換する
+ * 文字列の場合はそのまま返す
+ */
+function formatTimeValue_(val) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    const h = String(val.getHours()).padStart(2, '0');
+    const m = String(val.getMinutes()).padStart(2, '0');
+    return h + ':' + m;
+  }
+  return String(val).trim();
 }
 
 /**
@@ -682,7 +718,11 @@ function readMasterFile_(folder, baseName) {
     const headers = values[0].map(h => String(h).trim());
     return values.slice(1).map(row => {
       const obj = {};
-      headers.forEach((h, i) => { obj[h] = String(row[i] ?? '').trim(); });
+      // Date型はそのまま保持（formatDateValue_/formatTimeValue_ で変換）
+      headers.forEach((h, i) => {
+        const v = row[i] ?? '';
+        obj[h] = (v instanceof Date) ? v : String(v).trim();
+      });
       return obj;
     });
   }
