@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ダッシュボード — ボート競技 速報サイト</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root {
+    --accent: #2D4F2C;
+    --accent-light: #3d6b3b;
+    --bg: #F7F4EF;
+    --card: #FFFFFF;
+    --border: #E8E4DC;
+    --text: #1A1A18;
+    --text-sub: #6B6860;
+    --text-muted: #9B9890;
+    --gold: #B8860B;
+    --radius: 6px;
+    --ok: #2D7A2D;
+    --warn: #B8860B;
+    --ng: #C0392B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+  /* ヘッダー */
+  .site-header {
+    background: var(--accent);
+    padding: 28px 40px 24px;
+  }
+  .site-header-inner { max-width: 1000px; margin: 0 auto; }
+  .site-header-label { font-size: 10px; letter-spacing: 0.2em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+  .site-header-title { font-size: 20px; font-weight: 300; color: #fff; letter-spacing: 0.04em; }
+  .site-header-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+  /* ページ本体 */
+  .page { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* インデックス */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .toc-title { font-size: 11px; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 14px; font-weight: 400; }
+  .toc-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .toc-list li a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toc-list li a:hover { text-decoration: underline; }
+  @media (max-width: 600px) { .toc-list { grid-template-columns: 1fr; } }
+
+  /* セクション */
+  .section { margin-bottom: 48px; }
+  .section-anchor { display: block; height: 0; }
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  /* ステータスカード */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .status-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .status-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.05em; }
+  .status-card-value { font-size: 20px; font-weight: 300; color: var(--text); }
+  .status-card-sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+  /* ステータスバッジ */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 400; white-space: nowrap; }
+  .badge-ok { background: #e8f5e8; color: var(--ok); }
+  .badge-warn { background: #fef9e7; color: var(--warn); border: 1px solid #f0d080; }
+  .badge-ng { background: #fce8e8; color: var(--ng); }
+  .badge-upcoming { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .dot-ok { background: var(--ok); }
+  .dot-warn { background: var(--warn); }
+  .dot-ng { background: var(--ng); }
+
+  /* 結果反映テーブル */
+  .result-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .result-table th { padding: 8px 12px; text-align: left; font-size: 11px; color: var(--text-muted); font-weight: 400; border-bottom: 1px solid var(--border); background: #FAF8F4; white-space: nowrap; }
+  .result-table td { padding: 10px 12px; border-bottom: 1px solid #F0EDE7; white-space: nowrap; }
+  .result-table tr:hover td { background: #FAF8F4; }
+  .result-table-wrapper { overflow-x: auto; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+
+  /* GAS状態 */
+  .gas-status-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .gas-icon { font-size: 28px; }
+  .gas-label { font-size: 13px; color: var(--text); font-weight: 400; }
+  .gas-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+  /* リンクカード */
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .link-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .link-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(45,79,44,0.1); }
+  .link-card-icon { font-size: 20px; flex-shrink: 0; }
+  .link-card-label { font-size: 13px; font-weight: 400; }
+  .link-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ローディング */
+  .loading-text { color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 更新ボタン */
+  .refresh-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover { background: var(--accent-light); }
+
+  /* フッター */
+  .footer { text-align: center; font-size: 11px; color: var(--text-muted); padding: 32px 0 16px; border-top: 1px solid var(--border); margin-top: 40px; }
+
+  /* ページトップへ */
+  .back-to-top { display: inline-block; font-size: 12px; color: var(--accent); text-decoration: none; margin-bottom: 8px; }
+  .back-to-top:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="site-header-inner">
+    <div class="site-header-label">ADMIN DASHBOARD</div>
+    <div class="site-header-title" id="header-title">ボート競技 速報サイト — 管理者ダッシュボード</div>
+    <div class="site-header-sub" id="header-sub">読み込み中...</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ========= インデックス ========= -->
+  <nav class="toc">
+    <div class="toc-title">INDEX</div>
+    <ul class="toc-list">
+      <li><a href="#section-status">① システム状態</a></li>
+      <li><a href="#section-results">② 結果反映状況</a></li>
+      <li><a href="#section-gas">③ GAS 自動更新チェック</a></li>
+      <li><a href="#section-links">④ クイックリンク</a></li>
+    </ul>
+  </nav>
+
+  <!-- ========= ① システム状態 ========= -->
+  <section class="section">
+    <span class="section-anchor" id="section-status"></span>
+    <div class="section-title">① システム状態</div>
+    <div class="status-grid" id="status-grid">
+      <div class="status-card"><div class="status-card-label">大会名</div><div class="status-card-value" style="font-size:15px" id="st-name"><span class="spinner"></span></div></div>
+      <div class="status-card"><div class="status-card-label">開催日程</div><div class="status-card-value" style="font-size:15px" id="st-dates"><span class="spinner"></span></div></div>
+      <div class="status-card"><div class="status-card-label">総レース数</div><div class="status-card-value" id="st-races"><span class="spinner"></span></div></div>
+      <div class="status-card"><div class="status-card-label">結果確定</div><div class="status-card-value" id="st-done"><span class="spinner"></span></div><div class="status-card-sub" id="st-done-sub"></div></div>
+      <div class="status-card"><div class="status-card-label">master.json 最終生成</div><div class="status-card-value" style="font-size:13px" id="st-generated"><span class="spinner"></span></div></div>
+      <div class="status-card"><div class="status-card-label">会場</div><div class="status-card-value" style="font-size:13px" id="st-venue"><span class="spinner"></span></div></div>
+    </div>
+    <button class="refresh-btn" onclick="loadAll()">↺ データを再取得</button>
+  </section>
+
+  <!-- ========= ② 結果反映状況 ========= -->
+  <section class="section">
+    <span class="section-anchor" id="section-results"></span>
+    <div class="section-title">② 結果反映状況</div>
+    <div class="result-table-wrapper">
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>Race No.</th>
+            <th>日付</th>
+            <th>時刻</th>
+            <th>種目名</th>
+            <th>ラウンド</th>
+            <th>状態</th>
+            <th>最終更新</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody">
+          <tr><td colspan="7" class="loading-text"><span class="spinner"></span>読み込み中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========= ③ GAS 自動更新チェック ========= -->
+  <section class="section">
+    <span class="section-anchor" id="section-gas"></span>
+    <div class="section-title">③ GAS 自動更新チェック</div>
+    <div class="gas-status-box" id="gas-box">
+      <div class="gas-icon"><span class="spinner"></span></div>
+      <div>
+        <div class="gas-label" id="gas-label">確認中...</div>
+        <div class="gas-sub" id="gas-sub"></div>
+      </div>
+    </div>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:12px;">
+      ※ GASは2分間隔でmaster.jsonを更新します。最終生成から10分以上経過している場合は要確認です。
+    </p>
+  </section>
+
+  <!-- ========= ④ クイックリンク ========= -->
+  <section class="section">
+    <span class="section-anchor" id="section-links"></span>
+    <div class="section-title">④ クイックリンク</div>
+    <div class="link-grid">
+      <a class="link-card" href="/" target="_blank">
+        <span class="link-card-icon">🌐</span>
+        <div><div class="link-card-label">本番サイト</div><div class="link-card-sub">rowing-live-results.pages.dev</div></div>
+      </a>
+      <a class="link-card" href="/docs/day-manual.html" target="_blank">
+        <span class="link-card-icon">📋</span>
+        <div><div class="link-card-label">当日担当者マニュアル</div><div class="link-card-sub">操作手順・注意事項</div></div>
+      </a>
+      <a class="link-card" href="/docs/schedule_input_guide.html" target="_blank">
+        <span class="link-card-icon">📅</span>
+        <div><div class="link-card-label">スケジュール入力ガイド</div><div class="link-card-sub">CSV入力方法</div></div>
+      </a>
+      <a class="link-card" href="/docs/site-checklist.html" target="_blank">
+        <span class="link-card-icon">✅</span>
+        <div><div class="link-card-label">公開前チェックリスト</div><div class="link-card-sub">デプロイ確認22項目</div></div>
+      </a>
+      <a class="link-card" href="https://github.com/RYUIYAMADA/rowing-live-results" target="_blank">
+        <span class="link-card-icon">🐙</span>
+        <div><div class="link-card-label">GitHub リポジトリ</div><div class="link-card-sub">ソースコード管理</div></div>
+      </a>
+      <a class="link-card" href="https://dash.cloudflare.com" target="_blank">
+        <span class="link-card-icon">☁️</span>
+        <div><div class="link-card-label">Cloudflare Pages</div><div class="link-card-sub">デプロイ状況確認</div></div>
+      </a>
+      <a class="link-card" href="https://script.google.com" target="_blank">
+        <span class="link-card-icon">⚙️</span>
+        <div><div class="link-card-label">Google Apps Script</div><div class="link-card-sub">GAS管理・ログ確認</div></div>
+      </a>
+      <a class="link-card" href="https://drive.google.com" target="_blank">
+        <span class="link-card-icon">📁</span>
+        <div><div class="link-card-label">Google Drive</div><div class="link-card-sub">CSV・マスタデータ</div></div>
+      </a>
+    </div>
+  </section>
+
+  <a href="#top" class="back-to-top">↑ トップへ戻る</a>
+
+  <div class="footer">
+    管理者専用ページ — このURLは第三者に共有しないでください<br>
+    Rowing Live Results Admin Dashboard
+  </div>
+
+</div>
+
+<script>
+const MASTER_JSON = '../../data/master.json';
+const RESULT_JSON = (no) => `../../data/results/race_${String(no).padStart(3,'0')}.json`;
+const ROUND_NAMES = { FA:'決勝A', FB:'決勝B', SF:'準決勝', H:'予選', RK:'順位決定', R:'敗者復活' };
+
+let masterData = null;
+let resultsCache = {};
+
+function formatDate(d) {
+  if (!d) return '-';
+  const [y, m, day] = d.split('-');
+  return `${parseInt(m)}/${parseInt(day)}`;
+}
+function formatDateFull(isoStr) {
+  if (!isoStr) return '-';
+  const d = new Date(isoStr);
+  return d.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function timeAgo(isoStr) {
+  if (!isoStr) return null;
+  const diff = (Date.now() - new Date(isoStr)) / 1000 / 60; // 分
+  if (diff < 2) return '今すぐ';
+  if (diff < 60) return `${Math.floor(diff)}分前`;
+  if (diff < 1440) return `${Math.floor(diff/60)}時間前`;
+  return `${Math.floor(diff/1440)}日前`;
+}
+
+async function loadAll() {
+  // master.json 取得
+  try {
+    const res = await fetch(MASTER_JSON + '?t=' + Date.now());
+    masterData = await res.json();
+  } catch(e) {
+    document.getElementById('st-name').textContent = '取得失敗';
+    return;
+  }
+
+  const t = masterData.tournament || {};
+  const schedule = masterData.schedule || [];
+
+  // ヘッダー更新
+  document.getElementById('header-title').textContent = (t.race_name || '大会名未設定') + ' — 管理者ダッシュボード';
+  const dates = (t.dates || []).map(formatDate).join('・');
+  document.getElementById('header-sub').textContent = dates + (t.venue ? ' | ' + t.venue : '');
+
+  // システム状態
+  document.getElementById('st-name').textContent = t.race_name || '未設定';
+  document.getElementById('st-dates').textContent = (t.dates || []).map(formatDate).join(' · ') || '-';
+  document.getElementById('st-races').textContent = schedule.length;
+  document.getElementById('st-venue').textContent = t.venue || '-';
+  document.getElementById('st-generated').textContent = masterData.generated_at
+    ? formatDateFull(masterData.generated_at) + '（' + timeAgo(masterData.generated_at) + '）' : '-';
+
+  // 結果ファイル取得
+  resultsCache = {};
+  await Promise.all(schedule.map(async race => {
+    try {
+      const res = await fetch(RESULT_JSON(race.race_no) + '?t=' + Date.now());
+      if (res.ok) resultsCache[race.race_no] = await res.json();
+    } catch(e) {}
+  }));
+
+  const doneCount = Object.keys(resultsCache).length;
+  document.getElementById('st-done').textContent = `${doneCount} / ${schedule.length}`;
+  const pct = schedule.length ? Math.round(doneCount / schedule.length * 100) : 0;
+  document.getElementById('st-done-sub').textContent = `進捗 ${pct}%`;
+
+  // 結果テーブル
+  renderResultsTable(schedule);
+
+  // GASチェック
+  checkGasStatus();
+}
+
+function renderResultsTable(schedule) {
+  const tbody = document.getElementById('results-tbody');
+  if (!schedule.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);padding:16px">スケジュールデータなし</td></tr>';
+    return;
+  }
+
+  const sorted = [...schedule].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  tbody.innerHTML = sorted.map(race => {
+    const result = resultsCache[race.race_no];
+    const roundName = ROUND_NAMES[race.round] || race.round || '-';
+    let badge, updatedAt;
+    if (result) {
+      badge = `<span class="badge badge-ok"><span class="dot dot-ok"></span>確定</span>`;
+      updatedAt = result.updated_at ? formatDateFull(result.updated_at) : '-';
+    } else {
+      badge = `<span class="badge badge-upcoming">未実施</span>`;
+      updatedAt = '-';
+    }
+    return `<tr>
+      <td style="font-size:12px;color:var(--text-sub)">${race.race_no}</td>
+      <td>${formatDate(race.date)}</td>
+      <td style="font-size:12px;color:var(--text-sub)">${race.time || '-'}</td>
+      <td>${race.event_name || '-'}${race.age_group ? ` (${race.age_group})` : ''}</td>
+      <td style="font-size:12px;color:var(--text-sub)">${roundName}</td>
+      <td>${badge}</td>
+      <td style="font-size:12px;color:var(--text-sub)">${updatedAt}</td>
+    </tr>`;
+  }).join('');
+}
+
+function checkGasStatus() {
+  const generatedAt = masterData?.generated_at;
+  const box = document.getElementById('gas-box');
+  const label = document.getElementById('gas-label');
+  const sub = document.getElementById('gas-sub');
+
+  if (!generatedAt) {
+    document.getElementById('gas-icon').textContent = '⚠️';
+    label.textContent = '生成日時が不明です';
+    sub.textContent = 'GASが一度も実行されていない可能性があります';
+    return;
+  }
+
+  const diffMin = (Date.now() - new Date(generatedAt)) / 1000 / 60;
+  const gasIcon = document.querySelector('.gas-icon');
+
+  if (diffMin <= 10) {
+    gasIcon.textContent = '✅';
+    box.style.borderColor = '#b8deb8';
+    label.innerHTML = '<span style="color:var(--ok);font-weight:600">正常稼働中</span>';
+    sub.textContent = `最終更新: ${formatDateFull(generatedAt)}（${timeAgo(generatedAt)}）— 2分間隔で自動更新中`;
+  } else if (diffMin <= 30) {
+    gasIcon.textContent = '⚠️';
+    box.style.borderColor = '#f0d080';
+    label.innerHTML = '<span style="color:var(--warn);font-weight:600">確認推奨</span>';
+    sub.textContent = `最終更新: ${formatDateFull(generatedAt)}（${timeAgo(generatedAt)}）— やや時間が経過しています`;
+  } else {
+    gasIcon.textContent = '🔴';
+    box.style.borderColor = '#f0b0b0';
+    label.innerHTML = '<span style="color:var(--ng);font-weight:600">要確認 — GASが停止している可能性</span>';
+    sub.textContent = `最終更新: ${formatDateFull(generatedAt)}（${timeAgo(generatedAt)}）— GASのログを確認してください`;
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>
