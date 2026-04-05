@@ -235,9 +235,7 @@ function renderAll() {
   renderTournamentHeader();
   renderYoutube();
   renderFilterOptions();
-  renderToggleView();
-  renderTableView();
-  renderScheduleView();
+  // 個別ビュー描画は loadAll() から呼ぶ（二重描画防止のため renderAll() では行わない）
 }
 
 /**
@@ -668,8 +666,13 @@ function highlightCurrentRace() {
     }
   }
 
-  // スケジュールビューを再描画（ハイライト行を最新化）
-  renderScheduleView();
+  // スケジュールビューの「次のレース」ハイライトだけDOM最小更新（全再描画は不要）
+  const prevNext = document.querySelector('.schedule-next-race');
+  if (prevNext) prevNext.classList.remove('schedule-next-race');
+  if (currentRace) {
+    const nextRow = document.querySelector(`#schedule-table-container [data-race="${currentRace.race_no}"]`);
+    if (nextRow) nextRow.classList.add('schedule-next-race');
+  }
 }
 
 /**
@@ -984,11 +987,13 @@ function updateStatusBar() {
  * 手動更新ボタンから即時リフレッシュする
  */
 async function manualRefresh() {
+  if (isUpdating) return; // 自動更新中は二重実行を防止
   const btn = document.getElementById('refresh-btn');
   if (btn) {
     btn.disabled = true;
     btn.textContent = '更新中...';
   }
+  isUpdating = true;
   try {
     const newlyUpdated = await loadResults();
     renderToggleView();
@@ -1005,6 +1010,7 @@ async function manualRefresh() {
     console.error('手動更新エラー:', e);
     showToast('更新に失敗しました。しばらく待ってから再試行してください。');
   } finally {
+    isUpdating = false;
     if (btn) {
       btn.disabled = false;
       btn.textContent = '🔄';

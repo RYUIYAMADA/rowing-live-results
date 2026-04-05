@@ -89,15 +89,22 @@ h1.page-title {
   letter-spacing: 0.05em;
 }
 .badge-live {
-  background: var(--live-bg);
-  color: var(--live);
+  background: #C0392B;
+  color: #fff;
+  animation: badge-pulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(192, 57, 43, 0.35);
+}
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.72; }
 }
 .badge-done {
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 .badge-upcoming {
-  background: #F0EDE7;
+  background: transparent;
+  border: 1px solid var(--border);
   color: var(--text-muted);
 }
 
@@ -156,7 +163,8 @@ h1.page-title {
   transition: border-color 0.2s ease;
 }
 .filter-select:focus {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
   border-color: var(--accent);
 }
 .filter-search {
@@ -171,7 +179,8 @@ h1.page-title {
   transition: border-color 0.2s ease;
 }
 .filter-search:focus {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
   border-color: var(--accent);
 }
 .filter-search::placeholder { color: var(--text-muted); }
@@ -448,34 +457,38 @@ h1.page-title {
   .notion-page { padding: 20px 14px 80px; }
   h1.page-title { font-size: 22px; }
   .filter-bar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    align-items: center;
-    padding: 8px 10px;
-    gap: 6px;
-    -webkit-overflow-scrolling: touch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 10px 10px;
+    gap: 8px;
+    overflow-x: visible;
   }
   .filter-bar label { display: none; }
-  .filter-select {
-    font-size: 13px;
-    padding: 8px 8px;
-    min-height: 36px;
-    flex-shrink: 0;
-  }
   .filter-search {
-    font-size: 13px;
-    padding: 8px 8px;
-    min-height: 36px;
-    width: 130px;
-    flex-shrink: 0;
+    grid-column: 1 / -1; /* 検索ボックスはフル幅 */
+    font-size: 16px; /* iOS自動ズーム防止（16px未満だとピンチイン） */
+    padding: 10px 12px;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .filter-select {
+    font-size: 14px;
+    padding: 10px 8px;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .filter-reset {
-    font-size: 13px;
-    padding: 8px 10px;
-    min-height: 36px;
-    flex-shrink: 0;
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 44px;
   }
-  .filter-count { margin-left: 0; flex-shrink: 0; }
+  .filter-count {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    text-align: center;
+  }
   .toggle-title { font-size: 13px; }
   .toggle-code { display: none; }
   .crew-name {
@@ -488,11 +501,11 @@ h1.page-title {
   .result-table td:first-child { width: 28px; padding: 6px 4px; }
   .result-table th:nth-child(2),
   .result-table td:nth-child(2) { width: 22px; padding: 6px 4px; }
-  .db-table { font-size: 11px; }
+  .db-table { font-size: 12px; } /* 11px → 12px */
   .hide-mobile { display: none !important; }
   .update-bar { font-size: 11px; padding: 0 10px; }
   .hide-mobile-flex { display: none !important; }
-  .schedule-table { font-size: 12px; }
+  .schedule-table { font-size: 13px; } /* 12px → 13px */
   .sc-event-name { max-width: 130px; }
   .sc-winner { display: none; }
   .sc-winner-name { max-width: 100px; }
@@ -523,13 +536,21 @@ h1.page-title {
 /* ========= トースト通知 ========= */
 #toast-container {
   position: fixed;
-  bottom: 60px;
+  bottom: 56px; /* ステータスバー(44px) + 余白 */
   right: 20px;
   z-index: 200;
   display: flex;
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
+}
+@media (max-width: 640px) {
+  #toast-container {
+    bottom: 52px;
+    right: 12px;
+    left: 12px;
+  }
+  .toast { max-width: 100%; }
 }
 .toast {
   background: #3D3B38;
