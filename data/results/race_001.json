@@ -1,6 +1,6 @@
 {
   "race_no": 1,
-  "updated_at": "2026-04-05T08:13:59.422Z",
+  "updated_at": "2026-04-05T08:33:58.621Z",
   "results": [
     {
       "lane": 3,
@@ -22,7 +22,8 @@
       "split": "(1:53.39)",
       "tie_group": "",
       "photo_flag": false,
-      "note": ""
+      "note": "",
+      "status": "finish"
     },
     {
       "lane": 1,
@@ -44,7 +45,8 @@
       "split": "(1:55.57)",
       "tie_group": "",
       "photo_flag": false,
-      "note": ""
+      "note": "",
+      "status": "finish"
     },
     {
       "lane": 2,
@@ -66,7 +68,8 @@
       "split": "(1:58.54)",
       "tie_group": "",
       "photo_flag": false,
-      "note": ""
+      "note": "",
+      "status": "finish"
     },
     {
       "lane": 4,
@@ -88,7 +91,8 @@
       "split": "(2:00.64)",
       "tie_group": "",
       "photo_flag": false,
-      "note": ""
+      "note": "",
+      "status": "finish"
     }
   ]
 }
