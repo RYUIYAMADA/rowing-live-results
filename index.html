@@ -98,37 +98,7 @@
   <!--                   VIEW 2: 全レース一覧テーブル                      -->
   <!-- ================================================================ -->
   <div class="view-content" id="view-table">
-
-    <div class="filter-bar">
-      <span class="filter-count" id="db-count" style="display:none"></span>
-    </div>
-
-    <div class="db-table-wrapper">
-      <table class="db-table">
-        <thead>
-          <tr>
-            <!-- ソート対応列にdata-col属性を付与 -->
-            <th data-col="race_no" onclick="sortDbTable(this)">Race No.<span class="sort-icon"></span></th>
-            <th>種目コード</th>
-            <th class="hide-sp">種目名</th>
-            <th class="hide-sp">年齢区分</th>
-            <th>ラウンド</th>
-            <th>日程</th>
-            <th>時刻</th>
-            <th>順位</th>
-            <th>B</th>
-            <th>クルー名</th>
-            <th>所属</th>
-            <th>500m</th>
-            <th data-col="finish" onclick="sortDbTable(this)">フィニッシュ<span class="sort-icon"></span></th>
-            <th>備考</th>
-          </tr>
-        </thead>
-        <tbody id="db-table-body">
-          <!-- JS側で動的生成 -->
-        </tbody>
-      </table>
-    </div>
+    <div id="view-table-content"></div>
   </div>
 
   <!-- ================================================================ -->

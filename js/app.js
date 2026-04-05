@@ -585,106 +585,115 @@ function highlightCurrentRace() {
 }
 
 /**
- * 全レーステーブルビューを描画する
+ * 全レース一覧ビューをトグル形式で描画する（レースごとに折り畳み可能）
  */
 function renderTableView() {
-  const tbody = document.getElementById('db-table-body');
-  if (!tbody) return;
+  const container = document.getElementById('view-table-content');
+  if (!container) return;
 
   const pts = masterData.measurement_points || ['500m', '1000m'];
-  dbRows = [];
+  const showMid = pts.length > 1;
 
-  masterData.schedule.forEach(race => {
+  const html = masterData.schedule.map(race => {
     const result = resultsCache[race.race_no];
     const entryMap = {};
     (race.entries || []).forEach(e => { entryMap[e.lane] = e; });
     const roundName = CONFIG.ROUND_NAMES[race.round] || race.round;
-    const roundClass = race.round === 'FA' || race.round === 'FB' ? 'db-round-fa'
-      : race.round === 'H' ? 'db-round-h' : 'db-round-rk';
+    const hasResult = !!result;
 
-    if (result) {
-      const sorted = [...result.results].sort((a, b) => a.rank - b.rank);
-      sorted.forEach(r => {
+    // ヘッダー情報
+    const badge = hasResult
+      ? `<span class="badge badge-done">結果あり</span>`
+      : `<span class="badge badge-pending">未実施</span>`;
+    const agePart = usedProps.hasAgeGroup && race.age_group ? ` (${race.age_group})` : '';
+    const title = `Race ${race.race_no}｜${race.event_name}${agePart}　${roundName}`;
+
+    // テーブル内容
+    let tableBody = '';
+    if (hasResult) {
+      // 棄権（DNS）を追加
+      const resultLanes = new Set(result.results.map(r => r.lane));
+      const dnsEntries = (race.entries || [])
+        .filter(e => !resultLanes.has(e.lane))
+        .map(e => ({ lane: e.lane, rank: null, times: {}, finish: null, split: '', tie_group: '', photo_flag: false, note: '', status: 'dns' }));
+      const allResults = [...result.results, ...dnsEntries].sort((a, b) => {
+        if (a.status === 'finish' && b.status !== 'finish') return -1;
+        if (a.status !== 'finish' && b.status === 'finish') return 1;
+        if (a.rank !== null && b.rank !== null) return a.rank - b.rank;
+        return a.lane - b.lane;
+      });
+
+      const tieGroupCounts = {};
+      result.results.forEach(r => {
+        if (r.tie_group) tieGroupCounts[r.tie_group] = (tieGroupCounts[r.tie_group] || 0) + 1;
+      });
+
+      tableBody = allResults.map(r => {
         const entry = entryMap[r.lane] || {};
-        const midTime = r.times && r.times[pts[0]] ? r.times[pts[0]].formatted : '-';
-        // テーブルビューでも同着判定してシンプルなrank表示を使用
-        const tieFlag = r.tie_group && result.results.filter(x => x.tie_group === r.tie_group).length > 1;
-        const rankIcon = `<span class="rank rank-${r.rank}">${r.rank}${tieFlag ? '=' : ''}</span>`;
-        // ソート用のデータも付属させる
-        dbRows.push({
-          race_no: race.race_no,
-          finish_ms: r.finish ? r.finish.time_ms : Infinity,
-          html: `
-            <tr>
-              <td>${race.race_no}</td>
-              <td><span class="db-code">${displayCode(race.event_code)}</span></td>
-              <td class="hide-sp">${race.event_name}</td>
-              ${usedProps.hasAgeGroup ? `<td class="age-group-cell hide-sp">${race.age_group || '-'}</td>` : ''}
-              <td><span class="db-round ${roundClass}">${roundName}</span></td>
-              <td>${formatDate(race.date)}</td>
-              <td>${race.time}</td>
-              <td>${rankIcon}</td>
-              <td>${r.lane}</td>
-              <td class="crew-name">${entry.crew_name || '-'}</td>
-              <td>${entry.affiliation || '-'}</td>
-              <td class="time-split">${midTime}</td>
-              <td class="time-main">${r.finish ? r.finish.formatted : '-'}</td>
-              <td>${r.note || ''}</td>
-            </tr>`
-        });
-      });
+        const isDns = r.status === 'dns';
+        const isDnf = r.status === 'dnf';
+        const midTime = showMid && r.times && r.times[pts[0]] ? r.times[pts[0]].formatted : '-';
+        const isTie = r.tie_group && tieGroupCounts[r.tie_group] > 1;
+        let rankCell, finishCell;
+        if (isDns) {
+          rankCell = `<span class="rank-dns">棄権</span>`;
+          finishCell = `<span class="status-dns">DNS</span>`;
+        } else if (isDnf) {
+          rankCell = `<span class="rank-dnf">途中棄権</span>`;
+          finishCell = `<span class="status-dnf">DNF</span>`;
+        } else {
+          rankCell = `<span class="rank rank-${r.rank}">${r.rank}${isTie ? '=' : ''}</span>`;
+          finishCell = `<span class="time-main">${r.finish ? r.finish.formatted : '-'}</span>${r.split ? `<div class="time-half">${r.split}</div>` : ''}`;
+        }
+        return `<tr class="${r.rank && r.rank <= 3 ? `rank-${r.rank}` : ''}${isDns || isDnf ? ' row-retired' : ''}">
+          <td>${rankCell}</td>
+          <td>${r.lane}</td>
+          <td class="crew-name">${entry.crew_name || '-'}</td>
+          <td>${entry.affiliation || '-'}</td>
+          ${showMid ? `<td class="hide-mobile">${isDns ? '-' : midTime}</td>` : ''}
+          <td>${finishCell}</td>
+          <td>${(!isDns && r.note) ? `<span style="color:#e03e3e;font-size:11px">${r.note}</span>` : ''}</td>
+        </tr>`;
+      }).join('');
     } else {
-      // 結果未投入のレースはエントリーのみ表示
-      (race.entries || []).forEach(e => {
-        dbRows.push({
-          race_no: race.race_no,
-          finish_ms: Infinity,
-          html: `
-            <tr style="color:#ccc">
-              <td>${race.race_no}</td>
-              <td><span class="db-code">${displayCode(race.event_code)}</span></td>
-              <td class="hide-sp">${race.event_name}</td>
-              ${usedProps.hasAgeGroup ? `<td class="age-group-cell hide-sp">${race.age_group || '-'}</td>` : ''}
-              <td><span class="db-round ${roundClass}">${roundName}</span></td>
-              <td>${formatDate(race.date)}</td>
-              <td>${race.time}</td>
-              <td>-</td>
-              <td>${e.lane}</td>
-              <td class="crew-name">${e.crew_name}</td>
-              <td>${e.affiliation}</td>
-              <td>-</td>
-              <td>-</td>
-              <td></td>
-            </tr>`
-        });
-      });
+      tableBody = (race.entries || []).map(e => `
+        <tr class="row-retired">
+          <td>-</td><td>${e.lane}</td>
+          <td class="crew-name">${e.crew_name}</td>
+          <td>${e.affiliation}</td>
+          ${showMid ? `<td class="hide-mobile">-</td>` : ''}
+          <td>-</td><td></td>
+        </tr>`).join('');
     }
-  });
 
-  renderDbTableFromRows();
+    const midHeader = showMid ? `<th class="hide-mobile">${pts[0]}</th>` : '';
+
+    return `
+      <div class="toggle${hasResult ? ' open' : ''}" data-race="${race.race_no}">
+        <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="toggle-title">${title}</span>
+          <span class="toggle-meta">${formatDate(race.date)} ${formatRaceTime(race.time)}</span>
+          ${badge}
+          <span class="toggle-arrow">▶</span>
+        </div>
+        <div class="toggle-body">
+          <table class="result-table">
+            <thead><tr>
+              <th style="width:52px">順位</th>
+              <th style="width:28px">B</th>
+              <th>クルー名</th><th>所属</th>
+              ${midHeader}
+              <th style="width:90px">フィニッシュ</th>
+              <th style="width:40px">備考</th>
+            </tr></thead>
+            <tbody>${tableBody}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = html;
   updateDbTableCount();
-}
-
-/**
- * dbRows を現在のソート状態に従って tbody に書き出す
- */
-function renderDbTableFromRows() {
-  const tbody = document.getElementById('db-table-body');
-  if (!tbody) return;
-
-  let rows = [...dbRows];
-
-  if (sortState.col === 'race_no') {
-    rows.sort((a, b) => sortState.dir === 'asc'
-      ? a.race_no - b.race_no
-      : b.race_no - a.race_no);
-  } else if (sortState.col === 'finish') {
-    rows.sort((a, b) => sortState.dir === 'asc'
-      ? a.finish_ms - b.finish_ms
-      : b.finish_ms - a.finish_ms);
-  }
-
-  tbody.innerHTML = rows.map(r => r.html).join('');
 }
 
 // ========= テーブルビューのソート =========
@@ -693,24 +702,7 @@ function renderDbTableFromRows() {
  * テーブルヘッダーをクリックしたときにソートする
  */
 function sortDbTable(thEl) {
-  const col = thEl.dataset.col;
-  if (!col) return;
-
-  // 同じ列を再クリックした場合は昇降順を切り替え
-  if (sortState.col === col) {
-    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortState.col = col;
-    sortState.dir = 'asc';
-  }
-
-  // ソートアイコンを更新
-  document.querySelectorAll('.db-table th[data-col]').forEach(th => {
-    th.classList.remove('sort-asc', 'sort-desc');
-  });
-  thEl.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
-
-  renderDbTableFromRows();
+  // 全レース一覧はトグル形式のため、ソートは無効
 }
 
 // ========= フィルタ =========
@@ -790,10 +782,7 @@ function updateFilterCount() {
  * テーブルビューの件数ラベルを更新する
  */
 function updateDbTableCount() {
-  const el = document.getElementById('db-count');
-  if (!el) return;
-  const count = document.querySelectorAll('#db-table-body tr').length;
-  el.textContent = `全 ${count} 件`;
+  // 非表示のため何もしない
 }
 
 // ========= 全展開・全折畳 =========
