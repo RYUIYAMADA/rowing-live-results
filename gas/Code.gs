@@ -647,13 +647,20 @@ function formatDateValue_(val) {
 
 /**
  * スプレッドシートのセル値を HH:MM 形式の文字列に変換する
- * 文字列の場合はそのまま返す
+ * Date型・数値（日付シリアル値の小数部）・文字列すべてに対応
  */
 function formatTimeValue_(val) {
-  if (!val) return '';
+  if (!val && val !== 0) return '';
   if (val instanceof Date) {
     const h = String(val.getHours()).padStart(2, '0');
     const m = String(val.getMinutes()).padStart(2, '0');
+    return h + ':' + m;
+  }
+  // スプレッドシートの時刻は0〜1の小数値で格納されることがある（例: 0.2917 = 07:00）
+  if (typeof val === 'number') {
+    const totalMin = Math.round(val * 24 * 60);
+    const h = String(Math.floor(totalMin / 60)).padStart(2, '0');
+    const m = String(totalMin % 60).padStart(2, '0');
     return h + ':' + m;
   }
   return String(val).trim();
