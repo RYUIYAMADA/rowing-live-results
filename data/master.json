@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-05T16:58:41.968Z",
-  "updated_at": "2026-04-05T16:58:41.968Z",
+  "generated_at": "2026-04-05T17:04:08.585Z",
+  "updated_at": "2026-04-05T17:04:08.585Z",
   "measurement_points": [
     "500m",
     "1000m"
@@ -8,7 +8,8 @@
   "tournament": {
     "race_name": "全日本マスターズレガッタ 第100回大会",
     "dates": [
-      "2025-06-07"
+      "2025-09-14",
+      "2025-09-15"
     ],
     "venue": "手取川ダム湖 1000mコース",
     "course_length": 1000,
@@ -22,7 +23,7 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:00",
       "entries": [
         {
@@ -54,7 +55,7 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:08",
       "entries": [
         {
@@ -86,7 +87,7 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:16",
       "entries": [
         {
@@ -118,7 +119,7 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:24",
       "entries": [
         {
@@ -150,7 +151,7 @@
       "category": "M",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:32",
       "entries": [
         {
@@ -177,7 +178,7 @@
       "category": "W",
       "age_group": "G",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-14",
       "time": "00:40",
       "entries": [
         {
@@ -199,7 +200,7 @@
       "category": "M",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "00:48",
       "entries": [
         {
@@ -231,7 +232,7 @@
       "category": "W",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "00:56",
       "entries": [
         {
@@ -263,7 +264,7 @@
       "category": "M",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "01:04",
       "entries": [
         {
@@ -290,7 +291,7 @@
       "category": "W",
       "age_group": "J",
       "round": "FA",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "01:12",
       "entries": [
         {
@@ -312,7 +313,7 @@
       "category": "M",
       "age_group": "G",
       "round": "H",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "01:20",
       "entries": [
         {
@@ -344,7 +345,7 @@
       "category": "W",
       "age_group": "G",
       "round": "H",
-      "date": "2025-06-07",
+      "date": "2025-09-15",
       "time": "01:28",
       "entries": [
         {
