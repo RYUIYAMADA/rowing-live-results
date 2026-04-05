@@ -498,20 +498,22 @@ function renderResultTable(race, result) {
   const finishHeader = `${raceCourseLength}m`;
 
   return `
+    <div class="result-table-wrapper">
     <table class="result-table">
       <thead>
         <tr>
           <th style="width:36px">順位</th>
           <th style="width:28px">B</th>
-          <th>クルー名</th>
-          <th>所属</th>
+          <th style="min-width:120px">クルー名</th>
+          <th style="min-width:100px">所属</th>
           ${midHeader}
           <th style="width:90px">${finishHeader}</th>
-          <th style="width:40px">備考</th>
+          <th style="min-width:80px">備考</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 /**
@@ -775,17 +777,19 @@ function renderTableView() {
           <span class="toggle-arrow">▶</span>
         </div>
         <div class="toggle-body">
+          <div class="result-table-wrapper">
           <table class="result-table">
             <thead><tr>
               <th style="width:52px">順位</th>
               <th style="width:28px">B</th>
-              <th>クルー名</th><th>所属</th>
+              <th style="min-width:120px">クルー名</th><th style="min-width:100px">所属</th>
               ${midHeader}
               <th style="width:90px">${finishHeader}</th>
-              <th style="width:40px">備考</th>
+              <th style="min-width:80px">備考</th>
             </tr></thead>
             <tbody>${tableBody}</tbody>
           </table>
+          </div>
         </div>
       </div>`;
   }).join('');
