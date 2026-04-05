@@ -701,7 +701,7 @@ function renderTableView() {
     const midHeader = showMid ? `<th class="hide-mobile">${pts[0]}</th>` : '';
 
     return `
-      <div class="toggle${hasResult ? ' open' : ''}" data-race="${race.race_no}">
+      <div class="toggle" data-race="${race.race_no}">
         <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
           <span class="toggle-title">${title}</span>
           <span class="toggle-meta">${formatDate(race.date)} ${formatRaceTime(race.time)}</span>
