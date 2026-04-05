@@ -109,6 +109,13 @@ function onTrigger() {
   const startTime = Date.now();
   Logger.log('[onTrigger] 開始: ' + new Date().toISOString());
 
+  // 二重実行防止ロック（前の実行がまだ動いていればスキップ）
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(0)) {
+    Logger.log('[onTrigger] 別の実行が進行中のためスキップ');
+    return;
+  }
+
   try {
     // API レート制限フラグを確認（1時間経過で自動解除）
     const props = PropertiesService.getScriptProperties();
@@ -132,6 +139,8 @@ function onTrigger() {
   } catch (e) {
     Logger.log('[onTrigger] エラー: ' + e.message);
     recordError('onTrigger', e);
+  } finally {
+    lock.releaseLock();
   }
 }
 
