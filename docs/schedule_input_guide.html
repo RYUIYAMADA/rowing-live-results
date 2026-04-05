@@ -28,6 +28,18 @@
   .sample { background: #f4f8f4; border: 1px solid #b2d0b2; border-radius: 4px; padding: 12px 16px; font-family: monospace; font-size: 12px; white-space: pre; overflow-x: auto; margin: 8px 0 24px; line-height: 1.7; }
   .sample .comment { color: #888; }
   code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; font-family: monospace; }
+  /* ダウンロードセクション */
+  .dl-section { background: #f0f7f0; border: 2px solid #2D4F2C; border-radius: 8px; padding: 20px 24px; margin: 24px 0 32px; }
+  .dl-section h3 { font-size: 15px; color: #2D4F2C; margin: 0 0 6px; }
+  .dl-section p { font-size: 13px; color: #555; margin: 0 0 16px; }
+  .dl-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+  .dl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; border: none; text-decoration: none; transition: opacity 0.15s; }
+  .dl-btn:hover { opacity: 0.85; }
+  .dl-btn-primary { background: #2D4F2C; color: #fff; }
+  .dl-btn-secondary { background: #fff; color: #2D4F2C; border: 2px solid #2D4F2C; }
+  .dl-btn-icon { font-size: 18px; }
+  .dl-contents { margin-top: 12px; font-size: 12px; color: #666; }
+  .dl-contents span { display: inline-block; background: #e8f0fe; border: 1px solid #8ab4f8; border-radius: 3px; padding: 1px 7px; font-family: monospace; margin: 2px; }
   .file-chip { display: inline-block; background: #e8f0fe; border: 1px solid #8ab4f8; border-radius: 4px; padding: 3px 10px; font-family: monospace; font-size: 12px; }
   .section-desc { color: #555; font-size: 13px; margin: 10px 0 12px; padding-left: 4px; }
   ol.steps { line-height: 2.2; font-size: 14px; padding-left: 20px; }
@@ -39,6 +51,28 @@
 
 <h1>📋 登録シート 全項目定義書</h1>
 <div class="subtitle">Google Drive の <code>master/</code> フォルダにアップロードする3つのCSVファイルの全項目を定義します。</div>
+
+<!-- ============================================================ -->
+<!-- ダウンロードセクション -->
+<!-- ============================================================ -->
+<div class="dl-section">
+  <h3>📥 CSVファイルをダウンロード</h3>
+  <p>以下の2種類のZIPをワンクリックでダウンロードできます。3ファイル（tournament.csv・schedule.csv・entries.csv）がまとめて入っています。</p>
+  <div class="dl-buttons">
+    <button class="dl-btn dl-btn-primary" onclick="downloadZip('sample')">
+      <span class="dl-btn-icon">📦</span> ダミーデータ入り ZIP
+    </button>
+    <button class="dl-btn dl-btn-secondary" onclick="downloadZip('template')">
+      <span class="dl-btn-icon">📄</span> テンプレート（ヘッダーのみ）ZIP
+    </button>
+  </div>
+  <div class="dl-contents">
+    同梱ファイル：
+    <span>tournament.csv</span>
+    <span>schedule.csv</span>
+    <span>entries.csv</span>
+  </div>
+</div>
 
 <!-- ============================================================ -->
 <!-- ファイル構成 -->
@@ -455,5 +489,130 @@ race_no,lane,crew_name,affiliation
 <hr>
 <p style="font-size: 12px; color: #888; text-align: center;">ボート競技ライブリザルトシステム — 登録シート全項目定義書</p>
 
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+// ============================================================
+// CSV データ定義
+// ============================================================
+const CSV_DATA = {
+
+  // ── ダミーデータ入り ──────────────────────────
+  sample: {
+    'tournament.csv':
+`key,value
+race_name,全日本マスターズレガッタ 第100回大会
+venue,手取川ダム湖 1000mコース
+course_length,1000
+dates,
+youtube_url,`,
+
+    'schedule.csv':
+`race_no,event_name,category,age_group,round,date,time,event_code,course_length
+1,男子シングルスカル,M,G,FA,2025-09-14,09:00,M_1X,
+2,女子シングルスカル,W,G,FA,2025-09-14,09:08,W_1X,
+3,男子ダブルスカル,M,G,FA,2025-09-14,09:16,M_2X,
+4,女子ダブルスカル,W,G,FA,2025-09-14,09:24,W_2X,
+5,男子クォドルプル,M,G,FA,2025-09-14,09:32,M_4X,
+6,女子クォドルプル,W,G,FA,2025-09-14,09:40,W_4X,
+7,男子シングルスカル,M,G,H,2025-09-14,10:00,M_1X,
+8,女子シングルスカル,W,G,H,2025-09-14,10:08,W_1X,
+9,男子ジュニアシングルスカル,M,J,FA,2025-09-15,09:00,M_1X,500
+10,女子ジュニアシングルスカル,W,J,FA,2025-09-15,09:08,W_1X,500`,
+
+    'entries.csv':
+`race_no,lane,crew_name,affiliation
+1,1,山田太郎,諏訪漕艇クラブ
+1,2,鈴木次郎,松本ボートクラブ
+1,3,佐藤健一,長野漕艇協会
+1,4,木村四郎,上田ローイング
+2,1,田中花子,岡谷漕艇クラブ
+2,2,伊藤明美,飯田ローイング
+2,3,渡辺麻衣,諏訪漕艇クラブ
+2,4,中村さくら,松本ボートクラブ
+3,1,高橋雄介 / 小林誠,長野漕艇協会
+3,2,加藤大輔 / 吉田拓也,諏訪漕艇クラブ
+3,3,山本隆太 / 石川健,岡谷漕艇クラブ
+3,4,林直樹 / 清水翔,松本ボートクラブ
+4,1,斎藤由美 / 松田綾,上田ローイング
+4,2,井上千恵 / 木下瞳,飯田ローイング
+4,3,橋本美香 / 坂本奈々,諏訪漕艇クラブ
+4,4,西村友美 / 藤田香,長野漕艇協会
+5,1,中島拓 / 前田亮 / 野村健 / 大野聡,諏訪漕艇クラブ
+5,2,後藤慎 / 岡田悠 / 長谷川涼 / 近藤豊,松本ボートクラブ
+5,3,菊地恒 / 河野純 / 池田充 / 市川努,岡谷漕艇クラブ
+6,1,上野彩 / 内田葵 / 杉山莉 / 村田葉,長野漕艇協会
+6,2,石田朱 / 浜田恵 / 宮本陽 / 金子桜,上田ローイング
+7,1,森田雄一,長野漕艇協会
+7,2,藤原隆司,諏訪漕艇クラブ
+7,3,小野寺亮,松本ボートクラブ
+7,4,村上浩二,岡谷漕艇クラブ
+8,1,宮田美穂,上田ローイング
+8,2,坂本彩花,飯田ローイング
+8,3,長谷部由里,諏訪漕艇クラブ
+8,4,福島奈緒,長野漕艇協会
+9,1,小川光太,長野県立松本高等学校
+9,2,三浦颯太,長野県立諏訪清陵高等学校
+9,3,岩田海斗,長野県立岡谷東高等学校
+10,1,松本優奈,長野県立松本高等学校
+10,2,福田結衣,長野県立諏訪清陵高等学校
+10,3,川口美咲,長野県立飯田高等学校`
+  },
+
+  // ── テンプレート（ヘッダーのみ）──────────────────
+  template: {
+    'tournament.csv':
+`key,value
+race_name,
+venue,
+course_length,
+dates,
+youtube_url,`,
+
+    'schedule.csv':
+`race_no,event_name,category,age_group,round,date,time,event_code,course_length`,
+
+    'entries.csv':
+`race_no,lane,crew_name,affiliation`
+  }
+};
+
+// ============================================================
+// ZIP 生成 & ダウンロード
+// ============================================================
+async function downloadZip(type) {
+  const btn = event.currentTarget;
+  const origText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = btn.innerHTML.replace(/ZIP|ヘッダーのみ\）ZIP/, '生成中…');
+
+  try {
+    const zip = new JSZip();
+    const files = CSV_DATA[type];
+
+    // BOM付き UTF-8 で追加（Excelで開いたとき文字化けしないよう）
+    const BOM = '\uFEFF';
+    Object.entries(files).forEach(([name, content]) => {
+      zip.file(name, BOM + content);
+    });
+
+    const zipName = type === 'sample'
+      ? 'master_csv_sample.zip'
+      : 'master_csv_template.zip';
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = zipName;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('ダウンロードに失敗しました: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origText;
+  }
+}
+</script>
 </body>
 </html>
