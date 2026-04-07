@@ -35,6 +35,12 @@ body {
   max-width: 1170px;
   margin: 0 auto;
 }
+.site-header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
 .site-header-label {
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -864,34 +870,46 @@ td.age-group-cell { text-align: center; }
 
 /* ========= フォントサイズ切替（標準/大） ========= */
 /* 文字サイズ切替ボタンコンテナ */
+/* 文字サイズ切替ボタン（ヘッダー右上） */
 .font-size-toggle {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   align-items: center;
 }
 .font-size-btn {
-  padding: 6px 14px;
-  min-height: 44px;
-  min-width: 52px;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: var(--radius);
+  padding: 5px 12px;
+  min-height: 36px;
+  min-width: 48px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 999px; /* 完全な丸みでソフトな印象 */
   background: transparent;
   color: rgba(255,255,255,0.7);
-  font-size: 13px;
   cursor: pointer;
   font-family: inherit;
+  font-weight: 500;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .font-size-btn:hover {
   background: rgba(255,255,255,0.12);
   color: #fff;
+  border-color: rgba(255,255,255,0.6);
 }
 .font-size-btn.active {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.22);
   color: #fff;
-  border-color: rgba(255,255,255,0.6);
-  font-weight: 600;
+  border-color: rgba(255,255,255,0.7);
+  font-weight: 700;
+}
+/* ボタン内テキスト：サイズ自体で「どう変わるか」を示す */
+.font-btn-label-normal {
+  font-size: 12px;
+}
+.font-btn-label-large {
+  font-size: 16px;
 }
 
 /* 大フォントモード: 主要テキストを1.35倍 */
@@ -915,6 +933,10 @@ body.font-large .db-table { font-size: 15px; }
   body.font-large .result-table td { font-size: 14px; }
   body.font-large .time-main { font-size: 16px; }
   body.font-large .toggle-title { font-size: 16px; }
+  /* SP時：ボタンを少し小さく（ヘッダーが圧迫されないよう） */
+  .font-size-btn { min-height: 32px; min-width: 40px; padding: 4px 10px; }
+  .font-btn-label-normal { font-size: 11px; }
+  .font-btn-label-large { font-size: 15px; }
 }
 
 /* ========= フッター ========= */
