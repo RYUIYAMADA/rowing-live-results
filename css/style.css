@@ -939,20 +939,15 @@ body.font-large .db-table { font-size: 15px; }
   .font-btn-label-large { font-size: 15px; }
 }
 
-/* ========= フッター ========= */
-.site-footer {
-  background: #2D4F2C;
-  color: rgba(255,255,255,0.55);
-  text-align: center;
-  padding: 20px 20px 28px;
-  font-size: 12px;
-  line-height: 1.9;
-  letter-spacing: 0.04em;
-  margin-top: 40px;
+
+/* update-bar内フッターテキスト */
+.update-bar-footer-text {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
 }
-.site-footer a {
-  color: rgba(255,255,255,0.55);
-  text-decoration: none;
+@media (max-width: 640px) {
+  .update-bar-footer-text { display: none; }
 }
 
 /* ========= 0件フィルター時のemptyステート ========= */
