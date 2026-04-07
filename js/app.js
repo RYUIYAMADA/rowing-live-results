@@ -9,8 +9,8 @@ const CONFIG = {
   MASTER_JSON: 'data/master.json',
   // 結果JSONのパスパターン（race_no を3桁ゼロ埋め）
   RESULT_JSON: (no) => `data/results/race_${String(no).padStart(3, '0')}.json`,
-  // 自動更新間隔（ミリ秒）
-  REFRESH_INTERVAL: 60000,
+  // 自動更新間隔（ミリ秒）: 30秒に短縮（競技中のリアルタイム性向上）
+  REFRESH_INTERVAL: 30000,
   // ラウンドの表示名マッピング
   ROUND_NAMES: {
     FA: '決勝A', FB: '決勝B', SF: '準決勝',
@@ -289,6 +289,14 @@ function renderYoutube() {
  */
 function renderFilterOptions() {
   const dates = [...new Set((masterData?.schedule || []).map(r => r.date))].sort();
+
+  // 当日の日付タブを自動選択（初回のみ: filterState.date が 'all' のとき）
+  if (filterState.date === 'all') {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (dates.includes(todayStr)) {
+      filterState.date = todayStr;
+    }
+  }
 
   // 日別タブを生成（日数に関わらず常に表示）
   const dayTabs = document.getElementById('day-tabs');
@@ -902,6 +910,23 @@ function updateFilterCount() {
   const visible = document.querySelectorAll('#view-toggle-content .toggle:not([style*="display: none"])').length;
   const total = document.querySelectorAll('#view-toggle-content .toggle').length;
   el.textContent = `${visible}/${total}種目 表示中`;
+
+  // 0件フィルター時のemptyステート表示
+  const container = document.getElementById('view-toggle-content');
+  if (!container) return;
+  const emptyId = 'filter-empty-state';
+  let emptyEl = document.getElementById(emptyId);
+  if (visible === 0 && total > 0) {
+    if (!emptyEl) {
+      emptyEl = document.createElement('div');
+      emptyEl.id = emptyId;
+      emptyEl.className = 'filter-empty-state';
+      emptyEl.textContent = '条件に合う種目はありません。フィルターを変更してください。';
+      container.appendChild(emptyEl);
+    }
+  } else {
+    if (emptyEl) emptyEl.remove();
+  }
 }
 
 /**
@@ -1278,6 +1303,34 @@ function formatTime(ms) {
   const minutes = Math.floor(totalSeconds / 60);
   return minutes + ':' + String(seconds).padStart(2, '0') + '.' + String(centiseconds).padStart(2, '0');
 }
+
+// ========= フォントサイズ切替（標準/大） =========
+
+/**
+ * フォントサイズを切替する（標準 / 大）
+ * @param {'normal'|'large'} size
+ */
+function setFontSize(size) {
+  document.body.classList.toggle('font-large', size === 'large');
+  // localStorageで設定を保持（ページリロード後も維持）
+  try { localStorage.setItem('fontSizePref', size); } catch(e) {}
+  // ボタンのactive状態を更新
+  document.querySelectorAll('.font-size-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.size === size);
+  });
+}
+
+/**
+ * ページ読み込み時にlocalStorageからフォントサイズ設定を復元する
+ */
+function restoreFontSizePref() {
+  let pref = 'normal';
+  try { pref = localStorage.getItem('fontSizePref') || 'normal'; } catch(e) {}
+  setFontSize(pref);
+}
+
+// DOMContentLoadedでフォントサイズ設定を復元
+document.addEventListener('DOMContentLoaded', restoreFontSizePref);
 
 /**
  * ローディング表示の切替

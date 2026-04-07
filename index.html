@@ -112,11 +112,30 @@
 </div>
 
 <!-- ステータスバー -->
-<div class="update-bar"></div>
+<div class="update-bar">
+  <div class="update-bar-left">
+    <span class="live-dot"></span>
+    <span id="status-summary">--</span>
+    <span style="margin-left:6px;color:rgba(255,255,255,0.5);font-size:11px">更新: <span id="last-updated">--:--</span></span>
+    <span id="archive-badge" style="display:none;margin-left:8px">ARCHIVE</span>
+    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()" title="手動更新">🔄</button>
+  </div>
+  <!-- 文字サイズ切替ボタン（常時表示・右端） -->
+  <div class="font-size-toggle">
+    <button class="font-size-btn active" data-size="normal" onclick="setFontSize('normal')" aria-label="標準サイズ">標準</button>
+    <button class="font-size-btn" data-size="large" onclick="setFontSize('large')" aria-label="大きいサイズ（60代向け）">大</button>
+  </div>
+</div>
 
 <!-- トースト通知コンテナ -->
 <div id="toast-container"></div>
 
-<script src="js/app.js?v=20260407e"></script>
+<!-- フッター -->
+<footer class="site-footer">
+  <div>主催：石川県ボート協会</div>
+  <div>©2026 全日本マスターズレガッタ 2026</div>
+</footer>
+
+<script src="js/app.js?v=20260407f"></script>
 </body>
 </html>

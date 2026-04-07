@@ -13,8 +13,9 @@ body {
   --card:       #FFFFFF;
   --border:     #D9D4CA;
   --text:       #3D3B38;
-  --text-sub:   #7A7570;
-  --text-muted: #B0AAA3;
+  /* コントラスト改善: WCAG AA準拠のため暗くする */
+  --text-sub:   #5A5552;
+  --text-muted: #6E6962;
   --accent:     #5C8A5A;
   --accent-bg:  #EBF1EA;
   --gold:       #A08C5B;
@@ -153,8 +154,10 @@ h1.page-title {
   font-weight: 400;
   letter-spacing: 0.05em;
 }
+/* タップターゲット拡大: モバイルで44px以上を確保 */
 .filter-select {
-  padding: 5px 10px;
+  padding: 10px 12px;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 13px;
@@ -299,13 +302,17 @@ h1.page-title {
 }
 .result-table tr:hover td { background: #FAF8F4; }
 
-/* 1位行: 左に gold の 3px ボーダー */
+/* 1位の視覚的強調: 薄いゴールド背景と左ボーダー */
+.rank-1 td {
+  background: #FDFBF2;
+}
 .rank-1 td:first-child {
   color: var(--gold);
   font-weight: 600;
   border-left: 3px solid var(--gold);
   padding-left: 7px;
 }
+.rank-1 .rank-badge { font-weight: 700; }
 .rank-2 td:first-child { color: var(--silver); }
 .rank-3 td:first-child { color: var(--bronze); }
 
@@ -795,7 +802,8 @@ td.age-group-cell { text-align: center; }
 
   /* スケジュールビュー: コンパクト */
   .schedule-table { font-size: 12px; }
-  .sc-event-name { max-width: 90px; }
+  /* SP時の種目名切断修正: 折り返し許可 */
+  .sc-event-name { max-width: none; white-space: normal; line-height: 1.3; }
 
   /* ステータスバー */
   .update-bar { padding: 6px 12px; font-size: 11px; }
@@ -852,4 +860,87 @@ td.age-group-cell { text-align: center; }
 }
 .day-tab:hover:not(.active) {
   color: var(--text);
+}
+
+/* ========= フォントサイズ切替（標準/大） ========= */
+/* 文字サイズ切替ボタンコンテナ */
+.font-size-toggle {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.font-size-btn {
+  padding: 6px 14px;
+  min-height: 44px;
+  min-width: 52px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius);
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+.font-size-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.font-size-btn.active {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  border-color: rgba(255,255,255,0.6);
+  font-weight: 600;
+}
+
+/* 大フォントモード: 主要テキストを1.35倍 */
+body.font-large .result-table { font-size: 17px; }
+body.font-large .result-table th { font-size: 13px; }
+body.font-large .result-table td { font-size: 15px; padding: 10px 8px; }
+body.font-large .time-main { font-size: 18px; }
+body.font-large .time-split { font-size: 15px; }
+body.font-large .toggle-title { font-size: 19px; }
+body.font-large .race-label { font-size: 17px; }
+body.font-large .day-tab { font-size: 17px; }
+body.font-large .view-tab { font-size: 17px; }
+body.font-large .filter-select { font-size: 16px; }
+body.font-large .filter-search { font-size: 16px; }
+body.font-large .schedule-table { font-size: 16px; }
+body.font-large .db-table { font-size: 15px; }
+
+/* 大フォントモード SP */
+@media (max-width: 640px) {
+  body.font-large .result-table { font-size: 15px; }
+  body.font-large .result-table td { font-size: 14px; }
+  body.font-large .time-main { font-size: 16px; }
+  body.font-large .toggle-title { font-size: 16px; }
+}
+
+/* ========= フッター ========= */
+.site-footer {
+  background: #2D4F2C;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  padding: 20px 20px 28px;
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+  margin-top: 40px;
+}
+.site-footer a {
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+}
+
+/* ========= 0件フィルター時のemptyステート ========= */
+.filter-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  margin-top: 8px;
 }
