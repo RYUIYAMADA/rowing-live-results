@@ -199,7 +199,6 @@ async function loadResults() {
   });
 
   await Promise.all(promises);
-  console.log(`結果JSON読み込み完了: ${Object.keys(resultsCache).length}/${raceNos.length}件`);
   return newlyUpdated;
 }
 
