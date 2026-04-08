@@ -385,8 +385,8 @@ function renderToggleView() {
     toggleEl.innerHTML = `
       <div class="toggle-header" onclick="this.parentElement.classList.toggle('open')">
         <span class="toggle-arrow">▶</span>
-        <span class="toggle-title">${eventName}</span>
-        <span class="toggle-code">${displayCode(eventCode)}</span>
+        <span class="toggle-title">${h(eventName)}</span>
+        <span class="toggle-code">${h(displayCode(eventCode))}</span>
         <span class="toggle-count">${totalCount}レース</span>
         ${statusBadge}
       </div>
@@ -685,7 +685,7 @@ function highlightCurrentRace() {
   // 全トグルのliveバッジを一旦リセット
   document.querySelectorAll('#view-toggle-content .toggle .badge-live').forEach(badge => {
     badge.className = 'badge badge-upcoming';
-    badge.textContent = '予定';
+    badge.textContent = '未実施';
   });
 
   // 該当レースだけliveに設定
@@ -732,8 +732,8 @@ function renderTableView() {
 
     // ヘッダー情報
     const badge = hasResult
-      ? `<span class="badge badge-done">結果あり</span>`
-      : `<span class="badge badge-pending">未実施</span>`;
+      ? `<span class="badge badge-done">確定</span>`
+      : `<span class="badge badge-upcoming">未実施</span>`;
     const agePart = usedProps.hasAgeGroup && race.age_group ? ` (${race.age_group})` : '';
     const title = `Race ${race.race_no}｜${race.event_name}${agePart}　${roundName}`;
 
@@ -1350,7 +1350,7 @@ function showError(msg) {
       <div class="error-card">
         <div class="error-icon">⚠</div>
         <div class="error-title">データを読み込めませんでした</div>
-        <div class="error-body">${msg || 'しばらく待ってから画面を更新してください'}</div>
+        <div class="error-body">${h(msg) || 'しばらく待ってから画面を更新してください'}</div>
         <button onclick="location.reload()">再読み込み</button>
       </div>`;
     el.style.display = 'block';
