@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公開前チェックリスト｜ボート競技 速報サイト</title>
+<style>
+  :root {
+    --green: #2D4F2C;
+    --green-light: #e8f0e8;
+    --green-mid: #4a7a48;
+    --red: #c0392b;
+    --yellow: #f0c040;
+    --blue: #3b7dd8;
+    --text: #222;
+    --muted: #666;
+    --bg: #fff;
+    --border: #dde;
+    --cat-a: #3b7dd8;
+    --cat-b: #2D4F2C;
+    --cat-c: #8e44ad;
+    --cat-d: #e67e22;
+    --cat-e: #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif; background: #f7f7f5; color: var(--text); font-size: 15px; line-height: 1.7; }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* ヘッダー */
+  .hero { background: var(--green); color: #fff; border-radius: 10px; padding: 28px 32px; margin-bottom: 32px; }
+  .hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .hero p { font-size: 14px; opacity: 0.85; }
+  .hero .badge-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hero .badge { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 3px 12px; font-size: 12px; }
+
+  /* プログレスバー */
+  .progress-wrap { background: var(--bg); border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; border: 1px solid var(--border); }
+  .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .progress-label span { font-size: 14px; font-weight: 600; color: var(--green); }
+  .progress-label .progress-count { font-size: 20px; font-weight: 700; color: var(--green); }
+  .progress-bar-outer { background: #e8e8e8; border-radius: 8px; height: 14px; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--green)); border-radius: 8px; transition: width 0.4s ease; width: 0%; }
+
+  /* セクション */
+  .section { background: var(--bg); border-radius: 10px; padding: 24px 28px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid; }
+  .cat-a .section-header { border-color: var(--cat-a); }
+  .cat-b .section-header { border-color: var(--cat-b); }
+  .cat-c .section-header { border-color: var(--cat-c); }
+  .cat-d .section-header { border-color: var(--cat-d); }
+  .cat-e .section-header { border-color: var(--cat-e); }
+  .cat-badge { border-radius: 6px; padding: 4px 14px; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .cat-a .cat-badge { background: var(--cat-a); }
+  .cat-b .cat-badge { background: var(--cat-b); }
+  .cat-c .cat-badge { background: var(--cat-c); }
+  .cat-d .cat-badge { background: var(--cat-d); }
+  .cat-e .cat-badge { background: var(--cat-e); }
+  .section h2 { font-size: 16px; font-weight: 700; }
+  .cat-a h2 { color: var(--cat-a); }
+  .cat-b h2 { color: var(--cat-b); }
+  .cat-c h2 { color: var(--cat-c); }
+  .cat-d h2 { color: var(--cat-d); }
+  .cat-e h2 { color: var(--cat-e); }
+
+  /* チェックリスト */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 14px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; border-radius: 6px; transition: background 0.15s, opacity 0.2s; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li:hover { background: #f8f8f8; }
+  .checklist li.done { opacity: 0.45; text-decoration: line-through; }
+  .checklist li input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; cursor: pointer; accent-color: var(--green); }
+  .checklist li .item-num { font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; padding-top: 3px; min-width: 22px; }
+
+  hr { border: none; border-top: 1px solid #ddd; margin: 28px 0; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 40px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 16px 12px 60px; }
+    .hero { padding: 20px 18px; }
+    .section { padding: 16px 14px; }
+    .checklist li { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <div class="hero">
+    <h1>✅ ボート競技 速報サイト｜公開前チェックリスト</h1>
+    <p>大会開始前に必ず全22項目を確認してください。</p>
+    <div class="badge-list">
+      <span class="badge">🏁 大会前必須</span>
+      <span class="badge">📋 全22項目</span>
+      <span class="badge">👤 管理者向け</span>
+    </div>
+  </div>
+
+  <!-- プログレスバー -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>完了率</span>
+      <div>
+        <span class="progress-count" id="progress-count">0</span>
+        <span style="font-size:14px;color:var(--muted);font-weight:400"> / 22 項目完了</span>
+      </div>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- A. データ投入前確認 -->
+  <div class="section cat-a">
+    <div class="section-header">
+      <span class="cat-badge">A</span>
+      <h2>データ投入前確認</h2>
+    </div>
+    <ul class="checklist">
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">1</span>
+        <span>Googleドライブの大会フォルダが作成されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">2</span>
+        <span>master.csv が正しい形式で作成されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">3</span>
+        <span>スケジュールCSVが全レース分揃っている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">4</span>
+        <span>GASスクリプトプロパティが設定されている（TOURNAMENT_DIR 等）</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- B. システム起動確認 -->
+  <div class="section cat-b">
+    <div class="section-header">
+      <span class="cat-badge">B</span>
+      <h2>システム起動確認</h2>
+    </div>
+    <ul class="checklist">
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">5</span>
+        <span>GASのWebアプリURLが最新版でデプロイされている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">6</span>
+        <span>importMasterData() を実行して master.json が生成されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">7</span>
+        <span>サイトにアクセスしてページが正常に読み込まれる</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">8</span>
+        <span>スケジュールタブに全レースが表示されている</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- C. 表示・機能確認 -->
+  <div class="section cat-c">
+    <div class="section-header">
+      <span class="cat-badge">C</span>
+      <h2>表示・機能確認</h2>
+    </div>
+    <ul class="checklist">
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">9</span>
+        <span>大会名・日程・コース情報が正しく表示されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">10</span>
+        <span>フィルター機能（種目・ラウンド）が正常に動作する</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">11</span>
+        <span>自動更新（30秒）が動作している（ブラウザ開発ツールで確認）</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">12</span>
+        <span>オフライン検知が動作する（機内モードで確認）</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">13</span>
+        <span>スマートフォン（iOS / Android）で表示を確認</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">14</span>
+        <span>文字サイズ切替（標準 / 大）が正常に動作する</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- D. スマホ・アクセシビリティ確認 -->
+  <div class="section cat-d">
+    <div class="section-header">
+      <span class="cat-badge">D</span>
+      <h2>スマホ・アクセシビリティ確認</h2>
+    </div>
+    <ul class="checklist">
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">15</span>
+        <span>SP表示でフィルターが操作しやすい（タップターゲット 44px 以上）</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">16</span>
+        <span>種目名が切断されず表示されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">17</span>
+        <span>1位の強調（ゴールド背景）が表示されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">18</span>
+        <span>次のレース情報がステータスバーに表示される</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- E. 本番直前 -->
+  <div class="section cat-e">
+    <div class="section-header">
+      <span class="cat-badge">E</span>
+      <h2>本番直前</h2>
+    </div>
+    <ul class="checklist">
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">19</span>
+        <span>テストデータ・ダミーデータがすべて削除されている</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">20</span>
+        <span>管理画面のパスワード設定が完了している</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">21</span>
+        <span>YouTube配信URLが設定されている（配信がある場合）</span>
+      </li>
+      <li onclick="toggleItem(this)">
+        <input type="checkbox">
+        <span class="item-num">22</span>
+        <span>協会担当者に管理画面URLを共有済み</span>
+      </li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>ボート競技 速報サイト 管理者向けドキュメント</p>
+    <p style="margin-top:6px"><a href="../admin/9922/index.html" style="color:var(--green);">← 管理画面に戻る</a></p>
+  </footer>
+
+</div>
+
+<script>
+  const TOTAL = 22;
+
+  function toggleItem(li) {
+    // チェックボックス自体のクリックは二重発火しないよう制御
+    const cb = li.querySelector('input[type="checkbox"]');
+    if (event.target !== cb) {
+      cb.checked = !cb.checked;
+    }
+    li.classList.toggle('done', cb.checked);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const checked = document.querySelectorAll('.checklist input[type="checkbox"]:checked').length;
+    document.getElementById('progress-count').textContent = checked;
+    const pct = Math.round((checked / TOTAL) * 100);
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  // 各チェックボックスの直接クリックにも対応
+  document.querySelectorAll('.checklist input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('li').classList.toggle('done', cb.checked);
+      updateProgress();
+    });
+  });
+</script>
+</body>
+</html>
