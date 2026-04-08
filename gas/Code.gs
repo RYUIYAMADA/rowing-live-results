@@ -99,7 +99,7 @@ const CONFIG = {
 };
 
 // ============================================================
-// 1. メイントリガー関数（2分間隔で実行）
+// 1. メイントリガー関数（5分間隔で実行）
 // ============================================================
 
 /**
@@ -1123,7 +1123,7 @@ function setupAll() {
   Logger.log('=== セットアップ完了 ===');
   Logger.log('次のステップ:');
   Logger.log('1. トリガーを設定: setupTrigger() を実行するか、');
-  Logger.log('   編集 → トリガー → +追加 → onTrigger → 2分間隔 で手動設定');
+  Logger.log('   編集 → トリガー → +追加 → onTrigger → 5分間隔 で手動設定');
   Logger.log('2. master/ フォルダに schedule.csv, entries.csv をアップロード');
   Logger.log('3. importMasterData() を手動実行して data/master.json を生成');
 }
@@ -1294,7 +1294,7 @@ function deleteFromGitHub_(path) {
 }
 
 /**
- * onTrigger を2分間隔で自動実行するトリガーを設定する
+ * onTrigger を5分間隔で自動実行するトリガーを設定する
  * 既存のトリガーがある場合は重複して作成しない
  */
 function setupTrigger() {
