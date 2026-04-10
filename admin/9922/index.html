@@ -220,6 +220,148 @@
   .back-to-top { display: inline-block; font-size: 12px; color: var(--accent); text-decoration: none; margin-bottom: 12px; }
   .footer { text-align: center; font-size: 11px; color: var(--text-muted); padding: 24px 0 16px; border-top: 1px solid var(--border); margin-top: 32px; }
 
+  /* ===== 当日チェックリスト ===== */
+  .checklist-banner {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .checklist-banner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .checklist-banner-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+  .checklist-period {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: #F0EDE7;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .checklist-groups { display: flex; gap: 24px; flex-wrap: wrap; }
+  .checklist-group { flex: 1; min-width: 220px; }
+  .checklist-group-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checklist-item input[type=checkbox] {
+    margin-top: 2px;
+    accent-color: var(--accent);
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checklist-item label {
+    cursor: pointer;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .checklist-item.checked label {
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+  .checklist-item .item-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 1px;
+  }
+  .checklist-progress {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .checklist-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .checklist-progress-fill {
+    height: 100%;
+    background: var(--ok);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+  .checklist-progress-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .checklist-reset {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3px 10px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .checklist-reset:hover { color: var(--ng); border-color: var(--ng); }
+
+  /* チェックリスト フェーズ・ステップ */
+  .cl-phase { margin-bottom: 18px; }
+  .cl-phase-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 400;
+    padding: 6px 0 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .cl-steps { display: flex; flex-direction: column; gap: 4px; }
+  .cl-step { display: flex; align-items: flex-start; gap: 10px; }
+  .cl-step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .cl-step-body { flex: 1; }
+  /* ステップ番号 — チェック済みは緑に */
+  .cl-step-num.done { background: var(--ok); color: #fff; }
+
+  /* 非運用バッジ */
+  .badge-idle { background: #F0EDE7; color: var(--text-muted); border: 1px solid var(--border); }
+
   @media (max-width: 640px) {
     .site-header { padding: 0 16px; }
     .live-clock-time { font-size: 20px; }
@@ -254,6 +396,147 @@
 
 <div class="page">
 
+  <!-- ===== 当日チェックリスト ===== -->
+  <div class="checklist-banner" id="checklist-banner">
+    <div class="checklist-banner-header">
+      <div class="checklist-banner-title">📋 当日チェックリスト</div>
+      <div class="checklist-period" id="checklist-period"></div>
+    </div>
+
+    <!-- 前日まで -->
+    <div class="cl-phase">
+      <div class="cl-phase-label">前日まで</div>
+      <div class="cl-steps">
+        <div class="cl-step">
+          <div class="cl-step-num">1</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-master">
+              <input type="checkbox" id="c-master" onchange="onCheck(this)">
+              <label for="c-master">master.json が最新の大会情報になっている<span class="item-note">大会名・日程・エントリー・スケジュールを確認。変更があれば tools/init_tournament.py で再生成</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">2</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-site">
+              <input type="checkbox" id="c-site" onchange="onCheck(this)">
+              <label for="c-site">本番サイトに大会名・スケジュールが正しく表示されている<span class="item-note"><a href="https://rowing-live-results.pages.dev" target="_blank">rowing-live-results.pages.dev</a> をブラウザで開いて確認</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">3</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-drive">
+              <input type="checkbox" id="c-drive" onchange="onCheck(this)">
+              <label for="c-drive">Google Drive の CSV投入フォルダが空になっている<span class="item-note">race_csv/500m/ と race_csv/1000m/ に前回大会のファイルが残っていないか確認</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 当日 開会前 -->
+    <div class="cl-phase">
+      <div class="cl-phase-label">当日 — 開会前</div>
+      <div class="cl-steps">
+        <div class="cl-step">
+          <div class="cl-step-num">4</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-gas-trigger">
+              <input type="checkbox" id="c-gas-trigger" onchange="onCheck(this)">
+              <label for="c-gas-trigger">GAS のトリガーを有効にした<span class="item-note"><a href="https://script.google.com" target="_blank">script.google.com</a> → プロジェクトを開く → 左メニュー「トリガー」→ onTrigger が5分間隔で設定されているか確認。なければ追加</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">5</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-gas-ok">
+              <input type="checkbox" id="c-gas-ok" onchange="onCheck(this)">
+              <label for="c-gas-ok">このページの「③ CSV自動アップロード監視」が緑の「正常」になっている<span class="item-note">トリガー有効化後 最大8分で正常表示になる。8分以上経っても「要確認」の場合はGASのトリガー設定を再確認</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">6</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-staff">
+              <input type="checkbox" id="c-staff" onchange="onCheck(this)">
+              <label for="c-staff">計測スタッフに CSV アップロード手順を共有した<span class="item-note"><a href="https://rowing-live-results.pages.dev/docs/day-manual.html" target="_blank">当日担当者マニュアル</a> のURLをLINE等で送付。スタッフがDriveにアクセスできるか事前確認も推奨</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">7</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-test-csv">
+              <input type="checkbox" id="c-test-csv" onchange="onCheck(this)">
+              <label for="c-test-csv">（任意）テスト CSV でパイプライン疎通を確認した<span class="item-note">test/csv/ のサンプルCSVをDriveに投入 → 5分以内にサイトが更新されるか確認 → 確認後は race_XXX.json を削除しておく</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 競技中 -->
+    <div class="cl-phase">
+      <div class="cl-phase-label">競技中</div>
+      <div class="cl-steps">
+        <div class="cl-step">
+          <div class="cl-step-num">8</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-monitor">
+              <input type="checkbox" id="c-monitor" onchange="onCheck(this)">
+              <label for="c-monitor">レース終了後 5〜6 分以内にサイトへ反映されることを定期確認している<span class="item-note">このページの「③ CSV自動アップロード監視」が常に緑か確認。「要確認」になったらGASトリガーを再起動</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 大会終了後 -->
+    <div class="cl-phase">
+      <div class="cl-phase-label">大会終了後</div>
+      <div class="cl-steps">
+        <div class="cl-step">
+          <div class="cl-step-num">9</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-all-done">
+              <input type="checkbox" id="c-all-done" onchange="onCheck(this)">
+              <label for="c-all-done">全レースがサイトに公開されているか確認した<span class="item-note">このページの「② レース 日別タイムライン」で全件「サイト公開済み」になっているか確認</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">10</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-gas-off">
+              <input type="checkbox" id="c-gas-off" onchange="onCheck(this)">
+              <label for="c-gas-off">GAS のトリガーを停止した<span class="item-note"><a href="https://script.google.com" target="_blank">script.google.com</a> → トリガー → onTrigger の右メニュー「削除」または「無効化」。GASの実行時間は90分/日の上限があるため不要な稼働は止める</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="cl-step">
+          <div class="cl-step-num">11</div>
+          <div class="cl-step-body">
+            <div class="checklist-item" id="ci-csv-clean">
+              <input type="checkbox" id="c-csv-clean" onchange="onCheck(this)">
+              <label for="c-csv-clean">（任意）Drive の race_csv/ フォルダを整理した<span class="item-note">GASが自動で processed/ に移動済みのはずだが、念のため race_csv/500m・1000m/ が空になっているか確認</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist-progress">
+      <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="cl-bar" style="width:0%"></div></div>
+      <div class="checklist-progress-text" id="cl-text">0 / 11 完了</div>
+      <button class="checklist-reset" onclick="resetChecklist()">リセット</button>
+    </div>
+  </div>
+
   <!-- ===== インデックス ===== -->
   <nav class="toc">
     <div class="toc-title">INDEX</div>
@@ -286,7 +569,7 @@
         <div class="summary-card-value" id="st-races"><span class="spinner"></span></div>
       </div>
       <div class="summary-card">
-        <div class="summary-card-label">結果確定</div>
+        <div class="summary-card-label">サイト公開済みレース</div>
         <div class="summary-card-value" id="st-done"><span class="spinner"></span></div>
         <div class="summary-card-sub" id="st-pct"></div>
       </div>
@@ -507,11 +790,12 @@ async function loadAll() {
   document.getElementById('st-done').textContent = `${doneCount} / ${schedule.length}`;
   document.getElementById('st-pct').textContent  = `進捗 ${pct}%`;
   document.getElementById('last-check').textContent = `最終確認: ${new Date().toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})}`;
-  document.getElementById('races-summary').textContent = `確定 ${doneCount} / ${schedule.length} レース`;
+  document.getElementById('races-summary').textContent = `サイト公開済み ${doneCount} / ${schedule.length} レース`;
 
   // 描画
   renderTimelineDayTabs(schedule);
   renderPipeline();
+  initChecklist();
   updateCurrentRaceBanner();
 }
 
@@ -598,12 +882,12 @@ function renderTimeline(schedule, date) {
     const round = ROUND_NAMES[race.round] || race.round || '';
 
     let badge;
-    if (isDone)       badge = `<span class="badge badge-ok"><span class="dot dot-ok"></span>確定</span>`;
+    if (isDone)        badge = `<span class="badge badge-ok"><span class="dot dot-ok"></span>サイト公開済み</span>`;
     else if (isActive) badge = `<span class="badge badge-ng"><span class="dot dot-ng"></span>進行中</span>`;
-    else               badge = `<span class="badge badge-none"><span class="dot dot-none"></span>未実施</span>`;
+    else               badge = `<span class="badge badge-none"><span class="dot dot-none"></span>サイト未掲載</span>`;
 
     const updatedRow = result?.updated_at
-      ? `<div class="tl-updated">✓ ${fmtDateTime(result.updated_at)} 更新</div>` : '';
+      ? `<div class="tl-updated">✓ サイトに反映: ${fmtDateTime(result.updated_at)}（${timeAgo(result.updated_at)}）</div>` : '';
 
     return `<div class="tl-item">
       <div class="tl-dot ${state}"></div>
@@ -621,15 +905,107 @@ function renderTimeline(schedule, date) {
   }).join('') + '</div>';
 }
 
+/* ===== 大会期間判定 ===== */
+function getTournamentPeriodStatus() {
+  // master.json の tournament.dates から開催期間を判定
+  // 戻り値: 'before' | 'active' | 'after' | 'unknown'
+  const dates = masterData?.tournament?.dates;
+  if (!dates || !dates.length) return 'unknown';
+  const nowJST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const todayStr = nowJST.toISOString().slice(0, 10); // YYYY-MM-DD
+  const sorted = [...dates].sort();
+  const first = sorted[0];
+  const last  = sorted[sorted.length - 1];
+  if (todayStr < first) return 'before';
+  if (todayStr > last)  return 'after';
+  return 'active';
+}
+
+/* ===== チェックリスト ===== */
+const CL_KEY = 'admin_checklist';
+function loadChecklist() {
+  try { return JSON.parse(localStorage.getItem(CL_KEY) || '{}'); } catch(_) { return {}; }
+}
+function saveChecklist(state) {
+  localStorage.setItem(CL_KEY, JSON.stringify(state));
+}
+function updateStepNum(item) {
+  // checklist-item の親 cl-step-body → cl-step → cl-step-num を更新
+  const num = item?.closest('.cl-step')?.querySelector('.cl-step-num');
+  if (num) num.classList.toggle('done', item.classList.contains('checked'));
+}
+function onCheck(cb) {
+  const state = loadChecklist();
+  state[cb.id] = cb.checked;
+  saveChecklist(state);
+  const item = cb.closest('.checklist-item');
+  if (item) {
+    item.classList.toggle('checked', cb.checked);
+    updateStepNum(item);
+  }
+  updateChecklistProgress();
+}
+function resetChecklist() {
+  if (!confirm('チェックリストをリセットしますか？')) return;
+  localStorage.removeItem(CL_KEY);
+  document.querySelectorAll('.checklist-item input[type=checkbox]').forEach(cb => {
+    cb.checked = false;
+    const item = cb.closest('.checklist-item');
+    item?.classList.remove('checked');
+    updateStepNum(item);
+  });
+  updateChecklistProgress();
+}
+function updateChecklistProgress() {
+  const all  = document.querySelectorAll('.checklist-item input[type=checkbox]');
+  const done = document.querySelectorAll('.checklist-item input[type=checkbox]:checked');
+  const pct  = all.length ? Math.round(done.length / all.length * 100) : 0;
+  document.getElementById('cl-bar').style.width  = pct + '%';
+  document.getElementById('cl-text').textContent = `${done.length} / ${all.length} 完了`;
+}
+function initChecklist() {
+  const state = loadChecklist();
+  document.querySelectorAll('.checklist-item input[type=checkbox]').forEach(cb => {
+    if (state[cb.id]) {
+      cb.checked = true;
+      const item = cb.closest('.checklist-item');
+      item?.classList.add('checked');
+      updateStepNum(item);
+    }
+  });
+  // 大会期間ラベル
+  const dates = masterData?.tournament?.dates;
+  const period = document.getElementById('checklist-period');
+  if (dates && dates.length) {
+    const [first, ...rest] = [...dates].sort();
+    const last = rest.length ? rest[rest.length-1] : first;
+    const fmt = d => { const [,m,day]=d.split('-'); return `${parseInt(m)}/${parseInt(day)}`; };
+    const ps = getTournamentPeriodStatus();
+    const label = ps==='active' ? '🔴 開催中' : ps==='before' ? '📅 開催前' : ps==='after' ? '✅ 終了' : '';
+    period.textContent = `大会: ${fmt(first)}${first!==last?'〜'+fmt(last):''} ${label}`;
+  }
+  updateChecklistProgress();
+}
+
 /* ===== パイプライン ===== */
 function renderPipeline() {
   // last_trigger_at = 定期トリガーの最終実行時刻（5分ごとに自動更新）
   // generated_at    = importMasterData() 手動実行時のみ更新
   const triggerAt = masterData?.last_trigger_at;
   const diffMin = triggerAt ? (Date.now()-new Date(triggerAt))/60000 : Infinity;
+  const periodStatus = getTournamentPeriodStatus(); // 'before' | 'active' | 'after' | 'unknown'
+  const isOperating = periodStatus === 'active'; // 開催中のみ稼働が必要
 
   let gasStatus, gasDesc;
-  if (!triggerAt) {
+  if (periodStatus !== 'active') {
+    // 大会期間外 → 非運用期間（GASが止まっていても問題なし）
+    gasStatus = 'idle';
+    if (!triggerAt) {
+      gasDesc = '非運用期間 — 大会当日にGASトリガーを有効にしてください';
+    } else {
+      gasDesc = `最終実行: ${fmtDateTime(triggerAt)}（${timeAgo(triggerAt)}）— 非運用期間のため停止中（正常）`;
+    }
+  } else if (!triggerAt) {
     gasStatus = 'warn';
     gasDesc = '定期実行記録なし — GASでonTrigger()を一度実行してください';
   } else if (diffMin <= 8) {
@@ -643,16 +1019,23 @@ function renderPipeline() {
     gasDesc = `定期実行: ${fmtDateTime(triggerAt)}（${timeAgo(triggerAt)}）— ${Math.floor(diffMin)}分停止中、GASトリガーを確認してください`;
   }
 
+  // GitHub・Cloudflare のバッジ: 非運用期間なら「非運用期間」、運用中はGAS稼働状況に連動
+  function pipelineBadge(activeOk, activeWarn) {
+    if (periodStatus !== 'active') return 'idle';
+    return diffMin <= 20 ? activeOk : activeWarn;
+  }
+
   const bMap = {
-    ok:  `<span class="badge badge-ok"><span class="dot dot-ok"></span>正常</span>`,
-    warn:`<span class="badge badge-warn"><span class="dot dot-warn"></span>確認推奨</span>`,
-    ng:  `<span class="badge badge-ng"><span class="dot dot-ng"></span>要確認</span>`,
+    ok:   `<span class="badge badge-ok"><span class="dot dot-ok"></span>正常</span>`,
+    warn: `<span class="badge badge-warn"><span class="dot dot-warn"></span>確認推奨</span>`,
+    ng:   `<span class="badge badge-ng"><span class="dot dot-ng"></span>要確認</span>`,
+    idle: `<span class="badge badge-idle"><span class="dot dot-none"></span>非運用期間</span>`,
   };
   const steps = [
-    { icon:'📁', title:'Google Drive — CSV投入', desc:'race_csv/500m/ および 1000m/ にCSVをアップロード', badge:'ok', note:'計測スタッフが手動アップ' },
+    { icon:'📁', title:'Google Drive — CSV投入', desc:'race_csv/500m/ および 1000m/ にCSVをアップロード', badge: periodStatus==='active' ? 'ok' : 'idle', note:'計測スタッフが手動アップ' },
     { icon:'⚙️', title:'GAS — CSV監視・JSON変換', desc:gasDesc, badge:gasStatus, note:'5分間隔で自動実行' },
-    { icon:'🐙', title:'GitHub — JSON Push', desc:'master.json / race_XXX.json を自動Push', badge:diffMin<=20?'ok':'ng', note:'GAS経由で自動更新' },
-    { icon:'☁️', title:'Cloudflare Pages — デプロイ', desc:'GitHubのPushを検知して約1分でデプロイ完了', badge:diffMin<=20?'ok':'warn', note:'自動デプロイ' },
+    { icon:'🐙', title:'GitHub — JSON Push', desc:'master.json / race_XXX.json を自動Push', badge:pipelineBadge('ok','ng'), note:'GAS経由で自動更新' },
+    { icon:'☁️', title:'Cloudflare Pages — デプロイ', desc:'GitHubのPushを検知して約1分でデプロイ完了', badge:pipelineBadge('ok','warn'), note:'自動デプロイ' },
     { icon:'🌐', title:'サイト公開', desc:'https://rowing-live-results.pages.dev', badge:'ok', note:'閲覧者がリアルタイム確認' },
   ];
   document.getElementById('pipeline').innerHTML = steps.map((s,i) =>
