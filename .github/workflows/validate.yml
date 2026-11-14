@@ -1,14 +1,9 @@
+# 2026-11-15 直近3回失敗のため手動実行だけに。理由: 検証が失敗し続けている休眠リポ（大会終了後・最終更新から長期間）。必要な時に手動で実行
 name: JSONバリデーション
 
 on:
-  push:
-    paths:
-      - 'data/results/**.json'
-      - 'data/master.json'
-  pull_request:
-    paths:
-      - 'data/results/**.json'
-      - 'data/master.json'
+  workflow_dispatch:
+
 
 jobs:
   validate:
